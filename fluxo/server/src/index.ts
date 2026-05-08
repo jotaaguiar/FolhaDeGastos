@@ -23,10 +23,14 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
+// Support multiple origins (comma-separated in env)
+const corsOrigins = CORS_ORIGIN.split(',').map(o => o.trim());
+
 app.use(cors({
-  origin: CORS_ORIGIN,
+  origin: corsOrigins.length > 1 ? corsOrigins : corsOrigins[0],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 app.use(express.json());
 
