@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Wallet, CreditCard, TrendingUp,
-  PiggyBank, Target, Settings, Radar as RadarIcon, LogOut
+  PiggyBank, Target, Settings, Radar as RadarIcon, LogOut,
+  Upload, BarChart3
 } from 'lucide-react';
 import ScoreRing from '@/components/shared/ScoreRing';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -16,6 +17,8 @@ const navItems = [
   { to: '/orcamento', label: 'Orçamento', icon: PiggyBank },
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/radar', label: 'Radar Futuro', icon: RadarIcon },
+  { to: '/comparativo', label: 'Comparativo', icon: BarChart3 },
+  { to: '/importacao', label: 'Importar', icon: Upload },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 

@@ -59,6 +59,7 @@ export interface Transacao {
     valorTotal: number;
   };
   observacao?: string;
+  tags?: string[];
   criadoEm: string;
 }
 
@@ -125,6 +126,15 @@ export interface Config {
   reservaInvestimento: number;
   radarPeriodo: number;
   taxaJurosCartoesGlobal: number; // % ao mês padrão para todos os cartões (ex: 15)
+}
+
+export interface CategoriaCustom {
+  id: string;
+  nome: string;
+  label: string;
+  cor: string;
+  icone: string;
+  criadoEm: string;
 }
 
 export interface Alerta {

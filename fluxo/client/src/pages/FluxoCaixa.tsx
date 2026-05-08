@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import BotaoBaixarPDF from '@/components/shared/BotaoBaixarPDF';
 import { useTransacoes } from '@/hooks/useTransacoes';
 import { useContas } from '@/hooks/useContas';
 import { useCartoes } from '@/hooks/useCartoes';
@@ -118,12 +119,15 @@ export default function FluxoCaixa() {
           </button>
         </div>
 
-        <button
-          onClick={() => { setEditingTx(null); setModalTx(true); }}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={16} /> Nova Transação
-        </button>
+        <div className="flex items-center gap-2">
+          <BotaoBaixarPDF mes={mesAtual} ano={anoAtual} />
+          <button
+            onClick={() => { setEditingTx(null); setModalTx(true); }}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus size={16} /> Nova Transação
+          </button>
+        </div>
       </div>
 
       {tab === 'fluxo' ? (

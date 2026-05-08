@@ -63,6 +63,11 @@ export default function TransacaoRow({ transacao, cartoes, contas, onDelete, onE
                 <Repeat size={8} className="mr-0.5" /> Recorrente
               </span>
             )}
+            {t.tags?.map(tag => (
+              <span key={tag} className="badge text-[10px] bg-brand-primary/10 text-brand-primary">
+                #{tag}
+              </span>
+            ))}
           </div>
         </div>
 

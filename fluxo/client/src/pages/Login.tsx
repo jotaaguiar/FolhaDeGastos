@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
@@ -128,18 +128,23 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-5 pt-5 border-t border-white/[0.07] text-center">
+          <div className="mt-5 pt-5 border-t border-white/[0.07] text-center space-y-2">
             {mode === 'login' ? (
-              <p className="text-sm text-muted">
-                Não tem uma conta?{' '}
-                <button
-                  type="button"
-                  onClick={() => { setMode('register'); setError(''); }}
-                  className="text-brand-primary hover:underline font-medium"
-                >
-                  Criar conta
-                </button>
-              </p>
+              <>
+                <p className="text-sm text-muted">
+                  Não tem uma conta?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setMode('register'); setError(''); }}
+                    className="text-brand-primary hover:underline font-medium"
+                  >
+                    Criar conta
+                  </button>
+                </p>
+                <Link to="/esqueci-senha" className="text-xs text-muted hover:text-white transition-colors block">
+                  Esqueci minha senha
+                </Link>
+              </>
             ) : (
               <p className="text-sm text-muted">
                 Já tem uma conta?{' '}

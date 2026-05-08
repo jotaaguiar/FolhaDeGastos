@@ -12,6 +12,10 @@ import Orcamento from './pages/Orcamento';
 import Metas from './pages/Metas';
 import Radar from './pages/Radar';
 import Configuracoes from './pages/Configuracoes';
+import Importacao from './pages/Importacao';
+import Comparativo from './pages/Comparativo';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Login from './pages/Login';
 import { useAuth } from './context/AuthContext';
 
@@ -57,6 +61,14 @@ export const router = createBrowserRouter([
     element: <LoginRoute />,
   },
   {
+    path: '/esqueci-senha',
+    element: <ForgotPassword />,
+  },
+  {
+    path: '/reset-senha',
+    element: <ResetPassword />,
+  },
+  {
     path: '/',
     element: <ProtectedRoute><Layout /></ProtectedRoute>,
     children: [
@@ -71,6 +83,8 @@ export const router = createBrowserRouter([
       { path: 'metas', element: <Metas /> },
       { path: 'radar', element: <Radar /> },
       { path: 'configuracoes', element: <Configuracoes /> },
+      { path: 'importacao', element: <Importacao /> },
+      { path: 'comparativo', element: <Comparativo /> },
     ],
   },
 ]);

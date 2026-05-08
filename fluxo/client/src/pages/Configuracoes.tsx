@@ -4,14 +4,22 @@ import { useAlert } from '@/context/AlertContext';
 import { useConfirm } from '@/context/ConfirmContext';
 import { useCartoes } from '@/hooks/useCartoes';
 import { api } from '@/lib/api';
-import { Settings, Download, Upload, Trash2, Info, FileSpreadsheet, CreditCard, Percent } from 'lucide-react';
+import { Settings, Download, Upload, Trash2, Info, FileSpreadsheet, CreditCard, Percent, Plus, X, Layers, Mail } from 'lucide-react';
 import type { Cartao } from '@/types';
+import { useCategorias } from '@/hooks/useCategorias';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Configuracoes() {
   const { config, atualizarConfig } = useApp();
   const { addToast } = useAlert();
   const { confirm } = useConfirm();
   const { cartoes, update: updateCartao } = useCartoes();
+  const { user } = useAuth();
+  const { custom: customCats, create: createCat, remove: removeCat } = useCategorias();
+  const [novaCatLabel, setNovaCatLabel] = useState('');
+  const [novaCatCor, setNovaCatCor] = useState('#6366f1');
+  const [novaCatIcone, setNovaCatIcone] = useState('📂');
+  const [email, setEmail] = useState('');
   const [nome, setNome] = useState(config?.nomeUsuario || '');
   const [limite, setLimite] = useState(config?.limiteDiarioPadrao?.toString() || '150');
   const [limiteDinamico, setLimiteDinamico] = useState(config?.limiteDinamico ?? false);
@@ -214,6 +222,39 @@ export default function Configuracoes() {
         </div>
       </div>
 
+      {/* E-mail */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-4">
+          <Mail size={18} className="text-brand-primary" />
+          <h3 className="text-lg font-bold">E-mail & Segurança</h3>
+        </div>
+        <div className="space-y-3">
+          <p className="text-xs text-muted">Cadastre seu e-mail para recuperação de senha.</p>
+          <div className="flex gap-2">
+            <input
+              className="input-dark flex-1"
+              type="email"
+              placeholder={`E-mail atual: ${user?.email || 'não cadastrado'}`}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+            <button
+              onClick={async () => {
+                if (!email.trim()) return;
+                try {
+                  await api.updateEmail(email.trim());
+                  addToast('success', 'E-mail atualizado!');
+                  setEmail('');
+                } catch { addToast('error', 'Erro ao atualizar e-mail'); }
+              }}
+              className="btn-primary"
+            >
+              Salvar
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Cartões — Juros */}
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
@@ -281,6 +322,71 @@ export default function Configuracoes() {
           )}
 
           <button onClick={salvar} className="btn-primary w-full">Salvar Configurações de Cartões</button>
+        </div>
+      </div>
+
+      {/* Categorias */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-4">
+          <Layers size={18} className="text-brand-primary" />
+          <h3 className="text-lg font-bold">Categorias Personalizadas</h3>
+        </div>
+        <div className="space-y-3">
+          {customCats.length === 0 && (
+            <p className="text-xs text-muted">Nenhuma categoria personalizada criada ainda.</p>
+          )}
+          {customCats.map(c => (
+            <div key={c.id} className="flex items-center justify-between p-3 rounded-xl bg-s2 border border-white/[0.05]">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{c.icone}</span>
+                <div className="w-3 h-3 rounded-full" style={{ background: c.cor }} />
+                <span className="text-sm font-medium">{c.label}</span>
+                <span className="text-[10px] text-muted font-mono">({c.nome})</span>
+              </div>
+              <button onClick={() => removeCat(c.id)} className="text-muted hover:text-fluxo-red transition-colors">
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+          <div className="flex gap-2 mt-3 pt-3 border-t border-white/[0.05]">
+            <input
+              className="input-dark w-8 h-9 text-center p-1"
+              value={novaCatIcone}
+              onChange={e => setNovaCatIcone(e.target.value)}
+              placeholder="📂"
+              maxLength={2}
+            />
+            <input
+              className="input-dark flex-1"
+              placeholder="Nome da categoria"
+              value={novaCatLabel}
+              onChange={e => setNovaCatLabel(e.target.value)}
+              onKeyDown={async e => {
+                if (e.key === 'Enter' && novaCatLabel.trim()) {
+                  try {
+                    await createCat({ label: novaCatLabel.trim(), cor: novaCatCor, icone: novaCatIcone });
+                    setNovaCatLabel(''); setNovaCatIcone('📂');
+                    addToast('success', 'Categoria criada!');
+                  } catch { addToast('error', 'Erro ao criar categoria'); }
+                }
+              }}
+            />
+            <input type="color" value={novaCatCor} onChange={e => setNovaCatCor(e.target.value)}
+              className="w-10 h-9 rounded-lg border border-white/[0.07] cursor-pointer bg-transparent p-1" />
+            <button
+              onClick={async () => {
+                if (!novaCatLabel.trim()) return;
+                try {
+                  await createCat({ label: novaCatLabel.trim(), cor: novaCatCor, icone: novaCatIcone });
+                  setNovaCatLabel(''); setNovaCatIcone('📂');
+                  addToast('success', 'Categoria criada!');
+                } catch { addToast('error', 'Erro ao criar categoria'); }
+              }}
+              className="btn-primary flex items-center gap-1.5"
+            >
+              <Plus size={14} /> Adicionar
+            </button>
+          </div>
         </div>
       </div>
 
