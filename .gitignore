@@ -1,2 +1,35 @@
-/.claude
-/FLUXO_DOCS.md
+# Dependencies
+node_modules/
+fluxo/node_modules/
+fluxo/client/node_modules/
+fluxo/server/node_modules/
+
+# Build outputs
+dist/
+fluxo/client/dist/
+fluxo/server/dist/
+build/
+
+# Environment variables
+.env
+fluxo/server/.env
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation (as requested)
+FLUXO_DOCS.md
+/.claude/
+
+# Editor/System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# App Data (Local database/JSONs - optional, but often ignored if sensitive)
+# fluxo/data/*.json

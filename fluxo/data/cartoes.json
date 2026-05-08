@@ -28,7 +28,7 @@
     "nome": "C6 Bank",
     "banco": "C6",
     "bandeira": "Mastercard",
-    "ultimos4": "2290",
+    "ulflutimos4": "2290",
     "limite": 3000,
     "diaVencimento": 8,
     "diaFechamento": 1,
