@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import { prisma } from '../services/db.js';
 import { signToken, hashPassword, verifyToken } from '../middleware/auth.js';
-import { seedIfEmpty } from '../services/seed.js';
 
 const router = Router();
 
@@ -49,7 +48,6 @@ router.post('/register', async (req: Request, res: Response) => {
       criadoEm: new Date().toISOString(),
     },
   });
-  await seedIfEmpty(newUser.id);
   const token = signToken(newUser.id);
   res.status(201).json({ token, user: { id: newUser.id, username: newUser.username } });
 });
