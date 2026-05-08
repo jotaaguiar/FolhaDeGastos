@@ -66,6 +66,11 @@ router.get('/', async (req: Request, res: Response) => {
     transacoes = transacoes.filter(t => t.tipo === tipo);
   }
 
+  const { tag } = req.query;
+  if (tag) {
+    transacoes = transacoes.filter(t => t.tags?.includes(tag as string));
+  }
+
   // Sort by date descending
   transacoes.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
@@ -90,6 +95,7 @@ router.post('/', async (req: Request, res: Response) => {
     recorrenciaId: req.body.recorrenciaId,
     parcelamento: req.body.parcelamento,
     observacao: req.body.observacao,
+    tags: req.body.tags || [],
     criadoEm: new Date().toISOString(),
   };
 
@@ -185,6 +191,14 @@ router.post('/parcelamento', async (req: Request, res: Response) => {
 
   await writeFile(userId, 'transacoes.json', transacoes);
   res.status(201).json({ ok: true, criadas: criadas.length, grupoId, parcelas: criadas });
+});
+
+// GET /tags — all unique tags used across transactions
+router.get('/tags', async (req: Request, res: Response) => {
+  const userId = (req as any).userId;
+  const transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
+  const tags = [...new Set(transacoes.flatMap(t => t.tags || []))].sort();
+  res.json(tags);
 });
 
 export default router;

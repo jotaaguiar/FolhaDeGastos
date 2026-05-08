@@ -14,15 +14,23 @@ import orcamentoRouter from './routes/orcamento.js';
 import metasRouter from './routes/metas.js';
 import dashboardRouter from './routes/dashboard.js';
 import configRouter from './routes/config.js';
+import categoriasRouter from './routes/categorias.js';
+import importacaoRouter from './routes/importacao.js';
+import comparativoRouter from './routes/comparativo.js';
+import relatoriosRouter from './routes/relatorios.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
+// Support multiple origins (comma-separated in env)
+const corsOrigins = CORS_ORIGIN.split(',').map(o => o.trim());
+
 app.use(cors({
-  origin: CORS_ORIGIN,
+  origin: corsOrigins.length > 1 ? corsOrigins : corsOrigins[0],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 app.use(express.json());
 
@@ -40,6 +48,10 @@ app.use('/api/orcamento', authMiddleware, orcamentoRouter);
 app.use('/api/metas', authMiddleware, metasRouter);
 app.use('/api/dashboard', authMiddleware, dashboardRouter);
 app.use('/api/config', authMiddleware, configRouter);
+app.use('/api/categorias', authMiddleware, categoriasRouter);
+app.use('/api/importacao', authMiddleware, importacaoRouter);
+app.use('/api/comparativo', authMiddleware, comparativoRouter);
+app.use('/api/relatorios', authMiddleware, relatoriosRouter);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: `Rota ${req.method} ${req.path} não encontrada` });

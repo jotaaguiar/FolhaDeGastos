@@ -55,6 +55,7 @@ export interface Transacao {
     valorTotal: number;
   };
   observacao?: string;
+  tags?: string[];
   criadoEm: string;
 }
 
@@ -121,6 +122,15 @@ export interface Config {
   reservaInvestimento: number;
   radarPeriodo: number;
   taxaJurosCartoesGlobal: number;
+}
+
+export interface CategoriaCustom {
+  id: string;
+  nome: string;
+  label: string;
+  cor: string;
+  icone: string;
+  criadoEm: string;
 }
 
 export interface Alerta {

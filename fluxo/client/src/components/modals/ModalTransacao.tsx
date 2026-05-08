@@ -1,16 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Conta, Cartao, Categoria } from '@/types';
+import TagInput from '@/components/shared/TagInput';
+import CategoriaSelect from '@/components/shared/CategoriaSelect';
+import { api } from '@/lib/api';
 
-const categorias: { value: Categoria; label: string }[] = [
-  { value: 'moradia', label: 'Moradia' }, { value: 'alimentacao', label: 'Alimentação' },
-  { value: 'transporte', label: 'Transporte' }, { value: 'saude', label: 'Saúde' },
-  { value: 'educacao', label: 'Educação' }, { value: 'lazer', label: 'Lazer' },
-  { value: 'assinaturas', label: 'Assinaturas' }, { value: 'vestuario', label: 'Vestuário' },
-  { value: 'viagem', label: 'Viagem' }, { value: 'investimento', label: 'Investimento' },
-  { value: 'outros', label: 'Outros' }, { value: 'entrada_salario', label: 'Salário' },
-  { value: 'entrada_freelance', label: 'Freelance' }, { value: 'entrada_outros', label: 'Outras Entradas' },
-];
 
 interface ModalTransacaoProps {
   open: boolean;
@@ -29,7 +23,13 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
     contaId: contas[0]?.id || '',
     cartaoId: cartoes[0]?.id || '',
     observacao: '',
+    tags: [] as string[],
   });
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (open) api.getTags().then(setTagSuggestions).catch(() => {});
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -43,6 +43,7 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
         contaId: initialData.contaId || contas[0]?.id || '',
         cartaoId: initialData.cartaoId || cartoes[0]?.id || '',
         observacao: initialData.observacao || '',
+        tags: initialData.tags || [],
       });
     } else {
       setForm({
@@ -52,6 +53,7 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
         contaId: contas[0]?.id || '',
         cartaoId: cartoes[0]?.id || '',
         observacao: '',
+        tags: [],
       });
     }
   }, [initialData, open]);
@@ -68,6 +70,7 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
       cartaoId: form.tipo === 'credito_cartao' ? form.cartaoId : undefined,
       recorrente: initialData ? initialData.recorrente : false,
       observacao: form.observacao || undefined,
+      tags: form.tags.length > 0 ? form.tags : undefined,
     });
     onClose();
   };
@@ -95,10 +98,11 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
               <option value="credito_cartao">Crédito</option>
               <option value="entrada">Entrada</option>
             </select>
-            <select className="input-dark flex-1" value={form.categoria}
-              onChange={e => setForm(f => ({ ...f, categoria: e.target.value as Categoria }))}>
-              {categorias.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
+            <CategoriaSelect
+              className="flex-1"
+              value={form.categoria}
+              onChange={v => setForm(f => ({ ...f, categoria: v as Categoria }))}
+            />
           </div>
           {form.tipo !== 'credito_cartao' ? (
             <select className="input-dark w-full" value={form.contaId}
@@ -111,6 +115,12 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
               {cartoes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
             </select>
           )}
+          <TagInput
+            tags={form.tags}
+            onChange={tags => setForm(f => ({ ...f, tags }))}
+            suggestions={tagSuggestions}
+            placeholder="Tags (ex: viagem, agosto...)"
+          />
           <textarea className="input-dark w-full" rows={2} placeholder="Observação (opcional)"
             value={form.observacao} onChange={e => setForm(f => ({ ...f, observacao: e.target.value }))} />
         </div>

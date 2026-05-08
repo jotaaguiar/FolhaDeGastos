@@ -9,6 +9,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    'process.env.VITE_API_BASE': JSON.stringify(process.env.VITE_API_BASE || ''),
+  },
   server: {
     proxy: {
       '/api': {
