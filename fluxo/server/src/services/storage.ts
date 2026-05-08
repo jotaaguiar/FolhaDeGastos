@@ -18,7 +18,7 @@ export async function readFile<T>(userId: string, key: string, defaultValue: T):
 
 export async function fileExists(userId: string, key: string): Promise<boolean> {
   const count = await prisma.userStore.count({
-    where: { userId_key: { userId, key } },
+    where: { userId, key },
   });
   return count > 0;
 }
