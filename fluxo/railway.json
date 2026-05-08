@@ -1,0 +1,6 @@
+{
+  "builder": "nixpacks",
+  "buildCommand": "cd fluxo/server && npm install && npm run build",
+  "startCommand": "cd fluxo/server && npm start",
+  "rootDirectory": "fluxo/server"
+}
