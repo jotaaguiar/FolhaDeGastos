@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ─── DARK THEME (default) ─────────────────────────────── */
+  :root {
+    --bg-rgb: 8 8 16;
+    --surface-rgb: 15 15 26;
+    --s2-rgb: 22 22 42;
+    --s3-rgb: 30 30 53;
+    --muted-rgb: 107 104 144;
+    --muted2-rgb: 63 61 88;
+    --text-rgb: 236 234 255;
+
+    --green-rgb: 52 211 153;
+    --red-rgb: 251 113 133;
+    --amber-rgb: 251 191 36;
+    --blue-rgb: 96 165 250;
+    --purple-rgb: 167 139 250;
+    --teal-rgb: 45 212 191;
+    --pink-rgb: 244 114 182;
+
+    --brand-primary-rgb: 167 139 250;
+    --brand-glow: rgba(167, 139, 250, 0.15);
+
+    --text: rgb(236, 234, 255);
+    --border: rgba(255, 255, 255, 0.07);
+    --border2: rgba(255, 255, 255, 0.12);
+    --border-hover: rgba(255, 255, 255, 0.16);
+    --track-bg: rgba(255, 255, 255, 0.06);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+    --overlay-subtle: rgba(255, 255, 255, 0.03);
+    --overlay-hover: rgba(255, 255, 255, 0.06);
+    --modal-backdrop: rgba(0, 0, 0, 0.65);
+  }
+
+  /* ─── LIGHT THEME ──────────────────────────────────────── */
+  body.theme-claro {
+    --bg-rgb: 245 244 255;
+    --surface-rgb: 255 255 255;
+    --s2-rgb: 237 236 252;
+    --s3-rgb: 227 226 245;
+    --muted-rgb: 108 104 148;
+    --muted2-rgb: 185 183 210;
+    --text-rgb: 18 16 38;
+
+    --green-rgb: 5 150 105;
+    --red-rgb: 220 38 38;
+    --amber-rgb: 180 83 9;
+    --blue-rgb: 37 99 235;
+    --purple-rgb: 109 40 217;
+    --teal-rgb: 13 148 136;
+    --pink-rgb: 190 24 93;
+
+    --brand-primary-rgb: 109 40 217;
+    --brand-glow: rgba(109, 40, 217, 0.12);
+
+    --text: rgb(18, 16, 38);
+    --border: rgba(0, 0, 0, 0.09);
+    --border2: rgba(0, 0, 0, 0.15);
+    --border-hover: rgba(0, 0, 0, 0.2);
+    --track-bg: rgba(0, 0, 0, 0.07);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.12);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.22);
+    --overlay-subtle: rgba(0, 0, 0, 0.02);
+    --overlay-hover: rgba(0, 0, 0, 0.05);
+    --modal-backdrop: rgba(0, 0, 0, 0.45);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: rgb(var(--bg-rgb));
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* ─── LIGHT MODE: text overrides ───────────────────────── */
+  /* text-white → main dark text (except inside theme-preserve-text) */
+  body.theme-claro [class~="text-white"]:not(.theme-preserve-text *) {
+    color: rgb(var(--text-rgb)) !important;
+  }
+  body.theme-claro [class*="hover:text-white"]:hover:not(.theme-preserve-text *) {
+    color: rgb(var(--text-rgb)) !important;
+  }
+
+  /* border-white/X → dark borders */
+  body.theme-claro [class*="border-white"]:not(.theme-preserve-text *) {
+    border-color: var(--border) !important;
+  }
+
+  /* bg-white/X overlays → dark overlays */
+  body.theme-claro [class~="bg-white\\/5"]:not(.theme-preserve-text *),
+  body.theme-claro [class~="bg-white\\/10"]:not(.theme-preserve-text *),
+  body.theme-claro [class~="bg-white\\/\\[0\\.03\\]"]:not(.theme-preserve-text *),
+  body.theme-claro [class~="bg-white\\/\\[0\\.05\\]"]:not(.theme-preserve-text *) {
+    background-color: var(--overlay-subtle) !important;
+  }
+  body.theme-claro [class*="hover:bg-white"]:hover:not(.theme-preserve-text *) {
+    background-color: var(--overlay-hover) !important;
+  }
+
+  /* Modal backdrop */
+  body.theme-claro [class~="bg-black\\/60"] {
+    background-color: var(--modal-backdrop) !important;
+  }
+}
+
+@layer components {
+  .card {
+    background: rgb(var(--surface-rgb));
+    border: 1px solid var(--border);
+    @apply rounded-xl p-5 transition-all duration-200;
+  }
+  .card:hover {
+    border-color: var(--border2);
+  }
+
+  .card-glow-green  { box-shadow: 0 0 40px rgba(52, 211, 153, 0.08); }
+  .card-glow-red    { box-shadow: 0 0 40px rgba(251, 113, 133, 0.08); }
+  .card-glow-purple,
+  .card-glow-brand  { box-shadow: 0 0 40px var(--brand-glow); }
+  .card-glow-blue   { box-shadow: 0 0 40px rgba(96, 165, 250, 0.08); }
+  .card-glow-amber  { box-shadow: 0 0 40px rgba(251, 191, 36, 0.08); }
+  .card-glow-teal   { box-shadow: 0 0 40px rgba(45, 212, 191, 0.08); }
+
+  .label-mono {
+    @apply font-mono text-xs uppercase tracking-wider;
+    color: rgb(var(--muted-rgb));
+  }
+
+  .value-lg {
+    @apply font-sans text-2xl font-extrabold tracking-tight;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-mono font-medium;
+  }
+
+  .btn-primary {
+    background: rgb(var(--brand-primary-rgb));
+    color: white;
+    @apply font-semibold px-4 py-2 rounded-lg transition-all duration-200 active:scale-[0.97];
+  }
+  .btn-primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .btn-ghost {
+    color: rgb(var(--muted-rgb));
+    @apply px-3 py-2 rounded-lg transition-all duration-200;
+  }
+  .btn-ghost:hover {
+    color: var(--text);
+    background-color: var(--overlay-hover);
+  }
+
+  .input-dark {
+    background: rgb(var(--s2-rgb));
+    border: 1px solid var(--border);
+    color: var(--text);
+    @apply rounded-lg px-3 py-2 text-sm placeholder:text-muted focus:outline-none transition-all duration-200;
+  }
+  .input-dark:focus {
+    border-color: rgb(var(--brand-primary-rgb));
+    box-shadow: 0 0 0 1px rgb(var(--brand-primary-rgb));
+  }
+
+  /* Light-mode specific component overrides */
+  body.theme-claro .input-dark {
+    color: rgb(var(--text-rgb));
+  }
+  body.theme-claro .input-dark::placeholder {
+    color: rgb(var(--muted-rgb));
+  }
+  body.theme-claro select.input-dark option {
+    background: rgb(var(--surface-rgb));
+    color: rgb(var(--text-rgb));
+  }
+
+  .skeleton {
+    background: rgb(var(--s3-rgb));
+    @apply animate-pulse rounded;
+  }
+}

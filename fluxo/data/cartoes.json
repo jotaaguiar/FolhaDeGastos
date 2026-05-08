@@ -1,0 +1,38 @@
+[
+  {
+    "id": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "nome": "Nubank",
+    "banco": "Nubank",
+    "bandeira": "Mastercard",
+    "ultimos4": "4521",
+    "limite": 5000,
+    "diaVencimento": 10,
+    "diaFechamento": 3,
+    "cor": "#a78bfa",
+    "ativa": true
+  },
+  {
+    "id": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "nome": "Inter Gold",
+    "banco": "Inter",
+    "bandeira": "Visa",
+    "ultimos4": "7832",
+    "limite": 8000,
+    "diaVencimento": 15,
+    "diaFechamento": 8,
+    "cor": "#f97316",
+    "ativa": true
+  },
+  {
+    "id": "17c7843d-39aa-471b-ad03-96c577229100",
+    "nome": "C6 Bank",
+    "banco": "C6",
+    "bandeira": "Mastercard",
+    "ultimos4": "2290",
+    "limite": 3000,
+    "diaVencimento": 8,
+    "diaFechamento": 1,
+    "cor": "#374151",
+    "ativa": true
+  }
+]

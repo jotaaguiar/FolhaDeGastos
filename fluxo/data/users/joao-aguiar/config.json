@@ -1,0 +1,10 @@
+{
+  "nomeUsuario": "",
+  "moeda": "BRL",
+  "limiteDiarioPadrao": 150,
+  "limiteDinamico": false,
+  "tema": "escuro",
+  "reservaInvestimento": 0,
+  "radarPeriodo": 6,
+  "taxaJurosCartoesGlobal": 15
+}

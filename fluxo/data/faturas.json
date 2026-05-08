@@ -1,0 +1,152 @@
+[
+  {
+    "id": "fat-c7a4f78b-2026-03",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "mes": 3,
+    "ano": 2026,
+    "dataVencimento": "2026-03-10",
+    "dataFechamento": "2026-03-03",
+    "status": "paga",
+    "dataPagamento": "2026-03-10",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b"
+  },
+  {
+    "id": "fat-c7a4f78b-2026-04",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "mes": 4,
+    "ano": 2026,
+    "dataVencimento": "2026-04-10",
+    "dataFechamento": "2026-04-03",
+    "status": "paga",
+    "dataPagamento": "2026-04-10",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b"
+  },
+  {
+    "id": "fat-c7a4f78b-2026-05",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "mes": 5,
+    "ano": 2026,
+    "dataVencimento": "2026-05-10",
+    "dataFechamento": "2026-05-03",
+    "status": "paga",
+    "dataPagamento": "2026-05-07",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b",
+    "valorPago": 754.5
+  },
+  {
+    "id": "fat-c7a4f78b-2026-06",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "mes": 6,
+    "ano": 2026,
+    "dataVencimento": "2026-06-10",
+    "dataFechamento": "2026-06-03",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-23ac81d9-2026-03",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "mes": 3,
+    "ano": 2026,
+    "dataVencimento": "2026-03-15",
+    "dataFechamento": "2026-03-08",
+    "status": "paga",
+    "dataPagamento": "2026-03-15",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b"
+  },
+  {
+    "id": "fat-23ac81d9-2026-04",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "mes": 4,
+    "ano": 2026,
+    "dataVencimento": "2026-04-15",
+    "dataFechamento": "2026-04-08",
+    "status": "paga",
+    "dataPagamento": "2026-04-15",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b"
+  },
+  {
+    "id": "fat-23ac81d9-2026-05",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "mes": 5,
+    "ano": 2026,
+    "dataVencimento": "2026-05-15",
+    "dataFechamento": "2026-05-08",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-23ac81d9-2026-06",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "mes": 6,
+    "ano": 2026,
+    "dataVencimento": "2026-06-15",
+    "dataFechamento": "2026-06-08",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-17c7843d-2026-03",
+    "cartaoId": "17c7843d-39aa-471b-ad03-96c577229100",
+    "mes": 3,
+    "ano": 2026,
+    "dataVencimento": "2026-03-08",
+    "dataFechamento": "2026-03-01",
+    "status": "paga",
+    "dataPagamento": "2026-03-08",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b"
+  },
+  {
+    "id": "fat-17c7843d-2026-04",
+    "cartaoId": "17c7843d-39aa-471b-ad03-96c577229100",
+    "mes": 4,
+    "ano": 2026,
+    "dataVencimento": "2026-04-08",
+    "dataFechamento": "2026-04-01",
+    "status": "paga",
+    "dataPagamento": "2026-04-08",
+    "contaPagamentoId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b"
+  },
+  {
+    "id": "fat-17c7843d-2026-05",
+    "cartaoId": "17c7843d-39aa-471b-ad03-96c577229100",
+    "mes": 5,
+    "ano": 2026,
+    "dataVencimento": "2026-05-08",
+    "dataFechamento": "2026-05-01",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-17c7843d-2026-06",
+    "cartaoId": "17c7843d-39aa-471b-ad03-96c577229100",
+    "mes": 6,
+    "ano": 2026,
+    "dataVencimento": "2026-06-08",
+    "dataFechamento": "2026-06-01",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-c7a4f78b-2026-07",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "mes": 7,
+    "ano": 2026,
+    "dataVencimento": "2026-07-10",
+    "dataFechamento": "2026-07-03",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-23ac81d9-2026-07",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "mes": 7,
+    "ano": 2026,
+    "dataVencimento": "2026-07-15",
+    "dataFechamento": "2026-07-08",
+    "status": "aberta"
+  },
+  {
+    "id": "fat-17c7843d-2026-07",
+    "cartaoId": "17c7843d-39aa-471b-ad03-96c577229100",
+    "mes": 7,
+    "ano": 2026,
+    "dataVencimento": "2026-07-08",
+    "dataFechamento": "2026-07-01",
+    "status": "aberta"
+  }
+]

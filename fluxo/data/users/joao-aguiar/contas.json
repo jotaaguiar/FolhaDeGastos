@@ -1,0 +1,32 @@
+[
+  {
+    "id": "5fd3de15-e73f-4313-9b0b-a4d267bab14b",
+    "nome": "Nubank Conta",
+    "banco": "Nubank",
+    "tipo": "corrente",
+    "saldoInicial": 9768.15,
+    "cor": "#a78bfa",
+    "ativa": true,
+    "criadoEm": "2026-02-06"
+  },
+  {
+    "id": "37098973-252d-47ad-af73-88a1b77f7a27",
+    "nome": "Inter",
+    "banco": "Inter",
+    "tipo": "corrente",
+    "saldoInicial": 1850,
+    "cor": "#f97316",
+    "ativa": true,
+    "criadoEm": "2026-02-06"
+  },
+  {
+    "id": "9809af0e-f0e3-43b1-bce2-ad7af6dd2fe4",
+    "nome": "Caixa Poupança",
+    "banco": "Caixa",
+    "tipo": "poupanca",
+    "saldoInicial": 8500,
+    "cor": "#60a5fa",
+    "ativa": true,
+    "criadoEm": "2026-02-06"
+  }
+]

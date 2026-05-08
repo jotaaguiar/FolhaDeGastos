@@ -1,0 +1,9 @@
+[
+  {
+    "id": "joao-aguiar",
+    "username": "JoaoAguiar",
+    "passwordHash": "28346e4dac9f79351d8ced03f12997daaf26816f6c6a6ae692cf231e5bd7a9f1",
+    "salt": "joao-aguiar-salt",
+    "criadoEm": "2026-05-08T00:49:20.233Z"
+  }
+]

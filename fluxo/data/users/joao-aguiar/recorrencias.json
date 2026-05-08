@@ -1,0 +1,68 @@
+[
+  {
+    "id": "339c4ba9-1998-4e8b-984b-fb4fc454c32f",
+    "descricao": "Netflix",
+    "valor": 55.9,
+    "categoria": "assinaturas",
+    "tipo": "credito_cartao",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "diaCobranca": 15,
+    "ativa": true,
+    "inicioEm": "2026-01-07"
+  },
+  {
+    "id": "86712875-4d36-4708-acdd-5c38533ebc13",
+    "descricao": "Spotify",
+    "valor": 21.9,
+    "categoria": "assinaturas",
+    "tipo": "credito_cartao",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "diaCobranca": 20,
+    "ativa": true,
+    "inicioEm": "2026-01-07"
+  },
+  {
+    "id": "28a40ba1-4fbc-4354-ab8d-b2a7c40184c0",
+    "descricao": "Smart Fit",
+    "valor": 109.9,
+    "categoria": "saude",
+    "tipo": "debito",
+    "contaId": "5fd3de15-e73f-4313-9b0b-a4d267bab14b",
+    "diaCobranca": 10,
+    "ativa": true,
+    "inicioEm": "2026-02-06"
+  },
+  {
+    "id": "f532ee6b-4b23-495d-bebd-8413feabf421",
+    "descricao": "Amazon Prime",
+    "valor": 14.9,
+    "categoria": "assinaturas",
+    "tipo": "credito_cartao",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "diaCobranca": 5,
+    "ativa": true,
+    "inicioEm": "2025-12-08"
+  },
+  {
+    "id": "4227f006-f1b3-4543-bdf8-0426cb408922",
+    "descricao": "iCloud 200GB",
+    "valor": 14.9,
+    "categoria": "assinaturas",
+    "tipo": "credito_cartao",
+    "cartaoId": "c7a4f78b-0957-4621-95b7-230725a034c1",
+    "diaCobranca": 1,
+    "ativa": true,
+    "inicioEm": "2025-10-19"
+  },
+  {
+    "id": "862a4c62-0639-428e-9b01-e651c349296b",
+    "descricao": "ChatGPT Plus",
+    "valor": 104.9,
+    "categoria": "assinaturas",
+    "tipo": "credito_cartao",
+    "cartaoId": "23ac81d9-147e-45c5-9d8c-548206074400",
+    "diaCobranca": 18,
+    "ativa": true,
+    "inicioEm": "2026-03-08"
+  }
+]

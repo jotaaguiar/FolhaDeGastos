@@ -1,0 +1,66 @@
+[
+  {
+    "id": "1a4c8d62-8c1a-4194-a537-c307a8434332",
+    "categoria": "moradia",
+    "limite": 1800,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 80
+  },
+  {
+    "id": "b3c6cd28-cc74-449a-a5eb-1756435a6cae",
+    "categoria": "alimentacao",
+    "limite": 800,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 80
+  },
+  {
+    "id": "b1c8b419-ed4c-4fd8-b8fd-e8740ff0d3c9",
+    "categoria": "transporte",
+    "limite": 500,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 80
+  },
+  {
+    "id": "f507ac10-6da6-4437-9108-241c22e1f794",
+    "categoria": "saude",
+    "limite": 400,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 85
+  },
+  {
+    "id": "b3f7d17f-7733-4705-ba6f-732bf17dfbad",
+    "categoria": "lazer",
+    "limite": 300,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 80
+  },
+  {
+    "id": "e186406d-0d5e-4194-b836-4411e7d6dba3",
+    "categoria": "assinaturas",
+    "limite": 350,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 90
+  },
+  {
+    "id": "c7562b84-d440-4ecd-93b7-6a76432fc10b",
+    "categoria": "vestuario",
+    "limite": 250,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 80
+  },
+  {
+    "id": "2ce9ce65-b92a-440c-be5d-20833e8f6253",
+    "categoria": "educacao",
+    "limite": 300,
+    "mes": 5,
+    "ano": 2026,
+    "alertaPct": 80
+  }
+]

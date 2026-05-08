@@ -1,0 +1,75 @@
+[
+  {
+    "id": "b47d4de7-7309-47a5-a649-263acb5ffc7b",
+    "nome": "Reserva de Emergência",
+    "icone": "🛡️",
+    "valorAlvo": 30000,
+    "valorAtual": 8500,
+    "cor": "#34d399",
+    "contaVinculadaId": "9809af0e-f0e3-43b1-bce2-ad7af6dd2fe4",
+    "status": "ativa",
+    "criadoEm": "2025-11-08",
+    "depositos": [
+      {
+        "data": "2026-03-08",
+        "valor": 1000,
+        "observacao": "Depósito mensal"
+      },
+      {
+        "data": "2026-04-07",
+        "valor": 1500,
+        "observacao": "Bônus do trabalho"
+      },
+      {
+        "data": "2026-05-02",
+        "valor": 500,
+        "observacao": "Depósito mensal"
+      }
+    ]
+  },
+  {
+    "id": "e48150f1-b6f6-4034-a603-eae38868e564",
+    "nome": "Viagem Europa",
+    "icone": "✈️",
+    "valorAlvo": 15000,
+    "valorAtual": 2300,
+    "cor": "#60a5fa",
+    "prazo": "2026-12-31",
+    "status": "ativa",
+    "criadoEm": "2026-01-07",
+    "depositos": [
+      {
+        "data": "2026-03-23",
+        "valor": 800
+      },
+      {
+        "data": "2026-04-22",
+        "valor": 500
+      }
+    ]
+  },
+  {
+    "id": "41f2b1df-4c1f-4c72-a280-6fe853fae18a",
+    "nome": "MacBook Pro",
+    "icone": "💻",
+    "valorAlvo": 12000,
+    "valorAtual": 4100,
+    "cor": "#a78bfa",
+    "status": "ativa",
+    "criadoEm": "2025-12-08",
+    "depositos": [
+      {
+        "data": "2026-03-18",
+        "valor": 2000
+      },
+      {
+        "data": "2026-04-17",
+        "valor": 1100
+      },
+      {
+        "data": "2026-05-04",
+        "valor": 1000
+      }
+    ]
+  }
+]
