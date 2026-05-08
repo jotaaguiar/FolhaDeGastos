@@ -1,24 +1,6 @@
 {
   "navigationFallback": {
-    "rewrite": "index.html",
-    "exclude": ["/api/*", "/*.json", "/*.txt", "/*.ico", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.svg"]
+    "rewrite": "/index.html"
   },
-  "trailingSlash": "ignore",
-  "globalHeaders": [
-    {
-      "headers": {
-        "Cache-Control": "public, max-age=3600, must-revalidate"
-      },
-      "glob": "**/*.js"
-    },
-    {
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      },
-      "glob": "**/*.woff2"
-    }
-  ],
-  "mimeTypes": {
-    ".json": "application/json"
-  }
+  "trailingSlash": "ignore"
 }

@@ -12,12 +12,12 @@ export default function PatrimonioChart({ data }: PatrimonioChartProps) {
     <div className="w-full h-[260px]">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={brandColor} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={brandColor} stopOpacity={0}/>
-            </linearGradient>
-          </defs>
+          <Defs>
+            <LinearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="5%" stopColor={brandColor} stopOpacity={0.3}/>
+              <Stop offset="95%" stopColor={brandColor} stopOpacity={0}/>
+            </LinearGradient>
+          </Defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
           <XAxis 
             dataKey="data" 
@@ -39,8 +39,8 @@ export default function PatrimonioChart({ data }: PatrimonioChartProps) {
           <Tooltip
             contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontFamily: 'DM Mono', fontSize: 12 }}
             itemStyle={{ color: brandColor }}
-            formatter={(value: number) => [formatCurrency(value), 'Patrimônio']}
-            labelFormatter={(label) => `Mês: ${label}`}
+            formatter={(value: number) => [formatCurrency(value), 'Patrimônio'] as any}
+            labelFormatter={(label) => `Mês: ${label}` as any}
           />
           <Area
             type="monotone"

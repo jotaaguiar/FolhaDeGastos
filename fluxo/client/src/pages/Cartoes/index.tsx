@@ -55,7 +55,7 @@ export default function Cartoes() {
 
   const handleParcela = async (data: { descricao: string; valorTotal: number; parcelas: number; cartaoId?: string; contaId?: string; categoria: string; mesInicio: number; anoInicio: number }) => {
     try {
-      const result = await api.criarParcelamento(data);
+      const result = await api.criarParcelamento(data as any);
       addToast('success', `Parcelamento criado! ${result.criadas} parcelas em ${data.parcelas}× de R$ ${(data.valorTotal / data.parcelas).toFixed(2)}`);
       refresh();
     } catch (err) {

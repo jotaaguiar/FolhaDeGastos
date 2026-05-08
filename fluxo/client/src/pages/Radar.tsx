@@ -142,9 +142,9 @@ export default function Radar() {
               <XAxis dataKey="name" stroke="#6b6890" fontSize={11} fontFamily="DM Mono" tickLine={false} axisLine={false} />
               <YAxis stroke="#6b6890" fontSize={11} fontFamily="DM Mono" tickLine={false} axisLine={false} 
                 tickFormatter={(v) => `R$${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontFamily: 'DM Mono', fontSize: 12 }}
-                formatter={(v: number) => [formatCurrency(v), 'Saldo']}
+                formatter={(v: number) => [formatCurrency(v), 'Saldo'] as any}
               />
               <Area type="monotone" dataKey="saldoReal" stroke={brandColor} strokeWidth={3} fillOpacity={1} fill="url(#colorSaldo)" />
               <Area type="monotone" dataKey="saldoProj" stroke={brandColor} strokeWidth={3} strokeDasharray="5 5" fillOpacity={1} fill="url(#colorSaldo)" />

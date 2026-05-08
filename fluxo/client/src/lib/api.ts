@@ -1,4 +1,4 @@
-const API_BASE = (typeof process !== 'undefined' && process.env.VITE_API_BASE) ? `${process.env.VITE_API_BASE}` : '/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 export function getToken(): string | null {
   return localStorage.getItem('fluxo_token');
