@@ -6,9 +6,9 @@
 - [ ] Ter acesso à conta Azure for Students
 - [ ] Ter acesso ao repositório GitHub
 
-## 🔧 Configuração do Azure (Portal)
+## 🔧 Configuração (Azure + Railway)
 
-### Static Web App (Frontend)
+### Static Web App (Frontend) - Azure
 
 - [ ] Criar novo Static Web App
   - [ ] Name: `fluxo`
@@ -23,36 +23,32 @@
 - [ ] Obter API Token do Static Web App
 - [ ] Adicionar secret no GitHub: `AZURE_STATIC_WEB_APPS_TOKEN`
 
-### App Service (Backend)
+### Backend - Railway
 
-- [ ] Criar novo App Service
-  - [ ] Name: `fluxo-api`
-  - [ ] Resource Group: `fluxo-resources`
-  - [ ] Runtime: `Node 20 LTS`
-  - [ ] OS: `Linux`
-  - [ ] Region: Mesmo que Static Web App (`West US 2`)
-  - [ ] Pricing Plan: `Free (F1)`
-- [ ] Configurar Application Settings:
-  - [ ] `DATABASE_URL` (copiar da .env local)
+- [ ] Ir para [railway.app](https://railway.app)
+- [ ] Conectar com GitHub
+- [ ] Selecionar seu repositório do Fluxo
+- [ ] Clicar "Deploy now"
+- [ ] Aguardar primeiro deploy (pode falhar, é normal)
+- [ ] Adicionar variáveis de ambiente no Railway:
+  - [ ] `DATABASE_URL`
   - [ ] `JWT_SECRET` (gerar novo valor seguro)
-  - [ ] `CORS_ORIGIN` (ver abaixo)
+  - [ ] `CORS_ORIGIN` = `https://fluxo.azurestaticapps.net,http://localhost:5173`
   - [ ] `NODE_ENV` = `production`
-- [ ] Verificar conectividade do banco de dados
-  - [ ] Ir ao SQL Server firewall
-  - [ ] Ativar "Allow Azure services and resources"
-- [ ] Obter Publish Profile do App Service
-- [ ] Adicionar secret no GitHub: `AZURE_APP_SERVICE_PUBLISH_PROFILE`
+  - [ ] `PORT` = `3001`
+- [ ] Obter Railway API Token em [railway.app/account/tokens](https://railway.app/account/tokens)
+- [ ] Adicionar secret no GitHub: `RAILWAY_TOKEN`
 
 ### Static Web App - Environment Variables
 
 - [ ] Ir ao Static Web App → Configuration
 - [ ] Adicionar Environment Variable:
-  - [ ] `VITE_API_BASE` = `https://fluxo-api.azurewebsites.net/api`
+  - [ ] `VITE_API_BASE` = `https://seu-projeto-railway.up.railway.app/api`
 
 ## 🔐 GitHub Secrets
 
-- [ ] `AZURE_STATIC_WEB_APPS_TOKEN` (do Static Web App)
-- [ ] `AZURE_APP_SERVICE_PUBLISH_PROFILE` (do App Service)
+- [ ] `AZURE_STATIC_WEB_APPS_TOKEN` (do Azure Static Web App)
+- [ ] `RAILWAY_TOKEN` (do Railway)
 
 ## 🚀 Deploy
 
@@ -96,15 +92,15 @@ Se quiser ativar password reset com email:
 
 | Problema | Solução |
 |----------|---------|
-| CORS Error | Verifique CORS_ORIGIN no App Service, redeploy |
-| Banco de dados não conecta | Verifique firewall do SQL Server |
-| Build falhou | Verifique logs no GitHub Actions |
-| App não inicia | Verifique logs do App Service |
+| CORS Error | Verifique CORS_ORIGIN no Railway, redeploy |
+| Banco de dados não conecta | Verifique DATABASE_URL no Railway |
+| Build falhou | Verifique logs no GitHub Actions ou Railway |
+| App não inicia | Verifique logs no Railway Dashboard |
 
 ## 📊 Monitoramento
 
-- [ ] Verificar Application Insights do Static Web App
-- [ ] Verificar Application Insights do App Service
+- [ ] Verificar logs no Railway Dashboard
+- [ ] Verificar Application Insights do Static Web App (opcional)
 - [ ] Configurar alertas (opcional)
 
 ## 🎯 Próximas Melhorias

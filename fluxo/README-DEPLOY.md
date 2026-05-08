@@ -8,15 +8,14 @@ Seu Fluxo foi configurado para deploy automático na Azure usando GitHub Actions
 fluxo/
 ├── .github/workflows/
 │   ├── deploy-frontend.yml      # CI/CD para React (Static Web Apps)
-│   └── deploy-backend.yml       # CI/CD para Node.js (App Service)
+│   └── deploy-backend.yml       # CI/CD para Node.js (Railway)
 ├── .gitignore                   # Segurança: evita commit de .env
 ├── client/
 │   └── staticwebapp.config.json # Config do Static Web Apps
 ├── server/
 │   └── .env.example             # Template de variáveis de ambiente
-├── DEPLOYMENT.md                # Guia passo-a-passo completo
+├── RAILWAY-SETUP.md             # Guia para deploy no Railway
 ├── DEPLOYMENT-CHECKLIST.md      # Checklist de verificação
-├── AZURE-SETUP.sh               # Script de setup (auxiliar)
 └── README-DEPLOY.md             # Este arquivo
 ```
 
@@ -30,12 +29,13 @@ git status  # Deve estar limpo ou com commits prontos
 git push origin main
 ```
 
-### 2. Setup no Azure (15 min)
+### 2. Setup (15 min)
 
-Siga o **[DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md)** para:
-1. Criar Static Web App (frontend)
-2. Criar App Service (backend)
-3. Adicionar secrets no GitHub
+**Frontend (Azure Static Web Apps):**
+- Siga o **[DEPLOYMENT-CHECKLIST.md](DEPLOYMENT-CHECKLIST.md)**
+
+**Backend (Railway):**
+- Siga o **[RAILWAY-SETUP.md](RAILWAY-SETUP.md)** (muito mais rápido!)
 
 ### 3. Deploy (2 min)
 
@@ -46,9 +46,9 @@ git push origin main
 
 Os workflows vão:
 - ✅ Fazer build da React
-- ✅ Fazer build do Node.js
 - ✅ Deploy no Static Web Apps
-- ✅ Deploy no App Service
+- ✅ Fazer build do Node.js
+- ✅ Deploy no Railway
 
 Verifique em **GitHub → Actions** para acompanhar.
 
@@ -56,7 +56,7 @@ Verifique em **GitHub → Actions** para acompanhar.
 
 Após workflows concluírem:
 - Frontend: `https://fluxo.azurestaticapps.net`
-- Backend Health: `https://fluxo-api.azurewebsites.net/api/health`
+- Backend Health: `https://seu-projeto-railway.up.railway.app/api/health`
 
 ## 📚 Documentação Completa
 
@@ -104,7 +104,7 @@ Após deploy bem-sucedido:
 
 ## 🔐 Variáveis de Ambiente Necessárias
 
-### Backend (Azure App Service Configuration)
+### Backend (Railway Variables)
 
 ```
 DATABASE_URL=sqlserver://...
@@ -117,7 +117,7 @@ PORT=3001
 ### Frontend (Azure Static Web Apps Configuration)
 
 ```
-VITE_API_BASE=https://fluxo-api.azurewebsites.net/api
+VITE_API_BASE=https://seu-projeto-railway.up.railway.app/api
 ```
 
 ## 🆘 Problemas Comuns
@@ -127,19 +127,19 @@ VITE_API_BASE=https://fluxo-api.azurewebsites.net/api
 - Confirm que `npm ci` e `npm run build` funcionam localmente
 
 ### Erro de CORS
-- Verifique `CORS_ORIGIN` no App Service
+- Verifique `CORS_ORIGIN` no Railway
 - Certifique-se de incluir a URL do Static Web Apps
 - Aguarde redeploy automático
 
 ### Banco de dados não conecta
-- Verifique SQL Server firewall
-- Ative "Allow Azure services and resources"
-- Confirm DATABASE_URL no App Service
+- Verifique DATABASE_URL no Railway
+- SQL Server firewall pode estar bloqueando (não é Azure, então provavelmente OK)
+- Confirm credenciais no DATABASE_URL
 
-### API retorna 502/503
-- Verifique logs do App Service (Diagnostic logs)
+### API retorna erro
+- Verifique logs no Railway Dashboard
 - Confirm variáveis de ambiente estão corretas
-- Tente restart do App Service
+- Tente redeploy manualmente no Railway
 
 ## 📊 Próximos Passos
 
