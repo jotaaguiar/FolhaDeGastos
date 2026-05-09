@@ -23,19 +23,50 @@ router.get('/', async (req: Request, res: Response) => {
   const faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
   const config = await readFile<Config>(userId, 'config.json', { nomeUsuario: 'Usuário', moeda: 'BRL', limiteDiarioPadrao: 150, limiteDinamico: false, tema: 'escuro' as any, reservaInvestimento: 0, radarPeriodo: 6, taxaJurosCartoesGlobal: 15 });
 
+  const parseDate = (dateStr: string) => {
+    if (!dateStr) return { m: 0, a: 0 };
+    const parts = dateStr.includes('-') ? dateStr.split('-') : dateStr.split('/');
+    if (parts.length < 2) return { m: 0, a: 0 };
+    // Handle YYYY-MM-DD or DD/MM/YYYY
+    if (parts[0].length === 4) return { a: Number(parts[0]), m: Number(parts[1]) };
+    return { a: Number(parts[2]), m: Number(parts[1]) };
+  };
+
   const transacoesMes = todasTransacoes.filter(t => {
-    const d = new Date(t.data);
-    return d.getMonth() + 1 === mes && d.getFullYear() === ano;
+    const { m, a } = parseDate(t.data);
+    return m === mes && a === ano;
   });
 
-  // Calculate totals
-  const totalEntradas = transacoesMes
+  // Calculate real transactions
+  const totalEntradasReal = transacoesMes
     .filter(t => t.tipo === 'entrada')
     .reduce((acc, t) => acc + t.valor, 0);
 
-  const totalSaidas = transacoesMes
-    .filter(t => t.tipo === 'debito')
+  const totalSaidasReal = transacoesMes
+    .filter(t => t.tipo === 'debito' || t.tipo === 'credito_cartao')
     .reduce((acc, t) => acc + t.valor, 0);
+
+  // Add pending recurrences (those not yet materialized as transactions this month)
+  const recorrencias = await readFile<RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
+  const pendingRecs = recorrencias.filter(r => {
+    if (!r.ativa) return false;
+    const exists = todasTransacoes.some(t => {
+      const { m, a } = parseDate(t.data);
+      return t.recorrenciaId === r.id && m === mes && a === ano;
+    });
+    return !exists;
+  });
+
+  const totalEntradasPendentes = pendingRecs
+    .filter(r => r.tipo === 'entrada')
+    .reduce((acc, r) => acc + r.valor, 0);
+
+  const totalSaidasPendentes = pendingRecs
+    .filter(r => r.tipo === 'debito' || r.tipo === 'credito_cartao')
+    .reduce((acc, r) => acc + r.valor, 0);
+
+  const totalEntradas = totalEntradasReal + totalEntradasPendentes;
+  const totalSaidas = totalSaidasReal; // Mantemos apenas saídas reais de conta para não duplicar com faturas futuras
 
   // Account balances
   const contasSaldo = contas.filter(c => c.ativa).map(conta => ({
@@ -48,7 +79,7 @@ router.get('/', async (req: Request, res: Response) => {
   // Faturas do mês
   const faturasMes = faturas.filter(f => f.mes === mes && f.ano === ano);
   const totalFaturasMes = faturasMes.reduce((acc, f) =>
-    acc + calcularTotalFatura(f.id, todasTransacoes), 0);
+    acc + calcularTotalFatura(f.id, todasTransacoes, f), 0);
 
   // Taxa de poupança
   const taxaPoupanca = calcularTaxaPoupanca(totalEntradas, totalSaidas);

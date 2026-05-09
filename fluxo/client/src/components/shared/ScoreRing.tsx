@@ -10,7 +10,7 @@ export default function ScoreRing({ score, size = 48, showLabel = false }: Score
   const radius = (size - 6) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const color = score >= 85 ? '#34d399' : score >= 70 ? '#60a5fa' : score >= 50 ? '#fbbf24' : '#fb7185';
+  const color = score >= 85 ? 'rgb(var(--green-rgb))' : score >= 70 ? 'rgb(var(--blue-rgb))' : score >= 50 ? 'rgb(var(--amber-rgb))' : 'rgb(var(--red-rgb))';
 
   return (
     <div className="flex flex-col items-center gap-1">

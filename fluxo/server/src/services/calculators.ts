@@ -1,4 +1,4 @@
-import type { Categoria, Transacao, Fatura, RecorrenciaConfig, Meta } from '../types/index.js';
+import type { Categoria, Transacao, Fatura, RecorrenciaConfig, Meta, Cartao } from '../types/index.js';
 
 const NECESSIDADES: Categoria[] = ['moradia', 'alimentacao', 'transporte', 'saude'];
 const DESEJOS: Categoria[] = ['lazer', 'assinaturas', 'vestuario', 'viagem', 'educacao'];
@@ -96,11 +96,7 @@ export function calcularSaldoAtualConta(
     if (f.valorPago !== undefined) {
       saldo -= f.valorPago;
     } else {
-      // Legacy: calculate from transactions
-      const totalFatura = transacoes
-        .filter(t => t.faturaId === f.id && t.tipo === 'credito_cartao')
-        .reduce((acc, t) => acc + t.valor, 0);
-      saldo -= totalFatura;
+      saldo -= calcularTotalFatura(f.id, transacoes, f);
     }
   }
 
@@ -300,10 +296,7 @@ export function calcularSaldoDiario(
     if (f.contaPagamentoId === contaId && f.status === 'paga' && f.dataPagamento) {
       const fd = new Date(f.dataPagamento);
       if (fd.getFullYear() < ano || (fd.getFullYear() === ano && fd.getMonth() + 1 < mes)) {
-        const totalFatura = transacoes
-          .filter(t => t.faturaId === f.id && t.tipo === 'credito_cartao')
-          .reduce((acc, t) => acc + t.valor, 0);
-        saldo -= totalFatura;
+        saldo -= calcularTotalFatura(f.id, transacoes, f);
       }
     }
   }
@@ -330,10 +323,7 @@ export function calcularSaldoDiario(
     faturasPagas
       .filter(f => f.dataPagamento === dataStr && f.contaPagamentoId === contaId)
       .forEach(f => {
-        const totalFatura = transacoes
-          .filter(t => t.faturaId === f.id && t.tipo === 'credito_cartao')
-          .reduce((acc, t) => acc + t.valor, 0);
-        saldo -= totalFatura;
+        saldo -= calcularTotalFatura(f.id, transacoes, f);
       });
 
     resultado.push({ dia, saldo: Math.round(saldo * 100) / 100 });
@@ -418,10 +408,11 @@ export function calcularTotalFatura(
     .filter(t => t.faturaId === faturaId && t.tipo === 'credito_cartao')
     .reduce((acc, t) => acc + t.valor, 0);
   
-  // Include rollover from previous invoice
+  // Include rollover and manual adjustment
   const rollover = fatura?.saldoAnteriorRollover ?? 0;
+  const ajuste = fatura?.valorAjuste ?? 0;
   
-  return Math.round((totalTransacoes + rollover) * 100) / 100;
+  return Math.round((totalTransacoes + rollover + ajuste) * 100) / 100;
 }
 
 /**
@@ -460,4 +451,29 @@ export function isFaturaVencida(fatura: Fatura): boolean {
   const hoje = new Date();
   const vencimento = new Date(fatura.dataVencimento + 'T23:59:59');
   return hoje > vencimento;
+}
+/**
+ * Calculates overdraft interest for a given account and month.
+ */
+export function calcularJurosChequeEspecial(
+  saldoInicial: number,
+  contaId: string,
+  transacoes: Transacao[],
+  faturas: Fatura[],
+  taxaMensal: number,
+  mes: number,
+  ano: number
+): number {
+  const saldosDiarios = calcularSaldoDiario(saldoInicial, contaId, transacoes, faturas.filter(f => f.status === 'paga'), mes, ano);
+  
+  let jurosTotal = 0;
+  const taxaDiaria = (taxaMensal / 100) / 30; // 30-day month simplification
+
+  for (const dia of saldosDiarios) {
+    if (dia.saldo < 0) {
+      jurosTotal += Math.abs(dia.saldo) * taxaDiaria;
+    }
+  }
+
+  return Math.round(jurosTotal * 100) / 100;
 }

@@ -5,7 +5,7 @@ interface ModalContaProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: Record<string, unknown>) => void;
-  initial?: { id?: string; nome?: string; banco?: string; tipo?: string; saldoInicial?: number; cor?: string };
+  initial?: { id?: string; nome?: string; banco?: string; tipo?: string; saldoInicial?: number; cor?: string; limiteChequeEspecial?: number; taxaJurosChequeEspecial?: number; diaCobrancaJuros?: number };
 }
 
 const cores = ['#a78bfa', '#f97316', '#60a5fa', '#34d399', '#fb7185', '#fbbf24', '#2dd4bf', '#f472b6'];
@@ -13,6 +13,7 @@ const cores = ['#a78bfa', '#f97316', '#60a5fa', '#34d399', '#fb7185', '#fbbf24',
 export default function ModalConta({ open, onClose, onSubmit, initial }: ModalContaProps) {
   const [form, setForm] = useState({
     nome: '', banco: '', tipo: 'corrente', saldoInicial: '0', cor: '#a78bfa',
+    limiteChequeEspecial: '0', taxaJurosChequeEspecial: '0', diaCobrancaJuros: '1',
   });
 
   useEffect(() => {
@@ -24,9 +25,12 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
         tipo: initial.tipo || 'corrente',
         saldoInicial: initial.saldoInicial?.toString() || '0',
         cor: initial.cor || '#a78bfa',
+        limiteChequeEspecial: initial.limiteChequeEspecial?.toString() || '0',
+        taxaJurosChequeEspecial: initial.taxaJurosChequeEspecial?.toString() || '0',
+        diaCobrancaJuros: initial.diaCobrancaJuros?.toString() || '1',
       });
     } else {
-      setForm({ nome: '', banco: '', tipo: 'corrente', saldoInicial: '0', cor: '#a78bfa' });
+      setForm({ nome: '', banco: '', tipo: 'corrente', saldoInicial: '0', cor: '#a78bfa', limiteChequeEspecial: '0', taxaJurosChequeEspecial: '0', diaCobrancaJuros: '1' });
     }
   }, [initial, open]);
 
@@ -34,7 +38,17 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
 
   const handleSubmit = () => {
     if (!form.nome) return;
-    onSubmit({ id: initial?.id, nome: form.nome, banco: form.banco, tipo: form.tipo, saldoInicial: parseFloat(form.saldoInicial) || 0, cor: form.cor });
+    onSubmit({ 
+      id: initial?.id, 
+      nome: form.nome, 
+      banco: form.banco, 
+      tipo: form.tipo, 
+      saldoInicial: parseFloat(form.saldoInicial) || 0, 
+      cor: form.cor,
+      limiteChequeEspecial: parseFloat(form.limiteChequeEspecial) || 0,
+      taxaJurosChequeEspecial: parseFloat(form.taxaJurosChequeEspecial) || 0,
+      diaCobrancaJuros: parseInt(form.diaCobrancaJuros) || 1,
+    });
     onClose();
   };
 
@@ -57,13 +71,35 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
             <option value="investimento">Investimento</option>
             <option value="dinheiro">Dinheiro</option>
           </select>
-          <div>
-            <label className="text-xs text-muted block mb-1">
-              {initial ? 'Saldo Inicial (não altera saldo atual)' : 'Saldo Inicial'}
-            </label>
-            <input className="input-dark w-full" type="number" step="0.01" placeholder="0.00"
-              value={form.saldoInicial} onChange={e => setForm(f => ({ ...f, saldoInicial: e.target.value }))} />
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="text-xs text-muted block mb-1">
+                {initial ? 'Saldo Inicial' : 'Saldo Inicial'}
+              </label>
+              <input className="input-dark w-full" type="number" step="0.01" placeholder="0.00"
+                value={form.saldoInicial} onChange={e => setForm(f => ({ ...f, saldoInicial: e.target.value }))} />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-muted block mb-1">Cheque Especial</label>
+              <input className="input-dark w-full" type="number" step="0.01" placeholder="0.00"
+                value={form.limiteChequeEspecial} onChange={e => setForm(f => ({ ...f, limiteChequeEspecial: e.target.value }))} />
+            </div>
           </div>
+
+          {parseFloat(form.limiteChequeEspecial) > 0 && (
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="text-xs text-muted block mb-1">Taxa Juros (% a.m.)</label>
+                <input className="input-dark w-full" type="number" step="0.01" placeholder="0.00"
+                  value={form.taxaJurosChequeEspecial} onChange={e => setForm(f => ({ ...f, taxaJurosChequeEspecial: e.target.value }))} />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs text-muted block mb-1">Dia da Cobrança</label>
+                <input className="input-dark w-full" type="number" min="1" max="31"
+                  value={form.diaCobrancaJuros} onChange={e => setForm(f => ({ ...f, diaCobrancaJuros: e.target.value }))} />
+              </div>
+            </div>
+          )}
           <div>
             <p className="text-xs text-muted mb-2">Cor</p>
             <div className="flex gap-2">

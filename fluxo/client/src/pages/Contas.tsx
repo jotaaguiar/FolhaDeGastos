@@ -249,36 +249,55 @@ export default function Contas() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-end justify-between">
-                      <p className={`text-2xl font-extrabold font-mono tracking-tight ${conta.saldoAtual >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
-                        {formatCurrency(conta.saldoAtual)}
-                      </p>
-                      {conta.saldoAtual >= 0
-                        ? <TrendingUp size={16} className="text-fluxo-green mb-1 opacity-60" />
-                        : <TrendingDown size={16} className="text-fluxo-red mb-1 opacity-60" />
-                      }
-                    </div>
-
-                    {/* Month income/expense breakdown */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-fluxo-green/5 rounded-lg px-2.5 py-1.5">
-                        <p className="text-[9px] font-mono uppercase text-muted mb-0.5">Entradas</p>
-                        <p className="text-xs font-bold font-mono text-fluxo-green">{formatCurrency(stats.entradas)}</p>
+                    <div className="space-y-3">
+                      <div className="flex items-end justify-between">
+                        <p className={`text-2xl font-extrabold font-mono tracking-tight ${conta.saldoAtual >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+                          {formatCurrency(conta.saldoAtual)}
+                        </p>
+                        {conta.saldoAtual >= 0
+                          ? <TrendingUp size={16} className="text-fluxo-green mb-1 opacity-60" />
+                          : <TrendingDown size={16} className="text-fluxo-red mb-1 opacity-60" />
+                        }
                       </div>
-                      <div className="bg-fluxo-red/5 rounded-lg px-2.5 py-1.5">
-                        <p className="text-[9px] font-mono uppercase text-muted mb-0.5">Saídas</p>
-                        <p className="text-xs font-bold font-mono text-fluxo-red">{formatCurrency(stats.saidas)}</p>
-                      </div>
-                    </div>
 
-                    <button
-                      onClick={(e) => { e.stopPropagation(); startEditSaldo(conta.id, conta.saldoAtual); }}
-                      className="w-full py-1.5 rounded-lg bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[10px] font-mono uppercase hover:bg-brand-primary/20 transition-all"
-                    >
-                      Ajustar Saldo
-                    </button>
-                  </div>
+                      {/* Cheque Especial usage */}
+                      {conta.saldoAtual < 0 && conta.limiteChequeEspecial && conta.limiteChequeEspecial > 0 && (
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[9px] font-mono">
+                            <span className="text-fluxo-red">Usando Cheque Especial</span>
+                            <span className="text-muted">Limite: {formatCurrency(conta.limiteChequeEspecial)}</span>
+                          </div>
+                          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-fluxo-red" 
+                              style={{ width: `${Math.min(100, (Math.abs(conta.saldoAtual) / conta.limiteChequeEspecial) * 100)}%` }}
+                            />
+                          </div>
+                          {Math.abs(conta.saldoAtual) > conta.limiteChequeEspecial && (
+                            <p className="text-[8px] text-fluxo-red font-bold uppercase animate-pulse">Limite Excedido!</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Month income/expense breakdown */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-fluxo-green/5 rounded-lg px-2.5 py-1.5">
+                          <p className="text-[9px] font-mono uppercase text-muted mb-0.5">Entradas</p>
+                          <p className="text-xs font-bold font-mono text-fluxo-green">{formatCurrency(stats.entradas)}</p>
+                        </div>
+                        <div className="bg-fluxo-red/5 rounded-lg px-2.5 py-1.5">
+                          <p className="text-[9px] font-mono uppercase text-muted mb-0.5">Saídas</p>
+                          <p className="text-xs font-bold font-mono text-fluxo-red">{formatCurrency(stats.saidas)}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={(e) => { e.stopPropagation(); startEditSaldo(conta.id, conta.saldoAtual); }}
+                        className="w-full py-1.5 rounded-lg bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[10px] font-mono uppercase hover:bg-brand-primary/20 transition-all"
+                      >
+                        Ajustar Saldo
+                      </button>
+                    </div>
                 )}
               </div>
             );

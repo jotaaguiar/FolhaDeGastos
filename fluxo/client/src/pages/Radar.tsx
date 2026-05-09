@@ -12,7 +12,10 @@ interface SimulacaoItem {
   descricao: string;
   valor: number;
   tipo: 'entrada' | 'saida';
-  recorrente: boolean;
+  modo: 'unico' | 'parcelado' | 'recorrente';
+  parcelas: number;
+  mesInicio: number;
+  anoInicio: number;
 }
 
 export default function Radar() {
@@ -21,9 +24,26 @@ export default function Radar() {
   const brandColor = useBrandColor();
   
   const [simulacoes, setSimulacoes] = useState<SimulacaoItem[]>([]);
-  const [novoItem, setNovoItem] = useState({ descricao: '', valor: '', tipo: 'saida' as 'entrada' | 'saida', recorrente: false });
+  const [novoItem, setNovoItem] = useState({ 
+    descricao: '', 
+    valor: '', 
+    tipo: 'saida' as 'entrada' | 'saida', 
+    modo: 'unico' as 'unico' | 'parcelado' | 'recorrente',
+    parcelas: '1',
+    mesInicio: '',
+    anoInicio: ''
+  });
 
   if (loading || !data) return <div className="p-8 space-y-6">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
+
+  // Set default start month if not set
+  if (data.projecaoRadar.length > 0 && !novoItem.mesInicio) {
+    setNovoItem(prev => ({ 
+      ...prev, 
+      mesInicio: data.projecaoRadar[0].mes.toString(),
+      anoInicio: data.projecaoRadar[0].ano.toString()
+    }));
+  }
 
   // Process data with simulation
   const applySimulation = (baseData: typeof data.projecaoRadar) => {
@@ -33,7 +53,20 @@ export default function Radar() {
       let modSaidas = p.saidas;
 
       simulacoes.forEach(s => {
-        if (s.recorrente || index === 0) {
+        const startVal = s.anoInicio * 12 + s.mesInicio;
+        const currentVal = p.ano * 12 + p.mes;
+        const monthsDiff = currentVal - startVal;
+
+        let apply = false;
+        if (s.modo === 'recorrente') {
+          apply = currentVal >= startVal;
+        } else if (s.modo === 'parcelado') {
+          apply = currentVal >= startVal && monthsDiff < s.parcelas;
+        } else {
+          apply = currentVal === startVal;
+        }
+
+        if (apply) {
           if (s.tipo === 'entrada') modEntradas += s.valor;
           else modSaidas += s.valor;
         }
@@ -77,10 +110,19 @@ export default function Radar() {
       descricao: novoItem.descricao,
       valor: parseFloat(novoItem.valor),
       tipo: novoItem.tipo,
-      recorrente: novoItem.recorrente
+      modo: novoItem.modo,
+      parcelas: novoItem.modo === 'parcelado' ? parseInt(novoItem.parcelas) || 1 : 1,
+      mesInicio: parseInt(novoItem.mesInicio),
+      anoInicio: parseInt(novoItem.anoInicio),
     };
     setSimulacoes([...simulacoes, item]);
-    setNovoItem({ descricao: '', valor: '', tipo: 'saida', recorrente: false });
+    setNovoItem({ 
+      ...novoItem, 
+      descricao: '', 
+      valor: '',
+      modo: 'unico',
+      parcelas: '1'
+    });
   };
 
   const removeSimulacao = (id: string) => {
@@ -144,7 +186,7 @@ export default function Radar() {
                 tickFormatter={(v) => `R$${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} />
               <Tooltip
                 contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontFamily: 'DM Mono', fontSize: 12 }}
-                formatter={(v: number) => [formatCurrency(v), 'Saldo'] as any}
+                formatter={(v: any) => [formatCurrency(Number(v)), 'Saldo'] as any}
               />
               <Area type="monotone" dataKey="saldoReal" stroke={brandColor} strokeWidth={3} fillOpacity={1} fill="url(#colorSaldo)" />
               <Area type="monotone" dataKey="saldoProj" stroke={brandColor} strokeWidth={3} strokeDasharray="5 5" fillOpacity={1} fill="url(#colorSaldo)" />
@@ -194,19 +236,54 @@ export default function Radar() {
                   </select>
                 </div>
               </div>
-              <div className="flex items-center gap-2 py-1">
-                <input 
-                  type="checkbox" 
-                  id="recorrente-sim" 
-                  className="rounded border-white/10 bg-white/5" 
-                  checked={novoItem.recorrente}
-                  onChange={e => setNovoItem({...novoItem, recorrente: e.target.checked})}
-                />
-                <label htmlFor="recorrente-sim" className="text-xs text-muted">Gasto recorrente (todo mês)</label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-mono text-muted uppercase block mb-1">Modo</label>
+                  <select 
+                    className="input-dark w-full text-sm"
+                    value={novoItem.modo}
+                    onChange={e => setNovoItem({...novoItem, modo: e.target.value as any})}
+                  >
+                    <option value="unico">Único</option>
+                    <option value="parcelado">Parcelado</option>
+                    <option value="recorrente">Recorrente</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-muted uppercase block mb-1">Mês Início</label>
+                  <select 
+                    className="input-dark w-full text-sm"
+                    value={`${novoItem.mesInicio}-${novoItem.anoInicio}`}
+                    onChange={e => {
+                      const [m, a] = e.target.value.split('-');
+                      setNovoItem({...novoItem, mesInicio: m, anoInicio: a});
+                    }}
+                  >
+                    {data.projecaoRadar.map(p => (
+                      <option key={`${p.mes}-${p.ano}`} value={`${p.mes}-${p.ano}`}>
+                        {getMesNome(p.mes)}/{p.ano.toString().slice(2)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              {novoItem.modo === 'parcelado' && (
+                <div className="animate-in fade-in slide-in-from-top-1">
+                  <label className="text-[10px] font-mono text-muted uppercase block mb-1">Parcelas</label>
+                  <input 
+                    className="input-dark w-full text-sm font-mono" 
+                    type="number"
+                    min="1"
+                    value={novoItem.parcelas}
+                    onChange={e => setNovoItem({...novoItem, parcelas: e.target.value})}
+                  />
+                </div>
+              )}
+
               <button 
                 onClick={handleAddSimulacao}
-                className="btn-primary w-full text-xs py-2 flex items-center justify-center gap-2"
+                className="btn-primary w-full text-xs py-2 mt-2 flex items-center justify-center gap-2"
               >
                 <Plus size={14} /> Adicionar à Projeção
               </button>
@@ -220,7 +297,10 @@ export default function Radar() {
                   <div key={s.id} className="flex items-center justify-between p-2 rounded-lg bg-white/5 group">
                     <div className="min-w-0">
                       <p className="text-xs font-medium truncate">{s.descricao}</p>
-                      <p className="text-[9px] text-muted font-mono uppercase">{s.recorrente ? 'Mensal' : 'Único'}</p>
+                      <p className="text-[9px] text-muted font-mono uppercase">
+                        {s.modo === 'recorrente' ? 'Recorrente' : s.modo === 'parcelado' ? `${s.parcelas}x Parcelado` : 'Único'} 
+                        • Início: {getMesNome(s.mesInicio)}/{s.anoInicio.toString().slice(2)}
+                      </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-mono font-bold ${s.tipo === 'entrada' ? 'text-fluxo-green' : 'text-fluxo-red'}`}>

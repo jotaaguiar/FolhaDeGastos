@@ -21,9 +21,14 @@ interface ModalRecorrenciaProps {
   cartoes?: Cartao[];
   contas?: Conta[];
   initialData?: any;
+  isCartaoOnly?: boolean;
 }
 
-export default function ModalRecorrencia({ open, onClose, onSubmit, cartoes = [], contas = [], initialData }: ModalRecorrenciaProps) {
+export default function ModalRecorrencia({ 
+  open, onClose, onSubmit, 
+  cartoes = [], contas = [], 
+  initialData, isCartaoOnly 
+}: ModalRecorrenciaProps) {
   const [modo, setModo] = useState<'debito' | 'entrada'>(initialData?.tipo || 'debito');
   const [form, setForm] = useState({
     descricao: '',
@@ -36,7 +41,7 @@ export default function ModalRecorrencia({ open, onClose, onSubmit, cartoes = []
 
   useEffect(() => {
     if (initialData) {
-      setModo(initialData.tipo);
+      setModo(initialData.tipo === 'entrada' ? 'entrada' : 'debito');
       setForm({
         descricao: initialData.descricao || '',
         valor: initialData.valor ? String(initialData.valor) : '',
@@ -52,7 +57,7 @@ export default function ModalRecorrencia({ open, onClose, onSubmit, cartoes = []
         cartaoId: cartoes[0]?.id || '', contaId: contas[0]?.id || '',
       });
     }
-  }, [initialData, open, cartoes, contas]);
+  }, [initialData, open, cartoes, contas, isCartaoOnly]);
 
   if (!open) return null;
 
@@ -62,11 +67,11 @@ export default function ModalRecorrencia({ open, onClose, onSubmit, cartoes = []
       id: initialData?.id,
       descricao: form.descricao,
       valor: parseFloat(form.valor),
-      tipo: modo,
+      tipo: isCartaoOnly ? 'credito_cartao' : (form.cartaoId && modo === 'debito' ? 'credito_cartao' : modo),
       categoria: form.categoria,
       diaCobranca: parseInt(form.diaCobranca),
-      cartaoId: modo === 'debito' && form.cartaoId ? form.cartaoId : undefined,
-      contaId: form.contaId, // Agora sempre pede uma conta se não for cartão
+      cartaoId: (isCartaoOnly || modo === 'debito') && form.cartaoId ? form.cartaoId : undefined,
+      contaId: isCartaoOnly ? undefined : form.contaId,
       ativa: initialData ? initialData.ativa : true,
     });
     onClose();
@@ -80,10 +85,12 @@ export default function ModalRecorrencia({ open, onClose, onSubmit, cartoes = []
           <button onClick={onClose} className="text-muted hover:text-white"><X size={18} /></button>
         </div>
 
-        <div className="flex gap-1 bg-white/[0.03] p-1 rounded-lg mb-4">
-          <button onClick={() => setModo('debito')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'debito' ? 'bg-fluxo-red text-white' : 'text-muted'}`}>Saída Fixa</button>
-          <button onClick={() => setModo('entrada')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'entrada' ? 'bg-fluxo-green text-white' : 'text-muted'}`}>Entrada Fixa</button>
-        </div>
+        {!isCartaoOnly && (
+          <div className="flex gap-1 bg-white/[0.03] p-1 rounded-lg mb-4">
+            <button onClick={() => setModo('debito')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'debito' ? 'bg-fluxo-red text-white' : 'text-muted'}`}>Saída Fixa</button>
+            <button onClick={() => setModo('entrada')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'entrada' ? 'bg-fluxo-green text-white' : 'text-muted'}`}>Entrada Fixa</button>
+          </div>
+        )}
 
         <div className="space-y-3">
           <input className="input-dark w-full" placeholder={modo === 'debito' ? "Descrição (ex: Netflix, Academia...)" : "Descrição (ex: Salário...)"}
@@ -106,14 +113,38 @@ export default function ModalRecorrencia({ open, onClose, onSubmit, cartoes = []
                 {categorias.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
-            <div className="flex-1">
-              <label className="text-xs text-muted font-mono block mb-1">Conta de Origem/Destino</label>
-              <select className="input-dark w-full" value={form.contaId}
-                onChange={e => setForm(f => ({ ...f, contaId: e.target.value }))}>
-                {contas.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
-            </div>
-            {modo === 'debito' && cartoes.length > 0 && (
+            {!isCartaoOnly ? (
+              <div className="flex-1">
+                <label className="text-xs text-muted font-mono block mb-1">Conta de Origem/Destino</label>
+                <select className="input-dark w-full" value={form.contaId}
+                  onChange={e => setForm(f => ({ ...f, contaId: e.target.value }))}>
+                  {contas.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select>
+              </div>
+            ) : (
+              <div className="flex-1">
+                <label className="text-xs text-muted font-mono block mb-2">Cartão de Crédito</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {cartoes.map(c => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, cartaoId: c.id }))}
+                      className={`p-2.5 rounded-xl border-2 text-left transition-all ${
+                        form.cartaoId === c.id 
+                          ? 'border-brand-primary bg-brand-primary/10' 
+                          : 'border-white/[0.07] hover:border-white/20'
+                      }`}
+                    >
+                      <div className="w-6 h-1.5 rounded-full mb-1.5" style={{ background: c.cor }} />
+                      <p className="text-xs font-bold truncate">{c.nome}</p>
+                      <p className="text-[10px] text-muted font-mono truncate">**** {c.ultimos4}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {modo === 'debito' && cartoes.length > 0 && !isCartaoOnly && (
               <div className="flex-1">
                 <label className="text-xs text-muted font-mono block mb-1">Cartão (Opcional)</label>
                 <select className="input-dark w-full" value={form.cartaoId}

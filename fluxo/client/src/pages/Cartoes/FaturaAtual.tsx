@@ -29,6 +29,7 @@ function StatusBadge({ status }: { status: string }) {
     paga:    { icon: CheckCircle,   label: 'Paga',    cls: 'bg-fluxo-green/10 text-fluxo-green border-fluxo-green/20' },
     vencida: { icon: AlertCircle,   label: 'Vencida', cls: 'bg-fluxo-red/10 text-fluxo-red border-fluxo-red/20' },
     parcial: { icon: RotateCcw,     label: 'Parcial', cls: 'bg-fluxo-amber/10 text-fluxo-amber border-fluxo-amber/20' },
+    futura:  { icon: Clock,         label: 'Fatura Futura', cls: 'bg-white/5 text-muted border-white/10' },
   };
   const c = cfg[status] || cfg.aberta;
   const Icon = c.icon;
@@ -66,7 +67,18 @@ function FaturaCard({
 }) {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [loadingTx, setLoadingTx] = useState(false);
+  const [editAjuste, setEditAjuste] = useState(false);
+  const [valorAjuste, setValorAjuste] = useState(fatura.valorAjuste?.toString() || '');
+  const [editDates, setEditDates] = useState(false);
+  const [vencimento, setVencimento] = useState(fatura.dataVencimento);
+  const [fechamento, setFechamento] = useState(fatura.dataFechamento);
   const { addToast } = useAlert();
+
+  useEffect(() => {
+    setValorAjuste(fatura.valorAjuste?.toString() || '');
+    setVencimento(fatura.dataVencimento);
+    setFechamento(fatura.dataFechamento);
+  }, [fatura.valorAjuste, fatura.dataVencimento, fatura.dataFechamento]);
 
   useEffect(() => {
     if (isExpanded && fatura.id) {
@@ -122,7 +134,8 @@ function FaturaCard({
             </div>
             <div className="flex items-center gap-3 mt-0.5">
               <p className="text-[10px] text-muted font-mono">
-                Fecha dia {cartao?.diaFechamento} • Vence dia {cartao?.diaVencimento}
+                Fecha dia <span className={fatura.dataFechamento.split('-')[2] !== String(cartao?.diaFechamento).padStart(2, '0') ? 'text-brand-primary font-bold' : ''}>{fatura.dataFechamento.split('-')[2]}</span> • 
+                Vence dia <span className={fatura.dataVencimento.split('-')[2] !== String(cartao?.diaVencimento).padStart(2, '0') ? 'text-brand-primary font-bold' : ''}>{fatura.dataVencimento.split('-')[2]}</span>
               </p>
               {!jaFechou && diasParaFechar > 0 && (
                 <span className="text-[10px] text-fluxo-blue font-mono">({diasParaFechar}d para fechar)</span>
@@ -133,7 +146,7 @@ function FaturaCard({
                 </span>
               )}
               {isPaga && fatura.dataPagamento && (
-                <span className="text-[10px] text-fluxo-green font-mono">Pago em {fatura.dataPagamento}</span>
+                <span className="text-[10px] text-fluxo-green font-mono">Pago em {fatura.dataPagamento.split('-').reverse().join('/')}</span>
               )}
             </div>
           </div>
@@ -147,6 +160,9 @@ function FaturaCard({
             </p>
             {fatura.saldoAnteriorRollover && fatura.saldoAnteriorRollover > 0 && (
               <p className="text-[9px] text-fluxo-amber font-mono">incl. rollover {formatCurrency(fatura.saldoAnteriorRollover)}</p>
+            )}
+            {fatura.valorAjuste && fatura.valorAjuste !== 0 && (
+              <p className="text-[9px] text-brand-primary font-mono">incl. ajuste {formatCurrency(fatura.valorAjuste)}</p>
             )}
           </div>
           {podesPagar && total > 0 && (
@@ -212,6 +228,18 @@ function FaturaCard({
           <div className="flex items-center justify-between mb-3">
             <p className="label-mono">Lançamentos ({transacoes.length})</p>
             <div className="flex gap-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); setEditDates(!editDates); }}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-[9px] font-mono text-muted hover:text-white transition-all"
+              >
+                <Clock size={10} /> Ajustar Datas
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setEditAjuste(!editAjuste); }}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-[9px] font-mono text-muted hover:text-white transition-all"
+              >
+                <Plus size={10} /> Ajuste Manual
+              </button>
               {fatura.saldoAnteriorRollover && fatura.saldoAnteriorRollover > 0 && (
                 <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-fluxo-amber/10 border border-fluxo-amber/20">
                   <RotateCcw size={10} className="text-fluxo-amber" />
@@ -220,6 +248,93 @@ function FaturaCard({
               )}
             </div>
           </div>
+
+          {editDates && (
+            <div className="mb-4 p-3 rounded-xl bg-brand-primary/5 border border-brand-primary/20 animate-slide-down">
+              <p className="text-[10px] font-mono text-brand-primary uppercase font-bold mb-3">Ajustar Datas da Fatura</p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="text-[9px] text-muted font-mono block mb-1">DATA DE FECHAMENTO</label>
+                  <input
+                    className="input-dark w-full text-xs font-mono"
+                    type="date"
+                    value={fechamento}
+                    onChange={e => setFechamento(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted font-mono block mb-1">DATA DE VENCIMENTO</label>
+                  <input
+                    className="input-dark w-full text-xs font-mono"
+                    type="date"
+                    value={vencimento}
+                    onChange={e => setVencimento(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    try {
+                      await api.updateFatura(fatura.id, { dataVencimento: vencimento, dataFechamento: fechamento });
+                      addToast('success', 'Datas atualizadas!');
+                      setEditDates(false);
+                      onRefresh();
+                    } catch (e: any) {
+                      addToast('error', e.message || 'Erro ao salvar datas');
+                    }
+                  }}
+                  className="btn-primary text-[10px] px-3 py-1.5 flex-1"
+                >
+                  Salvar Datas
+                </button>
+                <button
+                  onClick={() => { setEditDates(false); setVencimento(fatura.dataVencimento); setFechamento(fatura.dataFechamento); }}
+                  className="btn-ghost text-[10px] px-3 py-1.5 border border-white/10"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {editAjuste && (
+            <div className="mb-4 p-3 rounded-xl bg-brand-primary/5 border border-brand-primary/20 animate-slide-down">
+              <p className="text-[10px] font-mono text-brand-primary uppercase font-bold mb-2">Ajuste de Saldo / Saldo Inicial</p>
+              <div className="flex gap-2">
+                <input
+                  className="input-dark flex-1 text-sm font-mono"
+                  type="number"
+                  step="0.01"
+                  placeholder="R$ 0,00"
+                  value={valorAjuste}
+                  onChange={e => setValorAjuste(e.target.value)}
+                />
+                <button
+                  onClick={async () => {
+                    try {
+                      await api.updateFatura(fatura.id, { valorAjuste: parseFloat(valorAjuste) || 0 });
+                      addToast('success', 'Ajuste salvo!');
+                      setEditAjuste(false);
+                      onRefresh();
+                    } catch (e: any) {
+                      addToast('error', e.message || 'Erro ao salvar ajuste');
+                    }
+                  }}
+                  className="btn-primary text-[10px] px-3 py-1.5"
+                >
+                  Salvar
+                </button>
+                <button
+                  onClick={() => { setEditAjuste(false); setValorAjuste(fatura.valorAjuste?.toString() || ''); }}
+                  className="btn-ghost text-[10px] px-3 py-1.5"
+                >
+                  Cancelar
+                </button>
+              </div>
+              <p className="text-[9px] text-muted mt-2">Este valor será somado ao total da fatura sem criar uma transação.</p>
+            </div>
+          )}
           {loadingTx ? (
             <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="skeleton h-12 rounded-lg" />)}</div>
           ) : transacoes.length === 0 ? (
@@ -243,9 +358,6 @@ export default function FaturaAtual() {
   const { mesAtual, anoAtual, config, refresh } = useApp();
   const { addToast } = useAlert();
 
-  const hoje = new Date();
-  const [mesSel, setMesSel] = useState(hoje.getMonth() + 1);
-  const [anoSel, setAnoSel] = useState(hoje.getFullYear());
   const [faturas, setFaturas] = useState<FaturaComExtra[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -258,7 +370,7 @@ export default function FaturaAtual() {
   const fetchFaturas = async () => {
     setLoading(true);
     try {
-      const data = await api.getFaturas({ mes: mesSel, ano: anoSel });
+      const data = await api.getFaturas({ mes: mesAtual, ano: anoAtual });
       setFaturas(data);
     } catch (e) {
       console.error(e);
@@ -267,7 +379,7 @@ export default function FaturaAtual() {
     }
   };
 
-  useEffect(() => { fetchFaturas(); }, [mesSel, anoSel]);
+  useEffect(() => { fetchFaturas(); }, [mesAtual, anoAtual]);
 
   const handlePagar = async (data: { contaPagamentoId: string; valorPago: number; dataPagamento: string; taxaJuros?: number }) => {
     if (!modalPagar) return;
@@ -316,16 +428,6 @@ export default function FaturaAtual() {
     } catch { addToast('error', 'Erro ao gerar faturas'); }
   };
 
-  // Month navigation
-  const prevMes = () => {
-    if (mesSel === 1) { setMesSel(12); setAnoSel(a => a - 1); }
-    else setMesSel(m => m - 1);
-  };
-  const nextMes = () => {
-    if (mesSel === 12) { setMesSel(1); setAnoSel(a => a + 1); }
-    else setMesSel(m => m + 1);
-  };
-
   // Totals across all cards for this month
   const totalGeral = faturas.reduce((acc, f) => acc + f.total, 0);
   const totalPago = faturas.filter(f => f.status === 'paga' || f.status === 'parcial').reduce((acc, f) => acc + (f.valorPago || 0), 0);
@@ -340,12 +442,11 @@ export default function FaturaAtual() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={prevMes} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">‹</button>
-          <div className="text-center min-w-[120px]">
-            <p className="font-bold text-lg">{getMesNome(mesSel)}</p>
-            <p className="text-xs text-muted font-mono">{anoSel}</p>
+          <CreditCard className="text-brand-primary" size={24} />
+          <div>
+            <h2 className="text-xl font-bold">Faturas de Cartão</h2>
+            <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Gestão mensal de gastos e limites</p>
           </div>
-          <button onClick={nextMes} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all">›</button>
         </div>
 
         <div className="flex gap-2">
@@ -387,7 +488,7 @@ export default function FaturaAtual() {
       ) : faturas.length === 0 ? (
         <div className="card p-12 text-center">
           <CreditCard size={40} className="text-muted mx-auto mb-3 opacity-30" />
-          <p className="text-muted">Nenhuma fatura para {getMesNome(mesSel)} {anoSel}</p>
+          <p className="text-muted">Nenhuma fatura para {getMesNome(mesAtual)} {anoAtual}</p>
           <button onClick={handleGerarFaturas} className="btn-primary mt-4 text-sm">
             Gerar Faturas Automáticas
           </button>

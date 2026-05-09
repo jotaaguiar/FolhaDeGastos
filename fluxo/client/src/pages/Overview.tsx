@@ -25,8 +25,19 @@ export default function Overview() {
   const { data, loading, refetch } = useDashboard();
   const { contas } = useContas();
   const { cartoes } = useCartoes();
-  const { mesAtual, anoAtual, config } = useApp();
+  const { mesAtual, anoAtual, config, setMesAno } = useApp();
   const [prevData, setPrevData] = useState<DashboardData | null>(null);
+
+  // Lock to current month when mounting Overview
+  useEffect(() => {
+    const today = new Date();
+    const tM = today.getMonth() + 1;
+    const tA = today.getFullYear();
+    // Only update if different to avoid unnecessary refetches
+    if (mesAtual !== tM || anoAtual !== tA) {
+      setMesAno(tM, tA);
+    }
+  }, []);
 
   useEffect(() => {
     const pm = mesAtual === 1 ? 12 : mesAtual - 1;

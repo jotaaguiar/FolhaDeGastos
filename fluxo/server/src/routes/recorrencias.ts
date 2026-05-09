@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import { readFile, writeFile } from '../services/storage.js';
-import type { RecorrenciaConfig, Transacao, Fatura } from '../types/index.js';
+import { calcularJurosChequeEspecial } from '../services/calculators.js';
+import type { RecorrenciaConfig, Transacao, Fatura, Conta } from '../types/index.js';
 
 const router = Router();
 
@@ -65,6 +66,7 @@ router.post('/processar', async (req: Request, res: Response) => {
   const recorrencias = await readFile<RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
   const transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
   const faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
+  const contas = await readFile<Conta[]>(userId, 'contas.json', []);
 
   const hoje = new Date();
   const mesAtual = hoje.getMonth() + 1;
@@ -112,6 +114,57 @@ router.post('/processar', async (req: Request, res: Response) => {
 
     transacoes.push(tx);
     criadas++;
+  }
+
+  // 2. Process Overdraft Interest
+  for (const conta of contas) {
+    if (!conta.limiteChequeEspecial || !conta.taxaJurosChequeEspecial || !conta.diaCobrancaJuros) continue;
+    
+    // Check if charging day has arrived
+    if (hoje.getDate() < conta.diaCobrancaJuros) continue;
+
+    // Deduplication check for this month
+    const jaExiste = transacoes.find(t => 
+      t.contaId === conta.id && 
+      t.descricao.includes('Juros Cheque Especial') &&
+      (() => {
+        const d = new Date(t.data);
+        return d.getMonth() + 1 === mesAtual && d.getFullYear() === anoAtual;
+      })()
+    );
+    if (jaExiste) continue;
+
+    // Calculate interest accrued in the current month until today
+    const juros = calcularJurosChequeEspecial(
+      conta.saldoInicial,
+      conta.id,
+      transacoes,
+      faturas,
+      conta.taxaJurosChequeEspecial,
+      mesAtual,
+      anoAtual
+    );
+
+    if (juros > 0.01) {
+      const diaC = Math.min(conta.diaCobrancaJuros, new Date(anoAtual, mesAtual, 0).getDate());
+      const data = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${String(diaC).padStart(2, '0')}`;
+      
+      const tx: Transacao = {
+        id: uuid(),
+        descricao: `Juros Cheque Especial - ${conta.nome}`,
+        valor: juros,
+        tipo: 'debito',
+        data,
+        categoria: 'outros',
+        contaId: conta.id,
+        recorrente: false,
+        criadoEm: new Date().toISOString(),
+        observacao: `Cobrança automática de juros sobre saldo negativo (mês ${mesAtual}/${anoAtual})`
+      };
+
+      transacoes.push(tx);
+      criadas++;
+    }
   }
 
   if (criadas > 0) {

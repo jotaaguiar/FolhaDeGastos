@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useCartoes } from '@/hooks/useCartoes';
 import { useContas } from '@/hooks/useContas';
 import { useApp } from '@/context/AppContext';
@@ -10,17 +10,17 @@ import CartaoWidget from '@/components/shared/CartaoWidget';
 import ModalCartao from '@/components/modals/ModalCartao';
 import ModalParcela from '@/components/modals/ModalParcela';
 import SkeletonCard from '@/components/shared/SkeletonCard';
-import { Plus, CreditCard, FileText, Calendar, Repeat, ShoppingBag } from 'lucide-react';
+import { Plus, CreditCard, FileText, Calendar, Repeat, ShoppingBag, ArrowLeft } from 'lucide-react';
 
 const tabs = [
   { to: '/cartoes', label: 'Meus Cartões', icon: CreditCard, end: true },
   { to: '/cartoes/fatura', label: 'Fatura Atual', icon: FileText },
   { to: '/cartoes/mensal', label: 'Visão Mensal', icon: Calendar },
-  { to: '/cartoes/recorrentes', label: 'Recorrentes', icon: Repeat },
+  { to: '/cartoes/recorrentes', label: 'Assinaturas', icon: Repeat },
 ];
 
 export default function Cartoes() {
-  const location = useLocation();
+  const navigate = useNavigate();
   const { cartoes, loading, create, update, remove, refetch } = useCartoes();
   const { contas } = useContas();
   const { addToast } = useAlert();
@@ -29,19 +29,21 @@ export default function Cartoes() {
   const [modalCartao, setModalCartao] = useState(false);
   const [modalParcela, setModalParcela] = useState(false);
   const [editingData, setEditingData] = useState<any>(null);
-  const isIndex = location.pathname === '/cartoes';
+  const isIndex = location.pathname === '/cartoes' || location.pathname === '/cartoes/';
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: any, initialConfig?: any) => {
     try {
       if (data.id) {
         await update(data.id, data);
         addToast('success', 'Cartão atualizado!');
       } else {
-        await create(data);
-        addToast('success', 'Cartão criado!');
+        await create(data, initialConfig);
+        addToast('success', initialConfig?.mode !== 'none' ? 'Cartão criado com configurações iniciais!' : 'Cartão criado!');
       }
       refresh();
-    } catch { addToast('error', 'Erro ao salvar cartão'); }
+    } catch (err: any) { 
+      addToast('error', err.message || 'Erro ao salvar cartão'); 
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -67,22 +69,33 @@ export default function Cartoes() {
     <div className="space-y-6 animate-fade-in">
       {/* Tabs */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-1 bg-surface rounded-xl p-1 border border-white/[0.07]">
-          {tabs.map(tab => (
-            <NavLink
-              key={tab.to}
-              to={tab.to}
-              end={tab.end}
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-muted hover:text-white'
-                }`
-              }
+        <div className="flex items-center gap-4">
+          {!isIndex && (
+            <button 
+              onClick={() => navigate('/cartoes')}
+              className="w-10 h-10 rounded-xl bg-surface border border-white/[0.07] flex items-center justify-center text-muted hover:text-white transition-all"
+              title="Voltar"
             >
-              <tab.icon size={14} />
-              {tab.label}
-            </NavLink>
-          ))}
+              <ArrowLeft size={18} />
+            </button>
+          )}
+          <div className="flex gap-1 bg-surface rounded-xl p-1 border border-white/[0.07]">
+            {tabs.map(tab => (
+              <NavLink
+                key={tab.to}
+                to={tab.to}
+                end={tab.end}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-muted hover:text-white'
+                  }`
+                }
+              >
+                <tab.icon size={14} />
+                {tab.label}
+              </NavLink>
+            ))}
+          </div>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setModalParcela(true)} className="btn-ghost flex items-center gap-2 border border-white/[0.07]">
@@ -112,7 +125,9 @@ export default function Cartoes() {
             ))}
           </div>
         )
-      ) : null}
+      ) : (
+        <Outlet />
+      )}
 
       <ModalCartao 
         open={modalCartao} 
