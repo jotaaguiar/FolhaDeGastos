@@ -25,7 +25,7 @@ export default function Configuracoes() {
   const [limiteDinamico, setLimiteDinamico] = useState(config?.limiteDinamico ?? false);
   const [reserva, setReserva] = useState(config?.reservaInvestimento?.toString() || '0');
   const [radarPeriodo, setRadarPeriodo] = useState(config?.radarPeriodo?.toString() || '6');
-  const [tema, setTema] = useState<'escuro' | 'claro'>(config?.tema === 'claro' ? 'claro' : 'escuro');
+  const [tema, setTema] = useState<string>(config?.tema || 'escuro');
   const [taxaJurosGlobal, setTaxaJurosGlobal] = useState(config?.taxaJurosCartoesGlobal?.toString() || '15');
   const [taxasIndividuais, setTaxasIndividuais] = useState<Record<string, string>>({});
 
@@ -38,7 +38,7 @@ export default function Configuracoes() {
     setLimiteDinamico(config.limiteDinamico ?? false);
     setReserva(config.reservaInvestimento?.toString() || '0');
     setRadarPeriodo(config.radarPeriodo?.toString() || '6');
-    setTema(config.tema === 'claro' ? 'claro' : 'escuro');
+    setTema(config.tema || 'escuro');
     setTaxaJurosGlobal(config.taxaJurosCartoesGlobal?.toString() || '15');
   }, [config]);
 
@@ -192,27 +192,45 @@ export default function Configuracoes() {
           </div>
 
           <div>
-            <label className="text-xs text-muted font-mono block mb-2">Tema</label>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="text-xs text-muted font-mono block mb-3">Tema da Interface</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {([
-                { id: 'escuro', label: 'Escuro', icon: '🌙', desc: 'Fundo preto, cores vibrantes' },
-                { id: 'claro', label: 'Claro', icon: '☀️', desc: 'Fundo branco, cores suaves' },
+                { id: 'escuro', label: 'Midnight', icon: '🌙', color: '#a78bfa', desc: 'Clássico Escuro' },
+                { id: 'emerald', label: 'Emerald', icon: '🌲', color: '#10b981', desc: 'Verde Floresta' },
+                { id: 'ocean', label: 'Oceanic', icon: '🌊', color: '#0ea5e9', desc: 'Azul Profundo' },
+                { id: 'sunset', label: 'Sunset', icon: '🌆', color: '#f43f5e', desc: 'Rosa Crepúsculo' },
+                { id: 'claro', label: 'Aurora', icon: '☀️', color: '#6d28d9', desc: 'Modo Claro' },
               ] as const).map(t => (
                 <button
                   key={t.id}
+                  type="button"
                   onClick={() => {
                     setTema(t.id);
-                    document.body.className = t.id === 'claro' ? 'theme-claro' : '';
+                    const root = document.documentElement;
+                    root.classList.forEach(cls => {
+                      if (cls.startsWith('theme-')) root.classList.remove(cls);
+                    });
+                    root.classList.add(`theme-${t.id}`);
+                    if (t.id === 'claro') root.classList.remove('dark');
+                    else root.classList.add('dark');
                   }}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${
+                  className={`relative p-3 rounded-xl border-2 transition-all text-left overflow-hidden group ${
                     tema === t.id
                       ? 'border-brand-primary bg-brand-primary/10'
-                      : 'border-white/10 hover:border-white/20'
+                      : 'border-white/10 hover:border-white/20 bg-s2/40'
                   }`}
                 >
-                  <div className="text-2xl mb-2">{t.icon}</div>
-                  <p className="text-sm font-semibold">{t.label}</p>
-                  <p className="text-[10px] text-muted mt-0.5">{t.desc}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xl">{t.icon}</div>
+                    <div className="w-4 h-4 rounded-full border border-white/20" style={{ background: t.color }} />
+                  </div>
+                  <p className="text-xs font-bold uppercase tracking-tight">{t.label}</p>
+                  <p className="text-[9px] text-muted leading-tight mt-0.5">{t.desc}</p>
+                  {tema === t.id && (
+                    <div className="absolute top-0 right-0 p-1">
+                      <div className="w-2 h-2 rounded-full bg-brand-primary shadow-[0_0_8px_var(--brand-glow)]" />
+                    </div>
+                  )}
                 </button>
               ))}
             </div>

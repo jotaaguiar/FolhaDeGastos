@@ -21,6 +21,9 @@ export interface Conta {
   saldoInicial: number;
   cor: string;
   ativa: boolean;
+  limiteChequeEspecial?: number;     // R$ limite de cheque especial
+  taxaJurosChequeEspecial?: number; // % ao mês
+  diaCobrancaJuros?: number;         // Dia do mês que o juros é cobrado
   criadoEm: string;
 }
 
@@ -70,11 +73,12 @@ export interface Fatura {
   ano: number;
   dataVencimento: string;
   dataFechamento: string;
-  status: "aberta" | "fechada" | "paga" | "vencida" | "parcial";
+  status: "aberta" | "fechada" | "paga" | "vencida" | "parcial" | "futura";
   dataPagamento?: string;
   contaPagamentoId?: string;
   valorPago?: number;                // valor efetivamente pago
   saldoAnteriorRollover?: number;    // dívida rolada da fatura anterior (já com juros)
+  valorAjuste?: number;              // ajuste manual (ex: saldo inicial)
   jurosAplicados?: number;           // juros cobrados sobre o rollover desta fatura
   taxaJurosAplicada?: number;        // taxa % usada ao pagar parcialmente
 }
@@ -122,7 +126,7 @@ export interface Config {
   moeda: string;
   limiteDiarioPadrao: number;
   limiteDinamico: boolean;
-  tema: "fluxo" | "emerald" | "ocean" | "sunset";
+  tema: string;
   reservaInvestimento: number;
   radarPeriodo: number;
   taxaJurosCartoesGlobal: number; // % ao mês padrão para todos os cartões (ex: 15)

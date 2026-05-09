@@ -18,8 +18,8 @@ export function useCartoes() {
 
   useEffect(() => { fetch(); }, [fetch, refreshKey]);
 
-  const create = async (data: Partial<Cartao>) => {
-    const novo = await api.createCartao(data);
+  const create = async (data: Partial<Cartao>, initialConfig?: any) => {
+    const novo = await api.createCartao({ ...data, initialConfig } as any);
     setCartoes(prev => [...prev, novo]);
     return novo;
   };

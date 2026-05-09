@@ -15,10 +15,10 @@ export default function StackedBarChart({ data }: StackedBarChartProps) {
           tickFormatter={(v: number) => `${(v / 1000).toFixed(1)}k`} />
         <Tooltip
           contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontFamily: 'DM Mono', fontSize: 12 }}
-          formatter={(value: number, name: string) => [formatCurrency(value), name === 'entradas' ? 'Entradas' : 'Saídas']}
+          formatter={(value: any, name: any) => [formatCurrency(Number(value)), name === 'entradas' ? 'Entradas' : 'Saídas']}
         />
-        <Bar dataKey="entradas" fill="#34d399" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="saidas" fill="#fb7185" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="entradas" fill="rgb(var(--green-rgb))" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="saidas" fill="rgb(var(--red-rgb))" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

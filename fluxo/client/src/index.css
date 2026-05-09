@@ -4,7 +4,7 @@
 
 @layer base {
   /* ─── DARK THEME (default) ─────────────────────────────── */
-  :root {
+  :root, .theme-escuro {
     --bg-rgb: 8 8 16;
     --surface-rgb: 15 15 26;
     --s2-rgb: 22 22 42;
@@ -23,6 +23,15 @@
 
     --brand-primary-rgb: 167 139 250;
     --brand-glow: rgba(167, 139, 250, 0.15);
+    --brand-primary: rgb(var(--brand-primary-rgb));
+
+    --green: rgb(var(--green-rgb));
+    --red: rgb(var(--red-rgb));
+    --amber: rgb(var(--amber-rgb));
+    --blue: rgb(var(--blue-rgb));
+    --purple: rgb(var(--purple-rgb));
+    --teal: rgb(var(--teal-rgb));
+    --pink: rgb(var(--pink-rgb));
 
     --text: rgb(236, 234, 255);
     --border: rgba(255, 255, 255, 0.07);
@@ -36,12 +45,47 @@
     --modal-backdrop: rgba(0, 0, 0, 0.65);
   }
 
-  /* ─── LIGHT THEME ──────────────────────────────────────── */
-  body.theme-claro {
-    --bg-rgb: 245 244 255;
+  .theme-emerald {
+    --bg-rgb: 4 15 10;
+    --surface-rgb: 8 26 18;
+    --s2-rgb: 12 36 26;
+    --s3-rgb: 16 48 34;
+    --brand-primary-rgb: 52 211 153;
+    --brand-glow: rgba(52, 211, 153, 0.15);
+    --green-rgb: 74 222 128;
+    --blue-rgb: 45 212 191;
+    --purple-rgb: 129 140 248;
+  }
+
+  .theme-ocean {
+    --bg-rgb: 4 10 20;
+    --surface-rgb: 8 18 32;
+    --s2-rgb: 12 28 48;
+    --s3-rgb: 16 38 64;
+    --brand-primary-rgb: 56 189 248;
+    --brand-glow: rgba(56, 189, 248, 0.15);
+    --green-rgb: 34 211 238;
+    --blue-rgb: 14 165 233;
+    --purple-rgb: 167 139 250;
+  }
+
+  .theme-sunset {
+    --bg-rgb: 15 8 12;
+    --surface-rgb: 26 12 20;
+    --s2-rgb: 38 18 28;
+    --s3-rgb: 50 24 36;
+    --brand-primary-rgb: 244 63 94;
+    --brand-glow: rgba(244, 63, 94, 0.15);
+    --green-rgb: 251 113 133;
+    --blue-rgb: 139 92 246;
+    --purple-rgb: 190 24 93;
+  }
+
+  .theme-claro {
+    --bg-rgb: 248 249 252;
     --surface-rgb: 255 255 255;
-    --s2-rgb: 237 236 252;
-    --s3-rgb: 227 226 245;
+    --s2-rgb: 241 242 248;
+    --s3-rgb: 231 232 240;
     --muted-rgb: 108 104 148;
     --muted2-rgb: 185 183 210;
     --text-rgb: 18 16 38;
@@ -77,7 +121,7 @@
     background: rgb(var(--bg-rgb));
     color: var(--text);
     font-family: 'Syne', sans-serif;
-    transition: background 0.25s ease, color 0.25s ease;
+    transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -91,32 +135,25 @@
   }
 
   /* ─── LIGHT MODE: text overrides ───────────────────────── */
-  /* text-white → main dark text (except inside theme-preserve-text) */
-  body.theme-claro [class~="text-white"]:not(.theme-preserve-text *) {
+  .theme-claro [class~="text-white"]:not(.theme-preserve-text *) {
     color: rgb(var(--text-rgb)) !important;
   }
-  body.theme-claro [class*="hover:text-white"]:hover:not(.theme-preserve-text *) {
+  .theme-claro [class*="hover:text-white"]:hover:not(.theme-preserve-text *) {
     color: rgb(var(--text-rgb)) !important;
   }
-
-  /* border-white/X → dark borders */
-  body.theme-claro [class*="border-white"]:not(.theme-preserve-text *) {
+  .theme-claro [class*="border-white"]:not(.theme-preserve-text *) {
     border-color: var(--border) !important;
   }
-
-  /* bg-white/X overlays → dark overlays */
-  body.theme-claro [class~="bg-white\\/5"]:not(.theme-preserve-text *),
-  body.theme-claro [class~="bg-white\\/10"]:not(.theme-preserve-text *),
-  body.theme-claro [class~="bg-white\\/\\[0\\.03\\]"]:not(.theme-preserve-text *),
-  body.theme-claro [class~="bg-white\\/\\[0\\.05\\]"]:not(.theme-preserve-text *) {
+  .theme-claro [class~="bg-white\\/5"]:not(.theme-preserve-text *),
+  .theme-claro [class~="bg-white\\/10"]:not(.theme-preserve-text *),
+  .theme-claro [class~="bg-white\\/\\[0\\.03\\]"]:not(.theme-preserve-text *),
+  .theme-claro [class~="bg-white\\/\\[0\\.05\\]"]:not(.theme-preserve-text *) {
     background-color: var(--overlay-subtle) !important;
   }
-  body.theme-claro [class*="hover:bg-white"]:hover:not(.theme-preserve-text *) {
+  .theme-claro [class*="hover:bg-white"]:hover:not(.theme-preserve-text *) {
     background-color: var(--overlay-hover) !important;
   }
-
-  /* Modal backdrop */
-  body.theme-claro [class~="bg-black\\/60"] {
+  .theme-claro [class~="bg-black\\/60"] {
     background-color: var(--modal-backdrop) !important;
   }
 }

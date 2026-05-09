@@ -42,11 +42,15 @@ router.get('/', async (req: Request, res: Response) => {
   const { mes, ano, contaId, cartaoId, categoria, tipo } = req.query;
 
   if (mes && ano) {
-    const m = Number(mes);
-    const a = Number(ano);
+    const mReq = Number(mes);
+    const aReq = Number(ano);
     transacoes = transacoes.filter(t => {
-      const d = new Date(t.data);
-      return d.getMonth() + 1 === m && d.getFullYear() === a;
+      if (!t.data) return false;
+      const parts = t.data.includes('-') ? t.data.split('-') : t.data.split('/');
+      if (parts.length < 2) return false;
+      const a = parts[0].length === 4 ? Number(parts[0]) : Number(parts[2]);
+      const m = Number(parts[1]);
+      return m === mReq && a === aReq;
     });
   }
 

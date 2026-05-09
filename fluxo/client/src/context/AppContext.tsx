@@ -33,7 +33,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.body.className = config?.tema === 'claro' ? 'theme-claro' : '';
+    const tema = config?.tema || 'escuro';
+    const root = document.documentElement;
+    
+    // Remove existing theme classes
+    root.classList.forEach(cls => {
+      if (cls.startsWith('theme-')) root.classList.remove(cls);
+    });
+    
+    // Apply new theme
+    root.classList.add(`theme-${tema}`);
+    
+    // Manage Tailwind dark mode
+    if (tema === 'claro') {
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+    }
   }, [config?.tema]);
 
   const setMesAno = useCallback((mes: number, ano: number) => {

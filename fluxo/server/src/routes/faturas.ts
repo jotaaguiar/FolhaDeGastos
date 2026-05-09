@@ -27,6 +27,14 @@ async function ensureFatura(userId: string, cartaoId: string, mes: number, ano: 
       if (vencMes > 12) { vencMes = 1; vencAno++; }
     }
 
+    const hoje = new Date();
+    const mesHoje = hoje.getMonth() + 1;
+    const anoHoje = hoje.getFullYear();
+    let status: Fatura['status'] = 'aberta';
+    if (ano > anoHoje || (ano === anoHoje && mes > mesHoje)) {
+      status = 'futura';
+    }
+
     fatura = {
       id: gerarFaturaId(cartaoId, mes, ano),
       cartaoId,
@@ -34,7 +42,7 @@ async function ensureFatura(userId: string, cartaoId: string, mes: number, ano: 
       ano,
       dataVencimento: `${vencAno}-${String(vencMes).padStart(2, '0')}-${String(cartao.diaVencimento).padStart(2, '0')}`,
       dataFechamento: `${ano}-${String(mes).padStart(2, '0')}-${String(cartao.diaFechamento).padStart(2, '0')}`,
-      status: 'aberta',
+      status,
     };
     faturas.push(fatura);
     await writeFile(userId, 'faturas.json', faturas);
@@ -46,10 +54,25 @@ async function ensureFatura(userId: string, cartaoId: string, mes: number, ano: 
 // GET all faturas — optionally filtered
 router.get('/', async (req: Request, res: Response) => {
   const userId = (req as any).userId;
-  const { cartaoId, mes, ano } = req.query;
-  let faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
-  const transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
+  const cartaoId = req.query.cartaoId;
+  const mes = req.query.mes;
+  const ano = req.query.ano;
+
+  const faturasAll = await readFile<Fatura[]>(userId, 'faturas.json', []);
   const cartoes = await readFile<Cartao[]>(userId, 'cartoes.json', []);
+  const cartaoIds = new Set(cartoes.map(c => c.id));
+
+  // Cleanup: Delete orphans (faturas with no valid card)
+  const initialCount = faturasAll.length;
+  const cleanFaturas = faturasAll.filter(f => cartaoIds.has(f.cartaoId));
+  
+  if (cleanFaturas.length !== initialCount) {
+    console.log(`Cleaning up ${initialCount - cleanFaturas.length} orphan invoices for user ${userId}`);
+    await writeFile(userId, 'faturas.json', cleanFaturas);
+  }
+
+  let faturas = cleanFaturas;
+  const transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
 
   if (cartaoId && mes && ano) {
     await ensureFatura(userId, String(cartaoId), Number(mes), Number(ano));
@@ -59,13 +82,26 @@ router.get('/', async (req: Request, res: Response) => {
   if (cartaoId) faturas = faturas.filter(f => f.cartaoId === String(cartaoId));
   if (mes) faturas = faturas.filter(f => f.mes === Number(mes));
   if (ano) faturas = faturas.filter(f => f.ano === Number(ano));
-
-  // Auto-update overdue status
+  
   let updated = false;
+  const hoje = new Date();
+  const mesHoje = hoje.getMonth() + 1;
+  const anoHoje = hoje.getFullYear();
+
   for (let i = 0; i < faturas.length; i++) {
-    if (isFaturaVencida(faturas[i]) && faturas[i].status === 'fechada') {
-      faturas[i].status = 'vencida';
+    const f = faturas[i];
+    // 1. vencida: if closed and past due date
+    if (isFaturaVencida(f) && f.status === 'fechada') {
+      f.status = 'vencida';
       updated = true;
+    }
+    // 2. aberta: if was future but month arrived
+    if (f.status === 'futura') {
+      const isPastOrPresent = f.ano < anoHoje || (f.ano === anoHoje && f.mes <= mesHoje);
+      if (isPastOrPresent) {
+        f.status = 'aberta';
+        updated = true;
+      }
     }
   }
 
@@ -78,8 +114,11 @@ router.get('/', async (req: Request, res: Response) => {
 
   // Pre-compute card-wide limit info from the full fatura list
   const limiteByCartao = new Map<string, ReturnType<typeof computeLimiteCartao>>();
+  const targetMes = mes ? Number(mes) : undefined;
+  const targetAno = ano ? Number(ano) : undefined;
+  
   for (const cartao of cartoes) {
-    limiteByCartao.set(cartao.id, computeLimiteCartao(cartao, allFaturas, transacoes));
+    limiteByCartao.set(cartao.id, computeLimiteCartao(cartao, allFaturas, transacoes, targetMes, targetAno));
   }
 
   const result = faturas.map(f => {
@@ -140,7 +179,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   const idx = faturas.findIndex(f => f.id === req.params.id);
   if (idx === -1) { res.status(404).json({ error: 'Fatura não encontrada' }); return; }
 
-  const allowed = ['dataVencimento', 'dataFechamento', 'status', 'saldoAnteriorRollover'];
+  const allowed = ['dataVencimento', 'dataFechamento', 'status', 'saldoAnteriorRollover', 'valorAjuste'];
   const updates: Partial<Fatura> = {};
   for (const key of allowed) {
     if (req.body[key] !== undefined) {
@@ -314,6 +353,13 @@ router.post('/gerar', async (req: Request, res: Response) => {
           vencMes++;
           if (vencMes > 12) { vencMes = 1; vencAno++; }
         }
+        const mesHoje = hoje.getMonth() + 1;
+        const anoHoje = hoje.getFullYear();
+        let status: Fatura['status'] = 'aberta';
+        if (ano > anoHoje || (ano === anoHoje && mes > mesHoje)) {
+          status = 'futura';
+        }
+
         const nova: Fatura = {
           id,
           cartaoId: cartao.id,
@@ -321,7 +367,7 @@ router.post('/gerar', async (req: Request, res: Response) => {
           ano,
           dataVencimento: `${vencAno}-${String(vencMes).padStart(2, '0')}-${String(cartao.diaVencimento).padStart(2, '0')}`,
           dataFechamento: `${ano}-${String(mes).padStart(2, '0')}-${String(cartao.diaFechamento).padStart(2, '0')}`,
-          status: 'aberta',
+          status,
         };
         novas.push(nova);
       }

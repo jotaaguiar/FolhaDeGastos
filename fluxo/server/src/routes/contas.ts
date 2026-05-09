@@ -22,6 +22,9 @@ router.post('/', async (req: Request, res: Response) => {
     saldoInicial: Number(req.body.saldoInicial) || 0,
     cor: req.body.cor || '#a78bfa',
     ativa: true,
+    limiteChequeEspecial: Number(req.body.limiteChequeEspecial) || 0,
+    taxaJurosChequeEspecial: Number(req.body.taxaJurosChequeEspecial) || 0,
+    diaCobrancaJuros: Number(req.body.diaCobrancaJuros) || 1,
     criadoEm: new Date().toISOString(),
   };
   contas.push(nova);

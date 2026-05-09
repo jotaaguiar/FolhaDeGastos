@@ -12,16 +12,23 @@ export default function VisaoMensal() {
   const { recorrencias } = useRecorrencias();
   const { mesAtual, anoAtual, refreshKey } = useApp();
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [faturas, setFaturas] = useState<any[]>([]);
 
   useEffect(() => {
-    api.getTransacoes({}).then(setTransacoes).catch(console.error);
+    Promise.all([
+      api.getTransacoes({}),
+      api.getFaturas({})
+    ]).then(([txs, fats]) => {
+      setTransacoes(txs);
+      setFaturas(fats);
+    }).catch(console.error);
   }, [refreshKey]);
 
   if (loading) return <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>;
 
-  // Generate 8 months ahead
+  // Generate 12 months ahead
   const meses: Array<{ mes: number; ano: number }> = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 12; i++) {
     let m = mesAtual + i;
     let a = anoAtual;
     while (m > 12) { m -= 12; a++; }
@@ -48,6 +55,13 @@ export default function VisaoMensal() {
     // Recurrents
     const recs = recorrencias.filter(r => r.cartaoId === cartaoId && r.ativa && r.tipo === 'credito_cartao');
     total += recs.reduce((acc, r) => acc + r.valor, 0);
+
+    // Manual Adjustments (Saldos)
+    const fatura = faturas.find(f => f.cartaoId === cartaoId && f.mes === mes && f.ano === ano);
+    if (fatura && fatura.valorAjuste) {
+      total += Number(fatura.valorAjuste);
+    }
+
     return total;
   };
 

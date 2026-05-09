@@ -13,6 +13,9 @@ export interface Conta {
   saldoInicial: number;
   cor: string;
   ativa: boolean;
+  limiteChequeEspecial?: number;
+  taxaJurosChequeEspecial?: number;
+  diaCobrancaJuros?: number;
   criadoEm: string;
 }
 
@@ -66,11 +69,12 @@ export interface Fatura {
   ano: number;
   dataVencimento: string;
   dataFechamento: string;
-  status: "aberta" | "fechada" | "paga" | "vencida" | "parcial";
+  status: "aberta" | "fechada" | "paga" | "vencida" | "parcial" | "futura";
   dataPagamento?: string;
   contaPagamentoId?: string;
   valorPago?: number;
   saldoAnteriorRollover?: number;
+  valorAjuste?: number;
   jurosAplicados?: number;
   taxaJurosAplicada?: number;
 }
@@ -118,7 +122,7 @@ export interface Config {
   moeda: string;
   limiteDiarioPadrao: number;
   limiteDinamico: boolean;
-  tema: "escuro" | "claro";
+  tema: string;
   reservaInvestimento: number;
   radarPeriodo: number;
   taxaJurosCartoesGlobal: number;

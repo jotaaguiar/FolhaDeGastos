@@ -74,10 +74,15 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Overview /> },
       { path: 'contas', element: <Contas /> },
-      { path: 'cartoes', element: <Cartoes /> },
-      { path: 'cartoes/fatura', element: <FaturaAtual /> },
-      { path: 'cartoes/mensal', element: <VisaoMensal /> },
-      { path: 'cartoes/recorrentes', element: <Recorrentes /> },
+      { 
+        path: 'cartoes', 
+        element: <Cartoes />,
+        children: [
+          { path: 'fatura', element: <FaturaAtual /> },
+          { path: 'mensal', element: <VisaoMensal /> },
+          { path: 'recorrentes', element: <Recorrentes /> },
+        ]
+      },
       { path: 'fluxo', element: <FluxoCaixa /> },
       { path: 'orcamento', element: <Orcamento /> },
       { path: 'metas', element: <Metas /> },

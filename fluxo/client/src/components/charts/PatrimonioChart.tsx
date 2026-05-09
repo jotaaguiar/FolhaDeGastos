@@ -1,4 +1,4 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Defs, LinearGradient, Stop } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { formatCurrency } from '@/lib/formatters';
 import { useBrandColor } from '@/hooks/useBrandColor';
 
@@ -39,8 +39,8 @@ export default function PatrimonioChart({ data }: PatrimonioChartProps) {
           <Tooltip
             contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontFamily: 'DM Mono', fontSize: 12 }}
             itemStyle={{ color: brandColor }}
-            formatter={(value: number) => [formatCurrency(value), 'Patrimônio']}
-            labelFormatter={(label) => `Mês: ${label}`}
+            formatter={(value: number) => [formatCurrency(value), 'Patrimônio'] as any}
+            labelFormatter={(label) => `Mês: ${label}` as any}
           />
           <Area
             type="monotone"

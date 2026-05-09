@@ -33,8 +33,8 @@ export default function FluxoLineChart({ data }: FluxoLineChartProps) {
         <Tooltip
           contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontFamily: 'DM Mono', fontSize: 12 }}
           labelStyle={{ color: '#6b6890' }}
-          formatter={(value: number) => [formatCurrency(value), 'Saldo']}
-          labelFormatter={(label) => `Data: ${label}`}
+          formatter={(value: any) => [formatCurrency(Number(value)), 'Saldo'] as any}
+          labelFormatter={(label) => `Data: ${label}` as any}
         />
         <Line 
           data={realData}

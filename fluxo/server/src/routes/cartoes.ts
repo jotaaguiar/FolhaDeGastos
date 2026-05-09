@@ -12,51 +12,53 @@ function computeLimiteCartao(
   targetMes?: number,
   targetAno?: number
 ): { limiteUsadoTotal: number; limiteDisponivelReal: number; limiteDisponivelProjetado: number } {
-  const faturasNaoPagas = allFaturas.filter(f => f.cartaoId === cartao.id && f.status !== 'paga');
-  const faturasNaoPagasIds = new Set(faturasNaoPagas.map(f => f.id));
-
-  // Actual CC charges in unpaid invoices
-  const gastoTransacoes = transacoes
-    .filter(t => t.cartaoId === cartao.id && t.tipo === 'credito_cartao' && t.faturaId && faturasNaoPagasIds.has(t.faturaId))
+  // Calculate total debt using a global approach:
+  // Debt = (All transactions) + (All manual adjustments) + (All interest) - (All payments)
+  
+  const totalTransacoes = transacoes
+    .filter(t => t.cartaoId === cartao.id && t.tipo === 'credito_cartao')
     .reduce((acc, t) => acc + t.valor, 0);
 
-  // Interest from partial payments (not a transaction, stored on the fatura)
-  const juros = faturasNaoPagas
-    .filter(f => f.status === 'parcial')
-    .reduce((acc, f) => acc + (f.jurosAplicados || 0), 0);
+  const totalAjustes = allFaturas
+    .filter(f => f.cartaoId === cartao.id)
+    .reduce((acc, f) => acc + (Number(f.valorAjuste) || 0), 0);
 
-  // Amount already paid on partial invoices
-  const jaPago = faturasNaoPagas
-    .filter(f => f.status === 'parcial')
-    .reduce((acc, f) => acc + (f.valorPago || 0), 0);
+  const totalJuros = allFaturas
+    .filter(f => f.cartaoId === cartao.id)
+    .reduce((acc, f) => acc + (Number(f.jurosAplicados) || 0), 0);
 
-  const limiteUsadoTotal = Math.max(0, Math.round((gastoTransacoes + juros - jaPago) * 100) / 100);
+  const totalPago = allFaturas
+    .filter(f => f.cartaoId === cartao.id)
+    .reduce((acc, f) => acc + (Number(f.valorPago) || 0), 0);
 
-  // Projected: if targetMes/targetAno given, show limit if only that month's invoice remained;
-  // otherwise fall back to only the currently open invoice.
-  let gastoAberto: number;
-  if (targetMes !== undefined && targetAno !== undefined) {
-    const faturaDoMes = allFaturas.find(
-      f => f.cartaoId === cartao.id && f.mes === targetMes && f.ano === targetAno
-    );
-    gastoAberto = faturaDoMes
-      ? transacoes
-          .filter(t => t.cartaoId === cartao.id && t.tipo === 'credito_cartao' && t.faturaId === faturaDoMes.id)
-          .reduce((acc, t) => acc + t.valor, 0)
-      : 0;
-  } else {
-    const faturasAbertasIds = new Set(
-      allFaturas.filter(f => f.cartaoId === cartao.id && f.status === 'aberta').map(f => f.id)
-    );
-    gastoAberto = transacoes
-      .filter(t => t.cartaoId === cartao.id && t.tipo === 'credito_cartao' && t.faturaId && faturasAbertasIds.has(t.faturaId))
-      .reduce((acc, t) => acc + t.valor, 0);
-  }
+  const limiteUsadoTotal = Math.max(0, Math.round((totalTransacoes + totalAjustes + totalJuros - totalPago) * 100) / 100);
+
+  // 5. Projected: "If I pay everything up to target month"
+  // Remaining debt = Total Debt - (Debt in invoices up to target month)
+  // Which is equal to: Debt in invoices AFTER target month.
+  let debitoFuturo = 0;
+  const now = new Date();
+  const tMes = targetMes ?? (now.getMonth() + 1);
+  const tAno = targetAno ?? now.getFullYear();
+
+  const faturasFuturas = allFaturas.filter(f => 
+    f.cartaoId === cartao.id && 
+    (f.ano > tAno || (f.ano === tAno && f.mes > tMes))
+  );
+  const faturasFuturasIds = new Set(faturasFuturas.map(f => f.id));
+
+  const transacoesFuturas = transacoes
+    .filter(t => t.cartaoId === cartao.id && t.tipo === 'credito_cartao' && t.faturaId && faturasFuturasIds.has(t.faturaId))
+    .reduce((acc, t) => acc + t.valor, 0);
+  
+  const ajustesFuturos = faturasFuturas.reduce((acc, f) => acc + (Number(f.valorAjuste) || 0), 0);
+  
+  debitoFuturo = transacoesFuturas + ajustesFuturos;
 
   return {
     limiteUsadoTotal,
     limiteDisponivelReal: Math.max(0, Math.round((cartao.limite - limiteUsadoTotal) * 100) / 100),
-    limiteDisponivelProjetado: Math.max(0, Math.round((cartao.limite - gastoAberto) * 100) / 100),
+    limiteDisponivelProjetado: Math.max(0, Math.round((cartao.limite - debitoFuturo) * 100) / 100),
   };
 }
 
@@ -97,6 +99,75 @@ router.post('/', async (req: Request, res: Response) => {
   };
   cartoes.push(novo);
   await writeFile(userId, 'cartoes.json', cartoes);
+
+  // Handle initial configuration atomically
+  const { initialConfig } = req.body;
+  if (initialConfig && initialConfig.mode !== 'none') {
+    const faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
+    const transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
+
+    const nowLocal = new Date();
+    const mesHoje = nowLocal.getMonth() + 1;
+    const anoHoje = nowLocal.getFullYear();
+
+    const ensureLocalFatura = (m: number, a: number) => {
+      let f = faturas.find(fat => fat.cartaoId === novo.id && fat.mes === m && fat.ano === a);
+      if (!f) {
+        let vM = m, vA = a;
+        if (novo.diaVencimento <= novo.diaFechamento) { vM++; if (vM > 12) { vM = 1; vA++; } }
+        
+        let status: Fatura['status'] = 'aberta';
+        if (a > anoHoje || (a === anoHoje && m > mesHoje)) {
+          status = 'futura';
+        }
+
+        f = {
+          id: `fat-${novo.id.slice(0, 8)}-${a}-${String(m).padStart(2, '0')}`,
+          cartaoId: novo.id, mes: m, ano: a,
+          dataVencimento: `${vA}-${String(vM).padStart(2, '0')}-${String(novo.diaVencimento).padStart(2, '0')}`,
+          dataFechamento: `${a}-${String(m).padStart(2, '0')}-${String(novo.diaFechamento).padStart(2, '0')}`,
+          status,
+        };
+        faturas.push(f);
+      }
+      return f;
+    };
+
+    if (initialConfig.mode === 'saldos' && initialConfig.saldos) {
+      for (const s of initialConfig.saldos) {
+        const fat = ensureLocalFatura(Number(s.mes), Number(s.ano));
+        fat.valorAjuste = Number(s.valor) || 0;
+      }
+    } else if (initialConfig.mode === 'parcelas' && initialConfig.parcelas) {
+      for (const p of initialConfig.parcelas) {
+        const grupoId = uuid();
+        const valorParcela = Math.round((Number(p.valorTotal) / Number(p.parcelas)) * 100) / 100;
+        for (let i = 0; i < Number(p.parcelas); i++) {
+          let m = Number(p.mesInicio) + i;
+          let a = Number(p.anoInicio);
+          while (m > 12) { m -= 12; a++; }
+          const fat = ensureLocalFatura(m, a);
+          const dia = Math.min(15, new Date(a, m, 0).getDate());
+          transacoes.push({
+            id: uuid(),
+            descricao: `${p.descricao} — ${i + 1}/${p.parcelas}`,
+            valor: valorParcela,
+            tipo: 'credito_cartao',
+            data: `${a}-${String(m).padStart(2, '0')}-${String(dia).padStart(2, '0')}`,
+            categoria: p.categoria || 'outros',
+            cartaoId: novo.id,
+            faturaId: fat.id,
+            recorrente: false,
+            parcelamento: { total: Number(p.parcelas), atual: i + 1, grupoId, valorTotal: Number(p.valorTotal) },
+            criadoEm: new Date().toISOString(),
+          });
+        }
+      }
+    }
+    await writeFile(userId, 'faturas.json', faturas);
+    await writeFile(userId, 'transacoes.json', transacoes);
+  }
+
   res.status(201).json(novo);
 });
 
@@ -112,11 +183,26 @@ router.put('/:id', async (req: Request, res: Response) => {
 
 router.delete('/:id', async (req: Request, res: Response) => {
   const userId = (req as any).userId;
+  const cartaoId = req.params.id;
+
   let cartoes = await readFile<Cartao[]>(userId, 'cartoes.json', []);
-  const exists = cartoes.find(c => c.id === req.params.id);
+  const exists = cartoes.find(c => c.id === cartaoId);
   if (!exists) { res.status(404).json({ error: 'Cartão não encontrado' }); return; }
-  cartoes = cartoes.filter(c => c.id !== req.params.id);
+
+  // 1. Remove the card
+  cartoes = cartoes.filter(c => c.id !== cartaoId);
   await writeFile(userId, 'cartoes.json', cartoes);
+
+  // 2. Remove all associated invoices
+  let faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
+  faturas = faturas.filter(f => f.cartaoId !== cartaoId);
+  await writeFile(userId, 'faturas.json', faturas);
+
+  // 3. Remove all associated transactions
+  let transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
+  transacoes = transacoes.filter(t => t.cartaoId !== cartaoId);
+  await writeFile(userId, 'transacoes.json', transacoes);
+
   res.json({ ok: true });
 });
 

@@ -5,6 +5,7 @@ import { useTransacoes } from '@/hooks/useTransacoes';
 import { useContas } from '@/hooks/useContas';
 import { useCartoes } from '@/hooks/useCartoes';
 import { useRecorrencias } from '@/hooks/useRecorrencias';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { useDashboard } from '@/hooks/useDashboard';
 import MetricCard from '@/components/shared/MetricCard';
@@ -16,6 +17,7 @@ import ModalTransacao from '@/components/modals/ModalTransacao';
 import ModalDetalhesDia from '@/components/modals/ModalDetalhesDia';
 import { formatCurrency, getDiaSemana, getMesNome } from '@/lib/formatters';
 import { useAlert } from '@/context/AlertContext';
+import RecorrenciasManager from '@/components/shared/RecorrenciasManager';
 
 export default function FluxoCaixa() {
   const { mesAtual, anoAtual, config, refresh } = useApp();
@@ -26,7 +28,7 @@ export default function FluxoCaixa() {
   const { cartoes } = useCartoes();
   const { recorrencias } = useRecorrencias();
   const { data: dashboard } = useDashboard();
-  const [tab, setTab] = useState<'fluxo' | 'projecao'>('fluxo');
+  const [tab, setTab] = useState<'fluxo' | 'projecao' | 'recorrencias'>('fluxo');
   const [modalTx, setModalTx] = useState(false);
   const [modalDia, setModalDia] = useState<{ open: boolean; dia: number }>({ open: false, dia: 1 });
   const [editingTx, setEditingTx] = useState<any>(null);
@@ -41,16 +43,34 @@ export default function FluxoCaixa() {
         addToast('success', 'Transação criada');
       }
       refresh();
-    } catch { addToast('error', 'Erro ao salvar transação'); }
+      setModalTx(false);
+    } catch { 
+      addToast('error', 'Erro ao salvar transação'); 
+    }
   };
 
   if (loading) return <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>;
 
-  // — Current month data (month-scoped) —
-  const totalEntradas = transacoes.filter(t => t.tipo === 'entrada').reduce((a, t) => a + t.valor, 0);
-  const totalSaidas = transacoes
+  // — Current month data (Real + Pending Recurrences) —
+  const totalEntradasReal = transacoes.filter(t => t.tipo === 'entrada').reduce((a, t) => a + t.valor, 0);
+  const totalSaidasReal = transacoes
     .filter(t => t.tipo === 'debito' || t.tipo === 'credito_cartao')
     .reduce((a, t) => a + t.valor, 0);
+
+  const pendingRecs = recorrencias.filter(r => {
+    if (!r.ativa) return false;
+    const exists = transacoes.some(t => {
+      if (!t.data) return false;
+      return t.recorrenciaId === r.id;
+    });
+    return !exists;
+  });
+
+  const totalEntradasPendentes = pendingRecs.filter(r => r.tipo === 'entrada').reduce((a, r) => a + r.valor, 0);
+  const totalSaidasPendentes = pendingRecs.filter(r => r.tipo === 'debito' || r.tipo === 'credito_cartao').reduce((a, r) => a + r.valor, 0);
+
+  const totalEntradas = totalEntradasReal + totalEntradasPendentes;
+  const totalSaidas = totalSaidasReal + totalSaidasPendentes;
   const saldoMes = totalEntradas - totalSaidas;
   const diasNoMes = new Date(anoAtual, mesAtual, 0).getDate();
   const hoje = new Date();
@@ -65,7 +85,8 @@ export default function FluxoCaixa() {
     const fim = Math.min((w + 1) * 7, diasNoMes);
     let ent = 0, sai = 0;
     transacoes.forEach(t => {
-      const d = new Date(t.data).getDate();
+      const parts = t.data.split('-');
+      const d = Number(parts[2]);
       if (d >= inicio && d <= fim) {
         if (t.tipo === 'entrada') ent += t.valor;
         else if (t.tipo !== 'transferencia') sai += t.valor;
@@ -78,7 +99,10 @@ export default function FluxoCaixa() {
   const heatmapData = Array.from({ length: diasNoMes }, (_, i) => {
     const dia = i + 1;
     const valor = transacoes
-      .filter(t => new Date(t.data).getDate() === dia && (t.tipo === 'debito' || t.tipo === 'credito_cartao'))
+      .filter(t => {
+        const parts = t.data.split('-');
+        return Number(parts[2]) === dia;
+      })
       .reduce((a, t) => a + t.valor, 0);
     return { dia, valor };
   });
@@ -87,7 +111,12 @@ export default function FluxoCaixa() {
   const timeline = Array.from({ length: diasNoMes }, (_, i) => {
     const dia = i + 1;
     const dataStr = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    const txDia = transacoes.filter(t => t.data === dataStr);
+    const txDia = transacoes.filter(t => {
+      if (!t.data) return false;
+      // Normalizar comparativo de data para evitar erros de padding (ex: 2026-5-9 vs 2026-05-09)
+      const tParts = t.data.split('-').map(Number);
+      return tParts[0] === anoAtual && tParts[1] === mesAtual && tParts[2] === dia;
+    });
     const gastoDia = txDia
       .filter(t => t.tipo === 'debito' || t.tipo === 'credito_cartao')
       .reduce((a, t) => a + t.valor, 0);
@@ -116,6 +145,10 @@ export default function FluxoCaixa() {
           <button onClick={() => setTab('projecao')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'projecao' ? 'bg-brand-primary/10 text-brand-primary' : 'text-muted hover:text-white'}`}>
             Projeção Mensal
+          </button>
+          <button onClick={() => setTab('recorrencias')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'recorrencias' ? 'bg-brand-primary/10 text-brand-primary' : 'text-muted hover:text-white'}`}>
+            Recorrências
           </button>
         </div>
 
@@ -215,6 +248,8 @@ export default function FluxoCaixa() {
             </div>
           </div>
         </>
+      ) : tab === 'recorrencias' ? (
+        <RecorrenciasManager filterType="conta" />
       ) : (
         /* === PROJEÇÃO MENSAL === */
         <>
@@ -338,6 +373,36 @@ export default function FluxoCaixa() {
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+          
+          {/* Fallback List for Debug/Visibility */}
+          <div className="card mt-6">
+            <p className="label-mono mb-4 text-brand-primary">Últimas Transações Registradas (Mês)</p>
+            <div className="space-y-2">
+              {transacoes.length === 0 ? (
+                <p className="text-sm text-muted py-8 text-center border border-dashed border-white/10 rounded-xl">
+                  Nenhuma transação encontrada para este mês.
+                </p>
+              ) : (
+                transacoes.slice(0, 10).map(t => (
+                  <div key={t.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.05] rounded-xl hover:bg-white/[0.04] transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${t.tipo === 'entrada' ? 'bg-fluxo-green' : 'bg-fluxo-red'}`} />
+                      <div>
+                        <p className="text-sm font-medium">{t.descricao}</p>
+                        <p className="text-[10px] text-muted font-mono">{t.data} • {t.categoria}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-sm font-mono font-bold ${t.tipo === 'entrada' ? 'text-fluxo-green' : 'text-white'}`}>
+                        {t.tipo === 'entrada' ? '+' : '-'}{formatCurrency(t.valor)}
+                      </p>
+                      {t.cartaoId && <span className="text-[9px] text-brand-primary font-mono uppercase">Cartão</span>}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </>
