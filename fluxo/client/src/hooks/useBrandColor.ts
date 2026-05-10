@@ -11,7 +11,7 @@ export function useBrandColor(): string {
     setColor(readBrandColor());
 
     const observer = new MutationObserver(() => setColor(readBrandColor()));
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
 

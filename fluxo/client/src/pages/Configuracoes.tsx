@@ -207,9 +207,7 @@ export default function Configuracoes() {
                   onClick={() => {
                     setTema(t.id);
                     const root = document.documentElement;
-                    root.classList.forEach(cls => {
-                      if (cls.startsWith('theme-')) root.classList.remove(cls);
-                    });
+                    [...root.classList].filter(cls => cls.startsWith('theme-')).forEach(cls => root.classList.remove(cls));
                     root.classList.add(`theme-${t.id}`);
                     if (t.id === 'claro') root.classList.remove('dark');
                     else root.classList.add('dark');

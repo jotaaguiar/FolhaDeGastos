@@ -34,17 +34,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const tema = config?.tema || 'escuro';
+    localStorage.setItem('fluxo-tema', tema);
     const root = document.documentElement;
-    
-    // Remove existing theme classes
-    root.classList.forEach(cls => {
-      if (cls.startsWith('theme-')) root.classList.remove(cls);
-    });
-    
-    // Apply new theme
+    const toRemove = [...root.classList].filter(cls => cls.startsWith('theme-'));
+    toRemove.forEach(cls => root.classList.remove(cls));
     root.classList.add(`theme-${tema}`);
-    
-    // Manage Tailwind dark mode
     if (tema === 'claro') {
       root.classList.remove('dark');
     } else {
