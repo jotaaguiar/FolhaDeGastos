@@ -162,7 +162,6 @@ router.get('/', async (req: Request, res: Response) => {
   }
 
   // Projeção Radar (radarPeriodo meses)
-  const recorrencias = await readFile<RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
   const projecaoRadar = projetarFluxoFuturo(period, saldoTotal, todasTransacoes, recorrencias, mes, ano);
 
   // Limite Diário Dinâmico com Reserva de Investimento e Detalhes
