@@ -21,8 +21,8 @@ export default function DonutChart({ data }: DonutChartProps) {
           </Pie>
           <Tooltip
             contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontFamily: 'DM Mono', fontSize: 12 }}
-            formatter={(value: number) => [formatCurrency(value)]}
-            labelFormatter={(label: string) => getCategoriaLabel(label)}
+            formatter={(value) => [formatCurrency(Number(value))]}
+            labelFormatter={(label) => getCategoriaLabel(String(label))}
           />
         </PieChart>
       </ResponsiveContainer>

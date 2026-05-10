@@ -39,7 +39,7 @@ export default function PatrimonioChart({ data }: PatrimonioChartProps) {
           <Tooltip
             contentStyle={{ background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontFamily: 'DM Mono', fontSize: 12 }}
             itemStyle={{ color: brandColor }}
-            formatter={(value: number) => [formatCurrency(value), 'Patrimônio'] as any}
+            formatter={(value) => [formatCurrency(Number(value)), 'Patrimônio']}
             labelFormatter={(label) => `Mês: ${label}` as any}
           />
           <Area
