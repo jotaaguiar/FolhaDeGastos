@@ -11,6 +11,7 @@ import ModalConta from '@/components/modals/ModalConta';
 import ModalTransferencia from '@/components/modals/ModalTransferencia';
 import ModalTransacao from '@/components/modals/ModalTransacao';
 import SkeletonCard from '@/components/shared/SkeletonCard';
+import EmptyState from '@/components/shared/EmptyState';
 import { formatCurrency, getCategoriaLabel } from '@/lib/formatters';
 import { Plus, ArrowLeftRight, Trash2, Edit3, Check, X, TrendingUp, TrendingDown, Search } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -169,11 +170,13 @@ export default function Contas() {
 
       {/* Cards */}
       {contas.length === 0 ? (
-        <div className="card p-10 flex flex-col items-center gap-3 text-center">
-          <p className="text-sm text-muted">Nenhuma conta cadastrada</p>
-          <button onClick={() => { setEditingConta(null); setModalConta(true); }} className="btn-primary flex items-center gap-2">
-            <Plus size={14} /> Criar primeira conta
-          </button>
+        <div className="card">
+          <EmptyState
+            icon="🏦"
+            message="Nenhuma conta cadastrada"
+            description="Adicione sua conta bancária ou carteira para começar a registrar seu dinheiro."
+            action={{ label: '+ Criar primeira conta', onClick: () => { setEditingConta(null); setModalConta(true); } }}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

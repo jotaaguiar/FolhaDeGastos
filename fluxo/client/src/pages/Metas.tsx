@@ -5,6 +5,7 @@ import { useConfirm } from '@/context/ConfirmContext';
 import ProgressBar from '@/components/shared/ProgressBar';
 import ModalMeta from '@/components/modals/ModalMeta';
 import SkeletonCard from '@/components/shared/SkeletonCard';
+import EmptyState from '@/components/shared/EmptyState';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 
@@ -102,11 +103,13 @@ export default function Metas() {
 
       {/* Grid */}
       {metas.filter(m => m.id !== reserva?.id).length === 0 ? (
-        <div className="card p-10 flex flex-col items-center gap-3 text-center">
-          <p className="text-sm text-muted">Nenhuma meta criada</p>
-          <button onClick={openNew} className="btn-primary flex items-center gap-2">
-            <Plus size={14} /> Criar primeira meta
-          </button>
+        <div className="card">
+          <EmptyState
+            icon="🎯"
+            message="Nenhuma meta criada"
+            description="Defina um objetivo financeiro — viagem, reserva de emergência, item especial — e acompanhe seu progresso."
+            action={{ label: '+ Criar primeira meta', onClick: openNew }}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

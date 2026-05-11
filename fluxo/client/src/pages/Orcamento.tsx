@@ -7,6 +7,7 @@ import MetricCard from '@/components/shared/MetricCard';
 import ProgressBar from '@/components/shared/ProgressBar';
 import ModalOrcamento from '@/components/modals/ModalOrcamento';
 import SkeletonCard from '@/components/shared/SkeletonCard';
+import EmptyState from '@/components/shared/EmptyState';
 import { formatCurrency, getCategoriaLabel, getCategoriaColor, getCategoriaIcon } from '@/lib/formatters';
 import { calcularRegra503020 } from '@/lib/calculators';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
@@ -106,11 +107,13 @@ export default function Orcamento() {
       </div>
 
       {orcamento.length === 0 ? (
-        <div className="card p-10 flex flex-col items-center gap-3 text-center">
-          <p className="text-sm text-muted">Nenhum limite definido</p>
-          <button onClick={openNew} className="btn-primary flex items-center gap-2 text-sm">
-            <Plus size={14} /> Criar primeiro limite
-          </button>
+        <div className="card">
+          <EmptyState
+            icon="📊"
+            message="Nenhum limite definido"
+            description="Crie limites por categoria para controlar seus gastos e receber alertas quando estiver chegando no teto."
+            action={{ label: '+ Criar primeiro limite', onClick: openNew }}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
