@@ -38,7 +38,7 @@ export default function Contas() {
   const [catFilter, setCatFilter] = useState('todas');
   const [showAll, setShowAll] = useState(false);
 
-  if (loading) return <div className="grid grid-cols-3 gap-4">{[1, 2, 3].map(i => <SkeletonCard key={i} />)}</div>;
+  if (loading) return <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[1, 2, 3].map(i => <SkeletonCard key={i} />)}</div>;
 
   const saldoTotal = dashboard?.contasSaldo.reduce((acc, cs) => acc + cs.saldoAtual, 0) ?? 0;
 
@@ -150,14 +150,14 @@ export default function Contas() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <p className="label-mono">Saldo Consolidado</p>
-          <p className={`text-3xl font-extrabold font-mono ${saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+          <p className={`text-2xl sm:text-3xl font-extrabold font-mono ${saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
             {formatCurrency(saldoTotal)}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={() => setModalTransf(true)} className="btn-ghost flex items-center gap-2 border border-white/[0.07]">
             <ArrowLeftRight size={16} /> Transferir
           </button>

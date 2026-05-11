@@ -24,7 +24,7 @@ export default function VisaoMensal() {
     }).catch(console.error);
   }, [refreshKey]);
 
-  if (loading) return <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>;
+  if (loading) return <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>;
 
   // Generate 12 months ahead
   const meses: Array<{ mes: number; ano: number }> = [];

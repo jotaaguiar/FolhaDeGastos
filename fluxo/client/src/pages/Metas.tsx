@@ -18,7 +18,7 @@ export default function Metas() {
   const [depositoValor, setDepositoValor] = useState('');
   const [detalheMeta, setDetalheMeta] = useState<string | null>(null);
 
-  if (loading) return <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
+  if (loading) return <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
 
   const openNew = () => { setEditingMeta(null); setModalOpen(true); };
   const openEdit = (meta: any) => { setEditingMeta(meta); setModalOpen(true); };
@@ -109,7 +109,7 @@ export default function Metas() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {metas.filter(m => m.id !== reserva?.id).map(meta => {
             const pct = meta.valorAlvo > 0 ? (meta.valorAtual / meta.valorAlvo) * 100 : 0;
             const diasRestantes = meta.prazo ? Math.ceil((new Date(meta.prazo).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;

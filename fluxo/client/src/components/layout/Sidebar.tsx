@@ -2,12 +2,17 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Wallet, CreditCard, TrendingUp,
   PiggyBank, Target, Settings, Radar as RadarIcon, LogOut,
-  Upload, BarChart3
+  Upload, BarChart3, X
 } from 'lucide-react';
 import ScoreRing from '@/components/shared/ScoreRing';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useApp } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
+
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
 
 const navItems = [
   { to: '/', label: 'Visão Geral', icon: LayoutDashboard },
@@ -22,19 +27,32 @@ const navItems = [
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }: SidebarProps) {
   const { data } = useDashboard();
   const { config } = useApp();
   const { user, logout } = useAuth();
 
   return (
-    <aside className="w-64 h-screen bg-surface border-r border-white/[0.07] flex flex-col shrink-0">
+    <aside className={`
+      fixed md:relative inset-y-0 left-0 z-50
+      w-64 h-screen bg-surface border-r border-white/[0.07] flex flex-col shrink-0
+      transition-transform duration-300 ease-in-out
+      ${open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+    `}>
       {/* Logo */}
-      <div className="p-6 border-b border-white/[0.07]">
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          <span className="text-brand-primary">Flu</span>xo
-        </h1>
-        <p className="text-xs text-muted font-mono mt-1">controle financeiro</p>
+      <div className="p-6 border-b border-white/[0.07] flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">
+            <span className="text-brand-primary">Flu</span>xo
+          </h1>
+          <p className="text-xs text-muted font-mono mt-1">controle financeiro</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="md:hidden p-1.5 rounded-lg text-muted hover:text-white hover:bg-white/5 transition-all"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Score */}
@@ -53,6 +71,7 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
+            onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
@@ -80,9 +99,9 @@ export default function Sidebar() {
           <button
             onClick={logout}
             title="Sair"
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-muted hover:text-fluxo-red hover:bg-fluxo-red/10 transition-all shrink-0"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-muted hover:text-fluxo-red hover:bg-fluxo-red/10 transition-all shrink-0"
           >
-            <LogOut size={14} />
+            <LogOut size={16} />
           </button>
         </div>
       </div>

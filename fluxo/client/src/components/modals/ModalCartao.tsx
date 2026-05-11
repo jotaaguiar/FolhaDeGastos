@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X, CreditCard, Info } from 'lucide-react';
 
 interface ModalCartaoProps {
@@ -140,12 +140,12 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
   const exemploCompra2 = diaFech + 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
           <div className="flex items-center gap-2">
             <CreditCard size={20} className="text-brand-primary" />
-            <h3 className="text-lg font-bold">{initialData ? 'Editar Cartão' : 'Novo Cartão'}</h3>
+            <h3 className="text-lg font-bold">{initialData ? 'Editar CartÃ£o' : 'Novo CartÃ£o'}</h3>
           </div>
           <button onClick={onClose} className="text-muted hover:text-white p-1"><X size={18} /></button>
         </div>
@@ -154,7 +154,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
           <div className="space-y-4">
             {/* Basic info */}
             <div className="space-y-3">
-              <p className="label-mono">Dados do Cartão</p>
+              <p className="label-mono">Dados do CartÃ£o</p>
               <input className="input-dark w-full" placeholder="Nome (ex: Nubank, Inter)" value={form.nome}
                 onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} />
               <input className="input-dark w-full" placeholder="Banco" value={form.banco}
@@ -164,7 +164,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
                   onChange={e => setForm(f => ({ ...f, bandeira: e.target.value }))}>
                   {['Visa', 'Mastercard', 'Elo', 'Amex', 'Hipercard'].map(b => <option key={b}>{b}</option>)}
                 </select>
-                <input className="input-dark w-28" placeholder="Últimos 4" maxLength={4}
+                <input className="input-dark w-28" placeholder="Ãšltimos 4" maxLength={4}
                   value={form.ultimos4} onChange={e => setForm(f => ({ ...f, ultimos4: e.target.value }))} />
               </div>
               <input className="input-dark w-full" type="number" placeholder="Limite (R$)"
@@ -193,13 +193,13 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
                   <p className="text-[10px] text-brand-primary font-mono uppercase">Como funciona o ciclo</p>
                 </div>
                 <p className="text-[11px] text-muted">
-                  ✅ Compra no dia <strong className="text-white">{exemploCompra1}</strong> → fatura do mês atual (fecha dia {diaFech})
+                  âœ… Compra no dia <strong className="text-white">{exemploCompra1}</strong> â†’ fatura do mÃªs atual (fecha dia {diaFech})
                 </p>
                 <p className="text-[11px] text-muted">
-                  ➡️ Compra no dia <strong className="text-white">{exemploCompra2}</strong> → próxima fatura (após fechamento)
+                  âž¡ï¸ Compra no dia <strong className="text-white">{exemploCompra2}</strong> â†’ prÃ³xima fatura (apÃ³s fechamento)
                 </p>
                 <p className="text-[11px] text-muted">
-                  📅 Vencimento da fatura: dia <strong className="text-white">{diaVenc}</strong>
+                  ðŸ“… Vencimento da fatura: dia <strong className="text-white">{diaVenc}</strong>
                 </p>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
               <div className="flex items-center justify-between p-3 rounded-lg bg-s2 border border-white/[0.05]">
                 <div>
                   <p className="text-sm">Usar taxa global ({taxaJurosGlobal}% a.m.)</p>
-                  <p className="text-[10px] text-muted">Configurada em Configurações → Cartões</p>
+                  <p className="text-[10px] text-muted">Configurada em ConfiguraÃ§Ãµes â†’ CartÃµes</p>
                 </div>
                 <button
                   onClick={() => setForm(f => ({ ...f, usarTaxaGlobal: !f.usarTaxaGlobal }))}
@@ -241,7 +241,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
 
             {/* Color */}
             <div className="pb-2">
-              <p className="text-xs text-muted mb-2">Cor do Cartão</p>
+              <p className="text-xs text-muted mb-2">Cor do CartÃ£o</p>
               <div className="flex gap-2 flex-wrap">
                 {cores.map(c => (
                   <button key={c} className={`w-8 h-8 rounded-full transition-all ${form.cor === c ? 'ring-2 ring-white scale-110' : 'hover:scale-105'}`}
@@ -256,12 +256,12 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
                 <p className="text-xs text-muted mb-2 uppercase font-mono font-bold">Deseja configurar faturas existentes?</p>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={() => setInitialMode('none')} className={`p-2 text-[10px] rounded-lg border-2 transition-all ${initialMode === 'none' ? 'border-brand-primary bg-brand-primary/10' : 'border-white/5 hover:border-white/10'}`}>
-                    <p className="font-bold">Não</p>
-                    <p className="text-[8px] opacity-60">Começar do zero</p>
+                    <p className="font-bold">NÃ£o</p>
+                    <p className="text-[8px] opacity-60">ComeÃ§ar do zero</p>
                   </button>
                   <button onClick={() => setInitialMode('saldos')} className={`p-2 text-[10px] rounded-lg border-2 transition-all ${initialMode === 'saldos' ? 'border-brand-primary bg-brand-primary/10' : 'border-white/5 hover:border-white/10'}`}>
                     <p className="font-bold">Sim, Saldos</p>
-                    <p className="text-[8px] opacity-60">Valor total por mês</p>
+                    <p className="text-[8px] opacity-60">Valor total por mÃªs</p>
                   </button>
                   <button onClick={() => setInitialMode('parcelas')} className={`p-2 text-[10px] rounded-lg border-2 transition-all ${initialMode === 'parcelas' ? 'border-brand-primary bg-brand-primary/10' : 'border-white/5 hover:border-white/10'}`}>
                     <p className="font-bold">Sim, Parcelas</p>
@@ -273,13 +273,13 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
           </div>
         ) : (
           <div className="space-y-4 animate-fade-in">
-            <p className="text-sm text-muted">Configure os gastos que já existem neste cartão para os próximos meses.</p>
+            <p className="text-sm text-muted">Configure os gastos que jÃ¡ existem neste cartÃ£o para os prÃ³ximos meses.</p>
             
             {initialMode === 'saldos' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between bg-brand-primary/5 p-3 rounded-xl border border-brand-primary/10">
                   <div>
-                    <p className="text-xs font-bold text-brand-primary uppercase font-mono">Período de Ajuste</p>
+                    <p className="text-xs font-bold text-brand-primary uppercase font-mono">PerÃ­odo de Ajuste</p>
                     <p className="text-[10px] text-muted">Quantos meses deseja configurar?</p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -310,7 +310,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] text-muted italic">Estes valores serão adicionados como "ajuste manual" em cada fatura.</p>
+                <p className="text-[10px] text-muted italic">Estes valores serÃ£o adicionados como "ajuste manual" em cada fatura.</p>
               </div>
             )}
 
@@ -319,11 +319,11 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
                 <div className="p-3 rounded-xl bg-s2/50 border border-white/10 space-y-3">
                   <p className="text-[10px] text-brand-primary font-mono uppercase font-bold">Nova Compra ou Gasto Futuro</p>
                   <div className="grid grid-cols-2 gap-2">
-                    <input id="initial-desc" className="input-dark w-full text-xs" placeholder="Descrição (ex: iPhone, IPTU)" />
+                    <input id="initial-desc" className="input-dark w-full text-xs" placeholder="DescriÃ§Ã£o (ex: iPhone, IPTU)" />
                     <select id="initial-month" className="input-dark w-full text-xs">
                       {getMonths(12).map(m => (
                         <option key={`${m.mes}-${m.ano}`} value={`${m.mes}-${m.ano}`}>
-                          Início: {new Date(m.ano, m.mes - 1, 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })}
+                          InÃ­cio: {new Date(m.ano, m.mes - 1, 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })}
                         </option>
                       ))}
                     </select>
@@ -368,7 +368,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
                       <div>
                         <p className="font-bold">{p.descricao}</p>
                         <p className="text-[10px] text-muted font-mono">
-                          {p.parcelas}× de R$ {(p.valorTotal/p.parcelas).toFixed(2)}
+                          {p.parcelas}Ã— de R$ {(p.valorTotal/p.parcelas).toFixed(2)}
                           <span className="ml-2 text-brand-primary">({p.mesInicio}/{p.anoInicio})</span>
                         </p>
                       </div>
@@ -388,7 +388,7 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
             {step === 1 ? 'Cancelar' : 'Voltar'}
           </button>
           <button onClick={handleSubmit} className="btn-primary">
-            {step === 1 && initialMode !== 'none' && !initialData ? 'Continuar' : (initialData ? 'Salvar Alterações' : 'Finalizar e Criar')}
+            {step === 1 && initialMode !== 'none' && !initialData ? 'Continuar' : (initialData ? 'Salvar AlteraÃ§Ãµes' : 'Finalizar e Criar')}
           </button>
         </div>
       </div>

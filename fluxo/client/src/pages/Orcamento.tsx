@@ -20,7 +20,7 @@ export default function Orcamento() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<(OrcamentoCategoria & { gasto: number }) | null>(null);
 
-  if (loading) return <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
+  if (loading) return <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
 
   const totalOrcado = orcamento.reduce((a, o) => a + o.limite, 0);
   const totalGasto = orcamento.reduce((a, o) => a + o.gasto, 0);
@@ -62,7 +62,7 @@ export default function Orcamento() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Metrics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <MetricCard label="Total Orçado" value={formatCurrency(totalOrcado)} color="blue" />
         <MetricCard label="Total Gasto" value={formatCurrency(totalGasto)} color="red" />
         <MetricCard label="Economia" value={formatCurrency(economia)} color={economia >= 0 ? 'green' : 'red'} />
@@ -71,7 +71,7 @@ export default function Orcamento() {
       {/* 50/30/20 Rule */}
       <div className="card">
         <p className="label-mono mb-4">Regra 50 / 30 / 20</p>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           {[
             { label: 'Necessidades (50%)', data: regra.necessidades, color: '#60a5fa' },
             { label: 'Desejos (30%)', data: regra.desejos, color: '#f472b6' },
@@ -113,7 +113,7 @@ export default function Orcamento() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {orcamento.map(o => {
             const pct = o.limite > 0 ? (o.gasto / o.limite) * 100 : 0;
             const restante = o.limite - o.gasto;

@@ -48,7 +48,7 @@ export default function Overview() {
   if (loading || !data) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => <SkeletonCard key={i} />)}
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function Overview() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Hero + Metrics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="card p-6 col-span-1 card-glow-brand">
           <p className="label-mono mb-1">Saldo Total</p>
           <p className={`text-3xl font-extrabold font-mono tracking-tight ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
@@ -117,12 +117,12 @@ export default function Overview() {
       <QuickAdd contas={contas} cartoes={cartoes} onAdded={refetch} />
 
       {/* Charts row */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="card col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="card lg:col-span-2">
           <p className="label-mono mb-3">Patrimônio (6 meses)</p>
           <PatrimonioChart data={data.patrimonioHistorico} />
         </div>
-        <div className="card col-span-2">
+        <div className="card lg:col-span-2">
           <p className="label-mono mb-3">Orçamento 50/30/20 (Realizado)</p>
           <BudgetRings data={data.regra503020} />
           <div className="mt-4 pt-4 border-t border-white/5 flex justify-between">
@@ -142,8 +142,8 @@ export default function Overview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="card col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="card lg:col-span-2">
           <p className="label-mono mb-3">Fluxo de Saldo (Real + 30 Dias Projetado)</p>
           <FluxoLineChart data={[
             ...(data.saldoDiario || []).map(d => {
@@ -165,7 +165,7 @@ export default function Overview() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Contas */}
         <div className="card">
           <p className="label-mono mb-3">Contas</p>

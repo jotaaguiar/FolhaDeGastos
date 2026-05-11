@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { X, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import type { Transacao, Cartao, Conta } from '@/types';
 import { formatCurrency, formatDate, getDiaSemana, getCategoriaIcon, getCategoriaLabel, getCategoriaColor } from '@/lib/formatters';
@@ -48,17 +48,17 @@ export default function ModalDetalhesDia({ open, onClose, dia, mes, ano, transac
               <p className="text-sm font-mono font-bold text-fluxo-green">+{formatCurrency(totalEntradas)}</p>
             </div>
             <div className="p-3 rounded-xl bg-fluxo-red/5 border border-fluxo-red/10 text-center">
-              <p className="label-mono mb-1 text-[10px]">Saídas</p>
+              <p className="label-mono mb-1 text-[10px]">SaÃ­das</p>
               <p className="text-sm font-mono font-bold text-fluxo-red">-{formatCurrency(totalSaidas)}</p>
             </div>
           </div>
 
           {/* Transaction List */}
           <div className="space-y-3">
-            <p className="label-mono">Transações ({txs.length})</p>
+            <p className="label-mono">TransaÃ§Ãµes ({txs.length})</p>
             {txs.length === 0 ? (
               <div className="py-8 text-center bg-white/[0.02] rounded-xl border border-dashed border-white/5">
-                <p className="text-sm text-muted">Nenhuma transação neste dia</p>
+                <p className="text-sm text-muted">Nenhuma transaÃ§Ã£o neste dia</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -74,12 +74,12 @@ export default function ModalDetalhesDia({ open, onClose, dia, mes, ano, transac
                         <span className="text-[10px] text-muted">{getCategoriaLabel(t.categoria)}</span>
                         <div className="w-1 h-1 rounded-full bg-white/10" />
                         
-                        {/* Conta/Cartão Indicator */}
+                        {/* Conta/CartÃ£o Indicator */}
                         {t.cartaoId ? (
                           <div className="flex items-center gap-1">
                             <div className="w-2 h-2 rounded-full" style={{ background: cartoes.find(c => c.id === t.cartaoId)?.cor || '#fff' }} />
                             <span className="text-[10px] text-muted font-mono uppercase">
-                              {cartoes.find(c => c.id === t.cartaoId)?.nome || 'Cartão'}
+                              {cartoes.find(c => c.id === t.cartaoId)?.nome || 'CartÃ£o'}
                             </span>
                           </div>
                         ) : (

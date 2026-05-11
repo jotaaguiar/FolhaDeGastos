@@ -68,36 +68,37 @@ export default function Cartoes() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Tabs */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
           {!isIndex && (
-            <button 
+            <button
               onClick={() => navigate('/cartoes')}
-              className="w-10 h-10 rounded-xl bg-surface border border-white/[0.07] flex items-center justify-center text-muted hover:text-white transition-all"
+              className="w-10 h-10 shrink-0 rounded-xl bg-surface border border-white/[0.07] flex items-center justify-center text-muted hover:text-white transition-all"
               title="Voltar"
             >
               <ArrowLeft size={18} />
             </button>
           )}
-          <div className="flex gap-1 bg-surface rounded-xl p-1 border border-white/[0.07]">
+          <div className="flex gap-1 bg-surface rounded-xl p-1 border border-white/[0.07] min-w-0">
             {tabs.map(tab => (
               <NavLink
                 key={tab.to}
                 to={tab.to}
                 end={tab.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     isActive ? 'bg-brand-primary/10 text-brand-primary' : 'text-muted hover:text-white'
                   }`
                 }
               >
                 <tab.icon size={14} />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
               </NavLink>
             ))}
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button onClick={() => setModalParcela(true)} className="btn-ghost flex items-center gap-2 border border-white/[0.07]">
             <ShoppingBag size={16} /> Parcela
           </button>
@@ -112,9 +113,9 @@ export default function Cartoes() {
       {/* Content */}
       {isIndex ? (
         loading ? (
-          <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {cartoes.map(cartao => (
               <CartaoWidget
                 key={cartao.id}

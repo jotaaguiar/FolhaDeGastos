@@ -49,7 +49,7 @@ export default function FluxoCaixa() {
     }
   };
 
-  if (loading) return <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>;
+  if (loading) return <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">{[1,2,3,4].map(i => <SkeletonCard key={i} />)}</div>;
 
   // — Current month data (Real + Pending Recurrences) —
   const totalEntradasReal = transacoes.filter(t => t.tipo === 'entrada').reduce((a, t) => a + t.valor, 0);
@@ -136,8 +136,8 @@ export default function FluxoCaixa() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header with tab bar and add button */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-1 bg-surface rounded-xl p-1 border border-white/[0.07] w-fit">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex gap-1 bg-surface rounded-xl p-1 border border-white/[0.07] w-full sm:w-fit overflow-x-auto">
           <button onClick={() => setTab('fluxo')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'fluxo' ? 'bg-brand-primary/10 text-brand-primary' : 'text-muted hover:text-white'}`}>
             Fluxo do Mês
@@ -166,7 +166,7 @@ export default function FluxoCaixa() {
       {tab === 'fluxo' ? (
         <>
           {/* Metrics */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Entradas" value={formatCurrency(totalEntradas)} color="green" sub={`${getMesNome(mesAtual)}`} />
             <MetricCard label="Saídas" value={formatCurrency(totalSaidas)} color="red" sub="Débitos + Cartão" />
             <MetricCard label="Saldo Mês" value={formatCurrency(saldoMes)} color={saldoMes >= 0 ? 'teal' : 'red'} sub={saldoMes >= 0 ? 'Positivo' : 'Negativo'} />
@@ -175,8 +175,8 @@ export default function FluxoCaixa() {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="card col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="card lg:col-span-2">
               <p className="label-mono mb-3">Entradas vs Saídas por Semana — {getMesNome(mesAtual)}</p>
               <StackedBarChart data={semanas} />
             </div>
@@ -279,7 +279,7 @@ export default function FluxoCaixa() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-4 mb-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                       <div>
                         <span className="text-[10px] text-muted font-mono block">Entradas Base</span>
                         <span className="text-sm font-mono text-fluxo-green">{formatCurrency(p.entradas)}</span>

@@ -464,7 +464,7 @@ export default function FaturaAtual() {
       </div>
 
       {/* Summary metrics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card p-4 text-center">
           <p className="label-mono mb-1">Total em Faturas</p>
           <p className="text-2xl font-extrabold font-mono text-fluxo-amber">{formatCurrency(totalGeral)}</p>

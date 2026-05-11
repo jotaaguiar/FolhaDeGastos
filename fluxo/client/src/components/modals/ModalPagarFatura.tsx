@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X, DollarSign, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import type { Fatura, Conta, Cartao } from '@/types';
 import { formatCurrency } from '@/lib/formatters';
@@ -20,7 +20,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
   const [taxaJuros, setTaxaJuros] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Quanto já foi pago antes (pagamentos parciais anteriores)
+  // Quanto jÃ¡ foi pago antes (pagamentos parciais anteriores)
   const jaFoiPago = fatura?.valorPago ?? 0;
   // Valor restante a pagar
   const totalRestante = fatura ? Math.max(0, fatura.total - jaFoiPago) : 0;
@@ -80,7 +80,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
               <div>
                 <h3 className="font-bold text-lg leading-tight">Pagar Fatura</h3>
                 <p className="text-xs text-muted font-mono">
-                  {fatura.cartao?.nome} •••• {fatura.cartao?.ultimos4} — {String(fatura.mes).padStart(2, '0')}/{fatura.ano}
+                  {fatura.cartao?.nome} â€¢â€¢â€¢â€¢ {fatura.cartao?.ultimos4} â€” {String(fatura.mes).padStart(2, '0')}/{fatura.ano}
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
                 </div>
                 {jaFoiPago > 0 && (
                   <div className="text-right">
-                    <p className="text-[10px] text-muted font-mono">Já pago</p>
+                    <p className="text-[10px] text-muted font-mono">JÃ¡ pago</p>
                     <p className="text-sm font-mono text-fluxo-green font-bold">-{formatCurrency(jaFoiPago)}</p>
                   </div>
                 )}
@@ -114,7 +114,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
 
               {fatura.saldoAnteriorRollover && fatura.saldoAnteriorRollover > 0 && (
                 <div className="mt-2 pt-2 border-t border-white/[0.05] grid grid-cols-2 gap-1 text-xs">
-                  <span className="text-muted">Gastos próprios:</span>
+                  <span className="text-muted">Gastos prÃ³prios:</span>
                   <span className="font-mono text-right">{formatCurrency(fatura.total - fatura.saldoAnteriorRollover)}</span>
                   <span className="text-fluxo-red">+ Rollover anterior:</span>
                   <span className="font-mono text-fluxo-red text-right">{formatCurrency(fatura.saldoAnteriorRollover)}</span>
@@ -149,7 +149,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
             {!pagarTotal && (
               <div className="animate-fade-in">
                 <label className="text-xs text-muted block mb-1">
-                  Valor a Pagar (R$) — máx. {formatCurrency(totalRestante)}
+                  Valor a Pagar (R$) â€” mÃ¡x. {formatCurrency(totalRestante)}
                 </label>
                 <input
                   className="input-dark w-full text-lg font-mono font-bold"
@@ -162,7 +162,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
                   autoFocus
                 />
                 <p className="text-[10px] text-muted mt-1">
-                  Mínimo recomendado: {formatCurrency(totalRestante * 0.1)} (10% do restante)
+                  MÃ­nimo recomendado: {formatCurrency(totalRestante * 0.1)} (10% do restante)
                 </p>
               </div>
             )}
@@ -200,7 +200,7 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
                   onChange={e => setTaxaJuros(e.target.value)}
                 />
                 <p className="text-[10px] text-muted mt-1">
-                  Taxa do cartão: {fatura.cartao?.taxaJurosRotativo ?? taxaJurosGlobal}% a.m.
+                  Taxa do cartÃ£o: {fatura.cartao?.taxaJurosRotativo ?? taxaJurosGlobal}% a.m.
                 </p>
               </div>
             )}
@@ -208,10 +208,10 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
             {/* Rollover preview */}
             {isParcial && (
               <div className="p-4 rounded-xl bg-fluxo-amber/5 border border-fluxo-amber/20 space-y-2 animate-fade-in">
-                <p className="label-mono text-[10px] text-fluxo-amber">⚠️ Rollover para Próxima Fatura</p>
+                <p className="label-mono text-[10px] text-fluxo-amber">âš ï¸ Rollover para PrÃ³xima Fatura</p>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-muted">Restante não pago:</span>
+                    <span className="text-muted">Restante nÃ£o pago:</span>
                     <span className="font-mono text-white">{formatCurrency(restante)}</span>
                   </div>
                   <div className="flex justify-between">
@@ -230,14 +230,14 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
             <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
               <p className="text-[10px] text-muted font-mono uppercase mb-2">Resumo do Pagamento</p>
               <div className="flex justify-between text-sm">
-                <span className="text-muted">Débito na conta:</span>
+                <span className="text-muted">DÃ©bito na conta:</span>
                 <span className="font-mono font-bold text-fluxo-green">
                   -{formatCurrency(pagarTotal ? totalRestante : valorPagoNum)}
                 </span>
               </div>
               {rollover > 0 && (
                 <div className="flex justify-between text-sm mt-1">
-                  <span className="text-muted">Rollover próxima fatura:</span>
+                  <span className="text-muted">Rollover prÃ³xima fatura:</span>
                   <span className="font-mono font-bold text-fluxo-amber">+{formatCurrency(rollover)}</span>
                 </div>
               )}

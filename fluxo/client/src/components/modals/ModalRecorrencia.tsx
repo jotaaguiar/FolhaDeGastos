@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Cartao, Categoria, Conta } from '@/types';
 
 const categorias: { value: Categoria; label: string }[] = [
-  { value: 'moradia', label: 'Moradia' }, { value: 'alimentacao', label: 'Alimentação' },
-  { value: 'transporte', label: 'Transporte' }, { value: 'saude', label: 'Saúde' },
-  { value: 'educacao', label: 'Educação' }, { value: 'lazer', label: 'Lazer' },
-  { value: 'assinaturas', label: 'Assinaturas' }, { value: 'vestuario', label: 'Vestuário' },
+  { value: 'moradia', label: 'Moradia' }, { value: 'alimentacao', label: 'AlimentaÃ§Ã£o' },
+  { value: 'transporte', label: 'Transporte' }, { value: 'saude', label: 'SaÃºde' },
+  { value: 'educacao', label: 'EducaÃ§Ã£o' }, { value: 'lazer', label: 'Lazer' },
+  { value: 'assinaturas', label: 'Assinaturas' }, { value: 'vestuario', label: 'VestuÃ¡rio' },
   { value: 'viagem', label: 'Viagem' }, { value: 'investimento', label: 'Investimento' },
   { value: 'outros', label: 'Outros' },
-  { value: 'entrada_salario', label: 'Salário' },
+  { value: 'entrada_salario', label: 'SalÃ¡rio' },
   { value: 'entrada_freelance', label: 'Freelance' },
   { value: 'entrada_outros', label: 'Outras Entradas' },
 ];
@@ -78,22 +78,22 @@ export default function ModalRecorrencia({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-md animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
-          <h3 className="text-lg font-bold">{initialData ? 'Editar Recorrência' : 'Nova Recorrência'}</h3>
+          <h3 className="text-lg font-bold">{initialData ? 'Editar RecorrÃªncia' : 'Nova RecorrÃªncia'}</h3>
           <button onClick={onClose} className="text-muted hover:text-white"><X size={18} /></button>
         </div>
 
         {!isCartaoOnly && (
           <div className="flex gap-1 bg-white/[0.03] p-1 rounded-lg mb-4">
-            <button onClick={() => setModo('debito')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'debito' ? 'bg-fluxo-red text-white' : 'text-muted'}`}>Saída Fixa</button>
+            <button onClick={() => setModo('debito')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'debito' ? 'bg-fluxo-red text-white' : 'text-muted'}`}>SaÃ­da Fixa</button>
             <button onClick={() => setModo('entrada')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'entrada' ? 'bg-fluxo-green text-white' : 'text-muted'}`}>Entrada Fixa</button>
           </div>
         )}
 
         <div className="space-y-3">
-          <input className="input-dark w-full" placeholder={modo === 'debito' ? "Descrição (ex: Netflix, Academia...)" : "Descrição (ex: Salário...)"}
+          <input className="input-dark w-full" placeholder={modo === 'debito' ? "DescriÃ§Ã£o (ex: Netflix, Academia...)" : "DescriÃ§Ã£o (ex: SalÃ¡rio...)"}
             value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
 
           <div className="flex gap-3">
@@ -123,7 +123,7 @@ export default function ModalRecorrencia({
               </div>
             ) : (
               <div className="flex-1">
-                <label className="text-xs text-muted font-mono block mb-2">Cartão de Crédito</label>
+                <label className="text-xs text-muted font-mono block mb-2">CartÃ£o de CrÃ©dito</label>
                 <div className="grid grid-cols-2 gap-2">
                   {cartoes.map(c => (
                     <button
@@ -146,10 +146,10 @@ export default function ModalRecorrencia({
             )}
             {modo === 'debito' && cartoes.length > 0 && !isCartaoOnly && (
               <div className="flex-1">
-                <label className="text-xs text-muted font-mono block mb-1">Cartão (Opcional)</label>
+                <label className="text-xs text-muted font-mono block mb-1">CartÃ£o (Opcional)</label>
                 <select className="input-dark w-full" value={form.cartaoId}
                   onChange={e => setForm(f => ({ ...f, cartaoId: e.target.value }))}>
-                  <option value="">Débito em Conta</option>
+                  <option value="">DÃ©bito em Conta</option>
                   {cartoes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>
               </div>

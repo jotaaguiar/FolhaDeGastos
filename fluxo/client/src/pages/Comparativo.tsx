@@ -167,7 +167,7 @@ export default function Comparativo() {
 
       {/* KPIs */}
       {ultimoReal && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="card">
             <p className="label-mono mb-1">Entradas ({ultimoReal.label})</p>
             <p className="text-xl font-bold text-fluxo-green font-mono">{formatCurrency(ultimoReal.entradas)}</p>

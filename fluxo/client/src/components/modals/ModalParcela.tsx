@@ -1,13 +1,13 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { Cartao, Categoria } from '@/types';
 import { getMesNome } from '@/lib/formatters';
 
 const categorias: { value: Categoria; label: string }[] = [
-  { value: 'moradia', label: 'Moradia' }, { value: 'alimentacao', label: 'Alimentação' },
-  { value: 'transporte', label: 'Transporte' }, { value: 'saude', label: 'Saúde' },
-  { value: 'educacao', label: 'Educação' }, { value: 'lazer', label: 'Lazer' },
-  { value: 'assinaturas', label: 'Assinaturas' }, { value: 'vestuario', label: 'Vestuário' },
+  { value: 'moradia', label: 'Moradia' }, { value: 'alimentacao', label: 'AlimentaÃ§Ã£o' },
+  { value: 'transporte', label: 'Transporte' }, { value: 'saude', label: 'SaÃºde' },
+  { value: 'educacao', label: 'EducaÃ§Ã£o' }, { value: 'lazer', label: 'Lazer' },
+  { value: 'assinaturas', label: 'Assinaturas' }, { value: 'vestuario', label: 'VestuÃ¡rio' },
   { value: 'viagem', label: 'Viagem' }, { value: 'investimento', label: 'Investimento' },
   { value: 'outros', label: 'Outros' },
 ];
@@ -78,20 +78,20 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-lg animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
-          <h3 className="text-lg font-bold">Novo Parcelamento / Empréstimo</h3>
+          <h3 className="text-lg font-bold">Novo Parcelamento / EmprÃ©stimo</h3>
           <button onClick={onClose} className="text-muted hover:text-white"><X size={18} /></button>
         </div>
 
         <div className="flex gap-1 bg-white/[0.03] p-1 rounded-lg mb-4">
-          <button onClick={() => setModo('cartao')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'cartao' ? 'bg-brand-primary text-white' : 'text-muted'}`}>Cartão de Crédito</button>
-          <button onClick={() => setModo('conta')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'conta' ? 'bg-fluxo-blue text-white' : 'text-muted'}`}>Débito em Conta (Empréstimo)</button>
+          <button onClick={() => setModo('cartao')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'cartao' ? 'bg-brand-primary text-white' : 'text-muted'}`}>CartÃ£o de CrÃ©dito</button>
+          <button onClick={() => setModo('conta')} className={`flex-1 py-1.5 text-xs font-mono rounded ${modo === 'conta' ? 'bg-fluxo-blue text-white' : 'text-muted'}`}>DÃ©bito em Conta (EmprÃ©stimo)</button>
         </div>
 
         <div className="space-y-3">
-          <input className="input-dark w-full" placeholder={modo === 'cartao' ? "Descrição (ex: iPhone 15...)" : "Descrição (ex: Empréstimo, Carnê...)"}
+          <input className="input-dark w-full" placeholder={modo === 'cartao' ? "DescriÃ§Ã£o (ex: iPhone 15...)" : "DescriÃ§Ã£o (ex: EmprÃ©stimo, CarnÃª...)"}
             value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
 
           <div className="flex gap-3">
@@ -109,11 +109,11 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-xs text-muted font-mono block mb-1">{modo === 'cartao' ? 'Cartão' : 'Conta'}</label>
+              <label className="text-xs text-muted font-mono block mb-1">{modo === 'cartao' ? 'CartÃ£o' : 'Conta'}</label>
               {modo === 'cartao' ? (
                 <select className="input-dark w-full" value={form.cartaoId}
                   onChange={e => setForm(f => ({ ...f, cartaoId: e.target.value }))}>
-                  {cartoes.map(c => <option key={c.id} value={c.id}>{c.nome} (•••• {c.ultimos4})</option>)}
+                  {cartoes.map(c => <option key={c.id} value={c.id}>{c.nome} (â€¢â€¢â€¢â€¢ {c.ultimos4})</option>)}
                 </select>
               ) : (
                 <select className="input-dark w-full" value={form.contaId}
@@ -132,7 +132,7 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
           </div>
 
           <div>
-            <label className="text-xs text-muted font-mono block mb-1">{modo === 'cartao' ? 'Primeira parcela cai na fatura de:' : 'Primeiro débito acontece em:'}</label>
+            <label className="text-xs text-muted font-mono block mb-1">{modo === 'cartao' ? 'Primeira parcela cai na fatura de:' : 'Primeiro dÃ©bito acontece em:'}</label>
             <select className="input-dark w-full" value={`${form.mesInicio}-${form.anoInicio}`}
               onChange={e => {
                 const [m, a] = e.target.value.split('-').map(Number);
@@ -153,7 +153,7 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-muted font-mono">Parcelas:</span>
-                <span className="font-mono text-sm">{form.parcelas}×</span>
+                <span className="font-mono text-sm">{form.parcelas}Ã—</span>
               </div>
               <div>
                 <span className="text-xs text-muted font-mono block mb-1">{modo === 'cartao' ? 'Faturas afetadas:' : 'Meses afetados:'}</span>

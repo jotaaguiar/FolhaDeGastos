@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalContaProps {
@@ -53,7 +53,7 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-md animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
           <h3 className="text-lg font-bold">{initial ? 'Editar Conta' : 'Nova Conta'}</h3>
@@ -67,7 +67,7 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
           <select className="input-dark w-full" value={form.tipo}
             onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
             <option value="corrente">Corrente</option>
-            <option value="poupanca">Poupança</option>
+            <option value="poupanca">PoupanÃ§a</option>
             <option value="investimento">Investimento</option>
             <option value="dinheiro">Dinheiro</option>
           </select>
@@ -94,7 +94,7 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
                   value={form.taxaJurosChequeEspecial} onChange={e => setForm(f => ({ ...f, taxaJurosChequeEspecial: e.target.value }))} />
               </div>
               <div className="flex-1">
-                <label className="text-xs text-muted block mb-1">Dia da Cobrança</label>
+                <label className="text-xs text-muted block mb-1">Dia da CobranÃ§a</label>
                 <input className="input-dark w-full" type="number" min="1" max="31"
                   value={form.diaCobrancaJuros} onChange={e => setForm(f => ({ ...f, diaCobrancaJuros: e.target.value }))} />
               </div>
