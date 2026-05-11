@@ -97,10 +97,24 @@ export default function Importacao() {
     try {
       const cId = targetType === 'conta' ? contaId : undefined;
       const kId = targetType === 'cartao' ? cartaoId : undefined;
-      const data = await api.importacaoPreview(file, cId, kId);
-      setPreview(data);
-      setSelected(new Set(data.items.filter(i => !i.duplicata).map(i => i.externalId)));
-      setStep('preview');
+
+      if (file.name.endsWith('.json')) {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const rawItems: Array<{ externalId: string; data: string; descricao: string; valor: number; tipo: 'debito' | 'entrada' }> =
+          Array.isArray(parsed) ? parsed : parsed.items;
+        if (!Array.isArray(rawItems)) throw new Error('JSON inválido: esperado array "items"');
+        const items: PreviewItem[] = rawItems.map(i => ({ ...i, duplicata: false }));
+        const novas = items.length;
+        setPreview({ total: novas, novas, duplicatas: 0, items });
+        setSelected(new Set(items.map(i => i.externalId)));
+        setStep('preview');
+      } else {
+        const data = await api.importacaoPreview(file, cId, kId);
+        setPreview(data);
+        setSelected(new Set(data.items.filter(i => !i.duplicata).map(i => i.externalId)));
+        setStep('preview');
+      }
     } catch (e: any) {
       addToast('error', e.message || 'Erro ao processar arquivo');
     }
@@ -150,7 +164,7 @@ export default function Importacao() {
           <FileUp size={22} className="text-brand-primary" />
           <div>
             <h2 className="text-xl font-bold">Importar Transações</h2>
-            <p className="text-xs text-muted font-mono">Carregue arquivos OFX, QFX ou CSV do seu banco</p>
+            <p className="text-xs text-muted font-mono">Carregue arquivos OFX, QFX, CSV ou JSON</p>
           </div>
         </div>
 
@@ -286,7 +300,7 @@ export default function Importacao() {
                 ref={fileInputRef}
                 type="file"
                 className="hidden"
-                accept=".ofx,.qfx,.csv"
+                accept=".ofx,.qfx,.csv,.json"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleFileChange(f); }}
               />
               {file ? (
@@ -299,7 +313,7 @@ export default function Importacao() {
                 <>
                   <Upload size={32} className="text-muted mx-auto mb-2" />
                   <p className="text-sm font-medium">Arraste o arquivo aqui ou clique para selecionar</p>
-                  <p className="text-xs text-muted mt-1">Suporta OFX, QFX e CSV</p>
+                  <p className="text-xs text-muted mt-1">Suporta OFX, QFX, CSV e JSON</p>
                 </>
               )}
             </div>

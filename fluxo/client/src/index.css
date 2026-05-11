@@ -306,7 +306,7 @@
     @apply w-full md:max-w-md md:mx-4 md:rounded-2xl;
     background: rgb(var(--surface-rgb));
     border: 1px solid var(--border);
-    @apply rounded-t-2xl max-h-[92vh] overflow-y-auto relative;
+    @apply rounded-t-2xl max-h-[92vh] overflow-y-auto relative min-h-0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
   }
 
@@ -395,7 +395,6 @@
 }
 .page-enter {
   animation: pageEnter 0.32s var(--ease-out-soft);
-  will-change: opacity, transform;
 }
 
 /* ─── prefers-reduced-motion ────────────────────────────── */
