@@ -307,22 +307,30 @@ export default function Contas() {
 
       {/* Extrato */}
       <div className="card">
-        <div className="flex items-center justify-between mb-3">
-          <p className="label-mono">
-            {selectedConta ? `Extrato — ${contas.find(c => c.id === selectedConta)?.nome}` : 'Todas as Transações do Mês'}
-          </p>
+        <div className="flex flex-col gap-2 mb-3">
+          <div className="flex items-center justify-between">
+            <p className="label-mono truncate mr-2">
+              {selectedConta ? `Extrato — ${contas.find(c => c.id === selectedConta)?.nome}` : 'Todas as Transações do Mês'}
+            </p>
+            <button
+              onClick={() => { setEditingTx(null); setModalTx(true); }}
+              className="btn-primary flex items-center gap-1.5 py-1.5 text-xs shrink-0"
+            >
+              <Plus size={13} /> Nova
+            </button>
+          </div>
           <div className="flex items-center gap-2">
-            <div className="relative">
+            <div className="relative flex-1">
               <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
               <input
-                className="bg-white/5 border border-white/[0.07] rounded-lg pl-8 pr-3 py-1.5 text-xs font-mono placeholder:text-muted/50 focus:outline-none focus:border-brand-primary/50 w-44"
+                className="w-full bg-white/5 border border-white/[0.07] rounded-lg pl-8 pr-3 py-1.5 text-xs font-mono placeholder:text-muted/50 focus:outline-none focus:border-brand-primary/50"
                 placeholder="Buscar transação..."
                 value={search}
                 onChange={e => { setSearch(e.target.value); setShowAll(false); }}
               />
             </div>
             <select
-              className="bg-white/5 border border-white/[0.07] rounded-lg px-2 py-1.5 text-xs font-mono text-muted focus:outline-none focus:border-brand-primary/50"
+              className="bg-white/5 border border-white/[0.07] rounded-lg px-2 py-1.5 text-xs font-mono text-muted focus:outline-none focus:border-brand-primary/50 shrink-0"
               value={catFilter}
               onChange={e => { setCatFilter(e.target.value); setShowAll(false); }}
             >
@@ -331,13 +339,7 @@ export default function Contas() {
                 <option key={c} value={c}>{getCategoriaLabel(c as any)}</option>
               ))}
             </select>
-            <button
-              onClick={() => { setEditingTx(null); setModalTx(true); }}
-              className="btn-primary flex items-center gap-1.5 py-1.5 text-xs"
-            >
-              <Plus size={13} /> Nova
-            </button>
-            <p className="text-xs text-muted font-mono">{txFiltradas.length} tx</p>
+            <p className="text-xs text-muted font-mono shrink-0 hidden sm:block">{txFiltradas.length} tx</p>
           </div>
         </div>
         <div className="space-y-0.5 max-h-[500px] overflow-y-auto">
