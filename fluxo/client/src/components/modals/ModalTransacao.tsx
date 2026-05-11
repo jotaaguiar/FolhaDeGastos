@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { X, ArrowDownRight, CreditCard, ArrowUpRight } from 'lucide-react';
+import { X, ArrowDownRight, CreditCard, ArrowUpRight, Sparkles } from 'lucide-react';
 import type { Conta, Cartao, Categoria } from '@/types';
 import TagInput from '@/components/shared/TagInput';
 import CategoriaSelect from '@/components/shared/CategoriaSelect';
 import AmountPad from '@/components/shared/AmountPad';
-import { formatCurrency } from '@/lib/formatters';
+import PickerSheet from '@/components/shared/PickerSheet';
+import { formatCurrency, getCategoriaLabel, getCategoriaIcon } from '@/lib/formatters';
+import { detectCategoria } from '@/lib/categoryDetector';
 import { api } from '@/lib/api';
 
 interface ModalTransacaoProps {
@@ -38,6 +40,10 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
   });
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [showMaisDetalhes, setShowMaisDetalhes] = useState(false);
+  /** Quando true, o usuário escolheu categoria manualmente — desliga auto-detect */
+  const [manualCategoria, setManualCategoria] = useState(false);
+  /** Última categoria que foi auto-detectada — para mostrar indicador */
+  const [autoDetected, setAutoDetected] = useState<Categoria | null>(null);
 
   useEffect(() => {
     if (open) api.getTags().then(setTagSuggestions).catch(() => {});
@@ -78,6 +84,8 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
         tags: initialData.tags || [],
       });
       setShowMaisDetalhes(!!(initialData.observacao || (initialData.tags && initialData.tags.length)));
+      setManualCategoria(true); // edição: respeita a categoria salva
+      setAutoDetected(null);
     } else {
       setForm({
         descricao: '', cents: 0, tipo: 'debito',
@@ -89,8 +97,23 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
         tags: [],
       });
       setShowMaisDetalhes(false);
+      setManualCategoria(false);
+      setAutoDetected(null);
     }
   }, [initialData, open]);
+
+  // Auto-detecta categoria pela descrição quando o usuário ainda não escolheu manualmente
+  useEffect(() => {
+    if (manualCategoria) return;
+    if (!open) return;
+    const det = detectCategoria(form.descricao);
+    if (det && det !== form.categoria) {
+      setForm(f => ({ ...f, categoria: det }));
+      setAutoDetected(det);
+    } else if (!det && autoDetected) {
+      setAutoDetected(null);
+    }
+  }, [form.descricao, manualCategoria, open]);
 
   if (!open) return null;
 
@@ -177,10 +200,27 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
             autoFocus={!initialData}
           />
 
+          {/* Indicador de categoria auto-detectada — chip compacto */}
+          {autoDetected && !manualCategoria && (
+            <button
+              type="button"
+              onClick={() => setManualCategoria(true)}
+              className="flex items-center gap-1.5 text-[11px] font-mono px-2 py-1 rounded-full animate-fade-in"
+              style={{
+                background: 'rgb(var(--brand-primary-rgb) / 0.1)',
+                color: 'rgb(var(--brand-primary-rgb))',
+              }}
+              title="Toque pra travar essa categoria"
+            >
+              <Sparkles size={11} />
+              <span>Categoria detectada: {getCategoriaIcon(autoDetected)} {getCategoriaLabel(autoDetected)}</span>
+            </button>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <CategoriaSelect
               value={form.categoria}
-              onChange={v => setForm(f => ({ ...f, categoria: v as Categoria }))}
+              onChange={v => { setForm(f => ({ ...f, categoria: v as Categoria })); setManualCategoria(true); setAutoDetected(null); }}
             />
             <input
               className="input-dark w-full"
@@ -191,15 +231,31 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
           </div>
 
           {form.tipo !== 'credito_cartao' ? (
-            <select className="input-dark w-full" value={form.contaId}
-              onChange={e => setForm(f => ({ ...f, contaId: e.target.value }))}>
-              {contas.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-            </select>
+            <PickerSheet
+              title="Selecionar conta"
+              value={form.contaId}
+              onChange={id => setForm(f => ({ ...f, contaId: id }))}
+              options={contas.map(c => ({
+                id: c.id,
+                label: c.nome,
+                sublabel: c.banco,
+                color: c.cor,
+              }))}
+              placeholder="Selecione uma conta"
+            />
           ) : (
-            <select className="input-dark w-full" value={form.cartaoId}
-              onChange={e => setForm(f => ({ ...f, cartaoId: e.target.value }))}>
-              {cartoes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-            </select>
+            <PickerSheet
+              title="Selecionar cartão"
+              value={form.cartaoId}
+              onChange={id => setForm(f => ({ ...f, cartaoId: id }))}
+              options={cartoes.map(c => ({
+                id: c.id,
+                label: c.nome,
+                sublabel: `${c.banco} •••• ${c.ultimos4}`,
+                color: c.cor,
+              }))}
+              placeholder="Selecione um cartão"
+            />
           )}
 
           {/* Mais detalhes — collapsible */}
