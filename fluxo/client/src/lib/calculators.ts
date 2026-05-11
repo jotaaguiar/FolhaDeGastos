@@ -4,13 +4,19 @@ const NECESSIDADES: Categoria[] = ['moradia', 'alimentacao', 'transporte', 'saud
 const DESEJOS: Categoria[] = ['lazer', 'assinaturas', 'vestuario', 'viagem', 'educacao'];
 
 export function calcularRegra503020(transacoes: Transacao[], totalEntradas: number) {
-  const gastoNecessidades = transacoes
-    .filter(t => NECESSIDADES.includes(t.categoria) && t.tipo !== 'entrada' && t.tipo !== 'transferencia')
+  const saidas = transacoes.filter(t => t.tipo !== 'entrada' && t.tipo !== 'transferencia');
+
+  const gastoNecessidades = saidas
+    .filter(t => NECESSIDADES.includes(t.categoria))
     .reduce((acc, t) => acc + t.valor, 0);
-  const gastoDesejos = transacoes
-    .filter(t => DESEJOS.includes(t.categoria) && t.tipo !== 'entrada' && t.tipo !== 'transferencia')
+  const gastoDesejos = saidas
+    .filter(t => DESEJOS.includes(t.categoria))
     .reduce((acc, t) => acc + t.valor, 0);
-  const poupanca = Math.max(0, totalEntradas - gastoNecessidades - gastoDesejos);
+  const gastoOutros = saidas
+    .filter(t => !NECESSIDADES.includes(t.categoria) && !DESEJOS.includes(t.categoria))
+    .reduce((acc, t) => acc + t.valor, 0);
+
+  const poupanca = Math.max(0, totalEntradas - gastoNecessidades - gastoDesejos - gastoOutros);
   return {
     necessidades: { gasto: gastoNecessidades, ideal: totalEntradas * 0.5 },
     desejos: { gasto: gastoDesejos, ideal: totalEntradas * 0.3 },
