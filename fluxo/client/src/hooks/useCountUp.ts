@@ -7,7 +7,7 @@ const prefersReducedMotion =
 export function useCountUp(target: number, duration = 500): number {
   const [current, setCurrent] = useState(target);
   const prevRef = useRef(target);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const from = prevRef.current;
