@@ -1,11 +1,10 @@
-import { useRef, useState, useEffect, ReactNode } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void> | void;
   /** Elemento de scroll de referência (id). Se não passado, usa o pai imediato. */
   scrollContainerId?: string;
-  children: ReactNode;
 }
 
 const PULL_THRESHOLD = 70;
@@ -15,7 +14,7 @@ const MAX_PULL = 140;
  * Pull-to-refresh nativo. Detecta toque no topo do scroll vertical e arrasta pra baixo.
  * Spring back com easing iOS. Spinner gira proporcional ao pull.
  */
-export default function PullToRefresh({ onRefresh, scrollContainerId, children }: PullToRefreshProps) {
+export default function PullToRefresh({ onRefresh, scrollContainerId }: PullToRefreshProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pullDistance, setPullDistance] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
