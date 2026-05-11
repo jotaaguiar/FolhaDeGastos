@@ -23,8 +23,8 @@ export default function ModalDetalhesDia({ open, onClose, dia, mes, ano, transac
   const totalSaidas = txs.filter(t => t.tipo !== 'entrada' && t.tipo !== 'transferencia').reduce((acc, t) => acc + t.valor, 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-surface border border-white/[0.08] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-scale-in">
+    <div className="modal-backdrop animate-fade-in" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-white/[0.05] flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">

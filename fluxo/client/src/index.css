@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+@supports not (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: 0.75rem;
+  }
+}
+
 @layer base {
   /* ─── DARK THEME (default) ─────────────────────────────── */
   :root, .theme-escuro {
@@ -233,5 +244,40 @@
   .skeleton {
     background: rgb(var(--s3-rgb));
     @apply animate-pulse rounded;
+  }
+
+  /* Modal — desktop centered, mobile bottom sheet */
+  .modal-backdrop {
+    @apply fixed inset-0 z-50 flex items-end md:items-center justify-center;
+    background: var(--modal-backdrop);
+  }
+
+  .modal-sheet {
+    @apply w-full md:max-w-md md:mx-4 md:rounded-2xl;
+    background: rgb(var(--surface-rgb));
+    border: 1px solid var(--border);
+    @apply rounded-t-2xl max-h-[92vh] overflow-y-auto;
+  }
+
+  @media (min-width: 768px) {
+    .modal-sheet {
+      @apply animate-scale-in;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .modal-sheet {
+      @apply animate-slide-up-sheet;
+    }
+  }
+
+  /* Section divider */
+  .section-label {
+    @apply flex items-center gap-3 mb-4;
+  }
+  .section-label::after {
+    content: '';
+    @apply flex-1 h-px;
+    background: var(--border);
   }
 }

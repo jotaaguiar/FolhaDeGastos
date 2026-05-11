@@ -135,8 +135,8 @@ export default function ModalCartao({ open, onClose, onSubmit, initialData, taxa
   const exemploCompra2 = diaFech + 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-      <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up" onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop animate-fade-in" onClick={onClose}>
+      <div className="modal-sheet md:max-w-lg p-6" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
           <div className="flex items-center gap-2">
             <CreditCard size={20} className="text-brand-primary" />

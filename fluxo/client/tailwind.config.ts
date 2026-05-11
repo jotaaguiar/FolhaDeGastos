@@ -44,6 +44,7 @@ export default {
         'progress': 'progress 1s ease-in-out',
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-in-out',
+        'slide-up-sheet': 'slideUpSheet 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
         'scale-in': 'scaleIn 0.2s ease-out',
         'glow': 'glow 2s ease-in-out infinite alternate',
       },
@@ -59,6 +60,10 @@ export default {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUpSheet: {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
         },
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },

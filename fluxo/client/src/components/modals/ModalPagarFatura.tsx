@@ -67,9 +67,8 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="bg-surface border border-white/[0.08] rounded-2xl w-full max-w-md shadow-2xl">
+    <div className="modal-backdrop animate-fade-in" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="p-5 border-b border-white/[0.05] flex items-center justify-between bg-white/[0.02] sticky top-0 z-10 rounded-t-2xl">
             <div className="flex items-center gap-3">
@@ -259,6 +258,5 @@ export default function ModalPagarFatura({ open, onClose, onSubmit, fatura, cont
           </div>
         </div>
       </div>
-    </div>
   );
 }
