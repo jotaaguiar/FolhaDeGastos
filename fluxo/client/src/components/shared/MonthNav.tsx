@@ -14,6 +14,17 @@ export default function MonthNav() {
 
   const isFuture = anoAtual > todayAno || (anoAtual === todayAno && mesAtual >= todayMes);
 
+  // Diferença relativa em meses (positivo = futuro, negativo = passado)
+  const monthDiff = (anoAtual - todayAno) * 12 + (mesAtual - todayMes);
+  const labelRelativo = (() => {
+    if (monthDiff === 0) return 'Este mês';
+    if (monthDiff === -1) return 'Mês passado';
+    if (monthDiff === 1) return 'Próximo mês';
+    if (monthDiff < -1 && monthDiff >= -11 && anoAtual === todayAno) return `${getMesNome(mesAtual)}`;
+    if (monthDiff > 1 && monthDiff <= 11 && anoAtual === todayAno) return `${getMesNome(mesAtual)}`;
+    return `${getMesNome(mesAtual).slice(0, 3)} ${anoAtual}`;
+  })();
+
   const prev = () => {
     let m = mesAtual - 1, a = anoAtual;
     if (m < 1) { m = 12; a--; }
@@ -40,9 +51,16 @@ export default function MonthNav() {
       >
         <ChevronLeft size={16} />
       </button>
-      <span className="font-mono text-xs sm:text-sm min-w-[120px] sm:min-w-[140px] text-center tracking-tight">
-        {getMesNome(mesAtual)} {anoAtual}
-      </span>
+      <div className="min-w-[120px] sm:min-w-[140px] text-center leading-tight">
+        <span className="block text-xs sm:text-sm font-semibold tracking-tight capitalize">
+          {labelRelativo}
+        </span>
+        {monthDiff !== 0 && (
+          <span className="block text-[10px] text-muted font-mono mt-0.5">
+            {anoAtual !== todayAno ? `${getMesNome(mesAtual).slice(0,3).toLowerCase()} • ${anoAtual}` : getMesNome(mesAtual).toLowerCase()}
+          </span>
+        )}
+      </div>
       <button
         onClick={next}
         disabled={isOverview && isFuture}

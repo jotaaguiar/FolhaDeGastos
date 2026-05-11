@@ -6,7 +6,7 @@ import { useApp } from '@/context/AppContext';
 import { useAlert } from '@/context/AlertContext';
 import { useConfirm } from '@/context/ConfirmContext';
 import { useDashboard } from '@/hooks/useDashboard';
-import TransacaoRow from '@/components/shared/TransacaoRow';
+import TransacoesAgrupadas from '@/components/shared/TransacoesAgrupadas';
 import ModalConta from '@/components/modals/ModalConta';
 import ModalTransferencia from '@/components/modals/ModalTransferencia';
 import ModalTransacao from '@/components/modals/ModalTransacao';
@@ -345,27 +345,25 @@ export default function Contas() {
             <p className="text-xs text-muted font-mono shrink-0 hidden sm:block">{txFiltradas.length} tx</p>
           </div>
         </div>
-        <div className="space-y-0.5 max-h-[500px] overflow-y-auto">
+        <div className="max-h-[500px] overflow-y-auto">
           {txFiltradas.length === 0 ? (
             <p className="text-sm text-muted py-6 text-center">
               {search ? `Nenhuma transação para "${search}"` : 'Sem transações no período'}
             </p>
           ) : (
             <>
-              {txDisplay.map(t => (
-                <TransacaoRow
-                  key={t.id}
-                  transacao={t}
-                  cartoes={cartoes}
-                  contas={contas}
-                  onDelete={handleDeleteTx}
-                  onEdit={(tx) => { setEditingTx(tx); setModalTx(true); }}
-                />
-              ))}
+              <TransacoesAgrupadas
+                transacoes={txDisplay}
+                cartoes={cartoes}
+                contas={contas}
+                onDelete={handleDeleteTx}
+                onEdit={(tx) => { setEditingTx(tx); setModalTx(true); }}
+              />
               {!showAll && txFiltradas.length > 30 && (
                 <button
                   onClick={() => setShowAll(true)}
-                  className="w-full py-3 text-xs text-muted font-mono hover:text-white transition-colors text-center"
+                  className="w-full py-3 mt-2 text-xs text-muted font-mono hover:text-text-base text-center"
+                  style={{ transition: 'color 0.2s var(--ease-ios)' }}
                 >
                   Ver mais {txFiltradas.length - 30} transações ↓
                 </button>

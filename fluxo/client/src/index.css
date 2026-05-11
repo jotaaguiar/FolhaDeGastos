@@ -343,14 +343,10 @@
     }
   }
 
-  /* Section divider */
+  /* Section header — limpo, iOS-style */
   .section-label {
-    @apply flex items-center gap-3 mb-4;
-  }
-  .section-label::after {
-    content: '';
-    @apply flex-1 h-px;
-    background: var(--border);
+    @apply flex items-center gap-3 mb-4 px-1;
+    color: rgb(var(--muted-rgb));
   }
 
   /* Skip link — acessibilidade */

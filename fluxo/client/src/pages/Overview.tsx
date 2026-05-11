@@ -80,62 +80,63 @@ export default function Overview() {
           </div>
         </div>
 
-        {/* Métricas secundárias */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {/* Entradas */}
-          <div className="card p-4">
-            <div className="flex items-start justify-between mb-3">
-              <p className="label-mono">Entradas</p>
-              <div className="w-8 h-8 rounded-lg bg-fluxo-green/10 flex items-center justify-center shrink-0">
-                <ArrowUpRight size={16} className="text-fluxo-green" />
+        {/* Trilho composto de métricas — uma única superfície com divisores hairline */}
+        <div className="card p-0 overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-3">
+            {/* Entradas */}
+            <div className="p-4 md:p-5 border-b md:border-b-0 md:border-r border-white/[0.05]">
+              <div className="flex items-center justify-between mb-2">
+                <p className="label-mono">Entradas</p>
+                <ArrowUpRight size={14} className="text-fluxo-green" />
               </div>
+              <AnimatedCurrency value={data.totalEntradas} className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-green block" />
+              {deltaEntradas != null && (
+                <p className={`text-[11px] font-mono mt-1 ${deltaEntradas >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+                  {deltaEntradas >= 0 ? '↑' : '↓'} {Math.abs(deltaEntradas).toFixed(1)}% vs anterior
+                </p>
+              )}
             </div>
-            <AnimatedCurrency value={data.totalEntradas} className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-green" />
-            {deltaEntradas != null && (
-              <p className={`text-[11px] font-mono mt-1 ${deltaEntradas >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
-                {deltaEntradas >= 0 ? '↑' : '↓'} {Math.abs(deltaEntradas).toFixed(1)}%
-              </p>
-            )}
-          </div>
 
-          {/* Saídas */}
-          <div className="card p-4">
-            <div className="flex items-start justify-between mb-3">
-              <p className="label-mono">Saídas</p>
-              <div className="w-8 h-8 rounded-lg bg-fluxo-red/10 flex items-center justify-center shrink-0">
-                <ArrowDownRight size={16} className="text-fluxo-red" />
+            {/* Saídas */}
+            <div className="p-4 md:p-5 border-b md:border-b-0 md:border-r border-white/[0.05]">
+              <div className="flex items-center justify-between mb-2">
+                <p className="label-mono">Saídas</p>
+                <ArrowDownRight size={14} className="text-fluxo-red" />
               </div>
+              <AnimatedCurrency value={data.totalSaidas} className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-red block" />
+              {deltaSaidas != null && (
+                <p className={`text-[11px] font-mono mt-1 ${deltaSaidas <= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+                  {deltaSaidas <= 0 ? '↓' : '↑'} {Math.abs(deltaSaidas).toFixed(1)}% vs anterior
+                </p>
+              )}
             </div>
-            <AnimatedCurrency value={data.totalSaidas} className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-red" />
-            {deltaSaidas != null && (
-              <p className={`text-[11px] font-mono mt-1 ${deltaSaidas <= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
-                {deltaSaidas <= 0 ? '↓' : '↑'} {Math.abs(deltaSaidas).toFixed(1)}%
-              </p>
-            )}
-          </div>
 
-          {/* Limite diário — col-span 2 em mobile, 1 em md */}
-          <div className="card p-4 col-span-2 md:col-span-1">
-            <div className="flex items-start justify-between mb-3">
-              <p className="label-mono">{config?.limiteDinamico ? 'Limite Diário (IA)' : 'Limite Diário'}</p>
-              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${data.limiteDiarioDinamico < 50 ? 'bg-fluxo-red/10 text-fluxo-red' : 'bg-fluxo-green/10 text-fluxo-green'}`}>
-                {data.limiteDiarioDinamico < 50 ? 'Baixo' : 'OK'}
-              </span>
-            </div>
-            <p className={`text-xl md:text-2xl font-extrabold font-mono ${data.limiteDiarioDinamico < 50 ? 'text-fluxo-red' : 'text-fluxo-green'}`}>
-              {formatCurrency(data.limiteDiarioDinamico)}
-            </p>
-            {data.detalhesLimiteDiario && (
-              <div className="mt-2 space-y-1">
-                <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                  <div
-                    className="bg-brand-primary h-full transition-all duration-700"
-                    style={{ width: `${Math.min(100, (data.detalhesLimiteDiario.valorPorDia / (config?.limiteDiarioPadrao || 1)) * 100)}%` }}
-                  />
+            {/* Limite diário */}
+            <div className="p-4 md:p-5 col-span-2 md:col-span-1">
+              <div className="flex items-center justify-between mb-2">
+                <p className="label-mono">{config?.limiteDinamico ? 'Limite Diário (IA)' : 'Limite Diário'}</p>
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${data.limiteDiarioDinamico < 50 ? 'bg-fluxo-red/10 text-fluxo-red' : 'bg-fluxo-green/10 text-fluxo-green'}`}>
+                  {data.limiteDiarioDinamico < 50 ? 'Baixo' : 'OK'}
+                </span>
+              </div>
+              <p className={`text-xl md:text-2xl font-extrabold font-mono ${data.limiteDiarioDinamico < 50 ? 'text-fluxo-red' : 'text-fluxo-green'}`}>
+                {formatCurrency(data.limiteDiarioDinamico)}
+              </p>
+              {data.detalhesLimiteDiario && (
+                <div className="mt-2 space-y-1">
+                  <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-brand-primary h-full"
+                      style={{
+                        width: `${Math.min(100, (data.detalhesLimiteDiario.valorPorDia / (config?.limiteDiarioPadrao || 1)) * 100)}%`,
+                        transition: 'width 0.7s var(--ease-ios)',
+                      }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-muted font-mono">{data.detalhesLimiteDiario.diasRestantes} dias restantes</p>
                 </div>
-                <p className="text-[10px] text-muted font-mono">{data.detalhesLimiteDiario.diasRestantes} dias restantes</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
