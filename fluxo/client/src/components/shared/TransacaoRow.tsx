@@ -3,6 +3,7 @@ import type { Transacao, Cartao, Conta } from '@/types';
 import { formatCurrency, formatDate, formatDateShort, getCategoriaLabel, getCategoriaColor, getCategoriaIcon, getDiaSemana } from '@/lib/formatters';
 import { Trash2, ChevronDown, ChevronUp, CreditCard, Wallet, Repeat, Calendar, Tag, FileText, Hash, Edit3 } from 'lucide-react';
 import ParcelaDots from './ParcelaDots';
+import SwipeableRow from './SwipeableRow';
 
 interface TransacaoRowProps {
   transacao: Transacao;
@@ -28,6 +29,10 @@ export default function TransacaoRow({ transacao, cartoes, contas, onDelete, onE
   }[t.tipo];
 
   return (
+    <SwipeableRow
+      onDelete={onDelete ? () => onDelete(t.id) : undefined}
+      disabled={expanded}
+    >
     <div
       className={`rounded-lg ${expanded ? 'bg-s2 border border-white/[0.07]' : 'hover:bg-white/[0.02]'}`}
       style={{ transition: 'background 0.2s var(--ease-ios), border-color 0.2s var(--ease-ios)' }}
@@ -230,5 +235,6 @@ export default function TransacaoRow({ transacao, cartoes, contas, onDelete, onE
         </div>
       )}
     </div>
+    </SwipeableRow>
   );
 }
