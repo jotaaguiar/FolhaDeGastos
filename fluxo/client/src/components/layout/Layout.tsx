@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import BottomNav from './BottomNav';
 import ModalTransacao from '@/components/modals/ModalTransacao';
+import PullToRefresh from '@/components/shared/PullToRefresh';
 import { useContas } from '@/hooks/useContas';
 import { useCartoes } from '@/hooks/useCartoes';
 import { useApp } from '@/context/AppContext';
@@ -46,7 +47,14 @@ export default function Layout() {
 
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6 relative">
+          <PullToRefresh
+            scrollContainerId="main-content"
+            onRefresh={async () => {
+              await refresh();
+              await new Promise(r => setTimeout(r, 250));
+            }}
+          />
           <div key={location.pathname} className="page-enter">
             <Outlet />
           </div>

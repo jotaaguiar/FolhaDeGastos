@@ -14,8 +14,10 @@ import SkeletonCard from '@/components/shared/SkeletonCard';
 import PatrimonioChart from '@/components/charts/PatrimonioChart';
 import BudgetRings from '@/components/shared/BudgetRings';
 import AnimatedCurrency from '@/components/shared/AnimatedCurrency';
+import HeroCarousel from '@/components/shared/HeroCarousel';
+import ScoreRing from '@/components/shared/ScoreRing';
 import { formatCurrency, formatDateShort } from '@/lib/formatters';
-import { TrendingUp, TrendingDown, CreditCard, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, CreditCard, ArrowUpRight, ArrowDownRight, Wallet, Award, PiggyBank } from 'lucide-react';
 
 const calcDelta = (curr: number, prev: number) =>
   prev === 0 ? null : ((curr - prev) / Math.abs(prev)) * 100;
@@ -60,25 +62,85 @@ export default function Overview() {
   return (
     <div className="space-y-8 animate-fade-in">
 
-      {/* ── NÍVEL 1: SALDO HERO ─────────────────────────────────── */}
+      {/* ── NÍVEL 1: HERO CAROUSEL ───────────────────────────── */}
       <div className="space-y-4">
-        {/* Saldo total — maior destaque */}
-        <div className="card card-glow-brand p-6 md:p-8">
-          <p className="label-mono mb-2">Saldo Consolidado</p>
-          <div className="flex items-end justify-between gap-4">
-            <AnimatedCurrency
-              value={data.saldoTotal}
-              duration={600}
-              className={`text-4xl md:text-5xl font-extrabold font-mono tracking-tight leading-none ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}
-            />
-            {deltaSaldo != null && (
-              <div className={`flex items-center gap-1 text-sm font-mono mb-1 ${deltaSaldo >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
-                {deltaSaldo >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                {Math.abs(deltaSaldo).toFixed(1)}% vs anterior
-              </div>
-            )}
-          </div>
-        </div>
+        <HeroCarousel
+          slides={[
+            {
+              key: 'saldo',
+              content: (
+                <div className="card card-glow-brand p-6 md:p-8">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="label-mono">Saldo Consolidado</p>
+                    <Wallet size={14} className="text-muted" />
+                  </div>
+                  <div className="flex items-end justify-between gap-4">
+                    <AnimatedCurrency
+                      value={data.saldoTotal}
+                      duration={600}
+                      className={`text-4xl md:text-5xl font-extrabold font-mono tracking-tight leading-none ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}
+                    />
+                    {deltaSaldo != null && (
+                      <div className={`flex items-center gap-1 text-sm font-mono mb-1 ${deltaSaldo >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+                        {deltaSaldo >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                        {Math.abs(deltaSaldo).toFixed(1)}% vs anterior
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: 'taxa-poupanca',
+              content: (
+                <div className="card p-6 md:p-8" style={{ boxShadow: '0 0 40px rgba(52, 211, 153, 0.08)' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="label-mono">Taxa de Poupança</p>
+                    <PiggyBank size={14} className="text-muted" />
+                  </div>
+                  <div className="flex items-end justify-between gap-4">
+                    <p className={`text-4xl md:text-5xl font-extrabold font-mono tracking-tight leading-none ${data.taxaPoupanca >= 20 ? 'text-fluxo-green' : data.taxaPoupanca >= 10 ? 'text-fluxo-amber' : 'text-fluxo-red'}`}>
+                      {data.taxaPoupanca.toFixed(1)}<span className="text-2xl md:text-3xl text-muted">%</span>
+                    </p>
+                    <div className="text-right text-[11px] font-mono text-muted leading-tight">
+                      <p>do que entrou,</p>
+                      <p>sobrou em caixa</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 w-full bg-white/[0.05] h-2 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${data.taxaPoupanca >= 20 ? 'bg-fluxo-green' : data.taxaPoupanca >= 10 ? 'bg-fluxo-amber' : 'bg-fluxo-red'}`}
+                      style={{
+                        width: `${Math.min(100, Math.max(0, data.taxaPoupanca))}%`,
+                        transition: 'width 0.7s var(--ease-ios)',
+                      }}
+                    />
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: 'score',
+              content: (
+                <div className="card card-glow-brand p-6 md:p-8">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="label-mono">Score Financeiro</p>
+                    <Award size={14} className="text-muted" />
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className={`text-4xl md:text-5xl font-extrabold font-mono tracking-tight leading-none ${data.score >= 85 ? 'text-fluxo-green' : data.score >= 70 ? 'text-fluxo-blue' : data.score >= 50 ? 'text-fluxo-amber' : 'text-fluxo-red'}`}>
+                        {data.score}
+                      </p>
+                      <p className="text-sm font-mono text-muted mt-1">{data.scoreLabel}</p>
+                    </div>
+                    <ScoreRing score={data.score} size={72} />
+                  </div>
+                </div>
+              ),
+            },
+          ]}
+        />
 
         {/* Trilho composto de métricas — uma única superfície com divisores hairline */}
         <div className="card p-0 overflow-hidden">

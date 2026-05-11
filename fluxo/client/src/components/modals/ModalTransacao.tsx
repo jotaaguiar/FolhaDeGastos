@@ -7,6 +7,7 @@ import AmountPad from '@/components/shared/AmountPad';
 import PickerSheet from '@/components/shared/PickerSheet';
 import { formatCurrency, getCategoriaLabel, getCategoriaIcon } from '@/lib/formatters';
 import { detectCategoria } from '@/lib/categoryDetector';
+import { useTransacoesFrequentes } from '@/hooks/useTransacoesFrequentes';
 import { api } from '@/lib/api';
 
 interface ModalTransacaoProps {
@@ -40,10 +41,10 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
   });
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [showMaisDetalhes, setShowMaisDetalhes] = useState(false);
-  /** Quando true, o usuário escolheu categoria manualmente — desliga auto-detect */
   const [manualCategoria, setManualCategoria] = useState(false);
-  /** Última categoria que foi auto-detectada — para mostrar indicador */
   const [autoDetected, setAutoDetected] = useState<Categoria | null>(null);
+  // Sugestões só quando: modal aberto + não é edição + tudo vazio
+  const { sugestoes } = useTransacoesFrequentes(open && !initialData);
 
   useEffect(() => {
     if (open) api.getTags().then(setTagSuggestions).catch(() => {});
@@ -192,6 +193,46 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
 
         {/* Form fields */}
         <div className="px-5 space-y-3">
+          {/* Quick-add chips — só quando vazio e não editando */}
+          {!initialData && sugestoes.length > 0 && form.cents === 0 && form.descricao.length === 0 && (
+            <div className="-mx-5 px-5 overflow-x-auto scrollbar-hide animate-fade-in">
+              <div className="flex gap-2 pb-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted flex items-center shrink-0 mr-1">
+                  Frequentes
+                </span>
+                {sugestoes.map(s => (
+                  <button
+                    key={s.descricao + s.valor}
+                    type="button"
+                    onClick={() => {
+                      setForm(f => ({
+                        ...f,
+                        descricao: s.descricao,
+                        cents: Math.round(s.valor * 100),
+                        categoria: s.categoria,
+                        tipo: s.tipo as Tipo,
+                      }));
+                      setManualCategoria(true);
+                      setAutoDetected(null);
+                    }}
+                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium active:scale-[0.96]"
+                    style={{
+                      background: 'var(--overlay-subtle)',
+                      border: '1px solid var(--border)',
+                      transition: 'background 0.2s var(--ease-ios), transform 0.15s var(--ease-ios), border-color 0.2s var(--ease-ios)',
+                    }}
+                  >
+                    <span>{getCategoriaIcon(s.categoria)}</span>
+                    <span className="truncate max-w-[100px]">{s.descricao}</span>
+                    <span className="text-muted font-mono">
+                      {formatCurrency(s.valor)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <input
             className="input-dark w-full"
             placeholder="Descrição"

@@ -384,6 +384,10 @@
   100% { background-position: -200% 0; }
 }
 
+/* ─── Scrollbar hide utility ────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* ─── Page transition (entre rotas) ─────────────────────── */
 @keyframes pageEnter {
   0%   { opacity: 0; transform: translateY(6px); }
