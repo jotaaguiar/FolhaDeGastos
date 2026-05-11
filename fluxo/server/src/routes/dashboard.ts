@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { readFile } from '../services/storage.js';
+import { readFiles } from '../services/storage.js';
 import {
   calcularScore, calcularTaxaPoupanca, calcularSaldoDiario,
   calcularSaldoAtualConta, calcularTotalFatura, calcularRegra503020,
@@ -17,11 +17,21 @@ router.get('/', async (req: Request, res: Response) => {
   const mes = Number(req.query.mes) || new Date().getMonth() + 1;
   const ano = Number(req.query.ano) || new Date().getFullYear();
 
-  const contas = await readFile<Conta[]>(userId, 'contas.json', []);
-  const cartoes = await readFile<Cartao[]>(userId, 'cartoes.json', []);
-  const todasTransacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
-  const faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
-  const config = await readFile<Config>(userId, 'config.json', { nomeUsuario: 'Usuário', moeda: 'BRL', limiteDiarioPadrao: 150, limiteDinamico: false, tema: 'escuro' as any, reservaInvestimento: 0, radarPeriodo: 6, taxaJurosCartoesGlobal: 15 });
+  const {
+    'contas.json': contas,
+    'cartoes.json': cartoes,
+    'transacoes.json': todasTransacoes,
+    'faturas.json': faturas,
+    'config.json': config,
+    'recorrencias.json': recorrencias,
+  } = await readFiles(userId, {
+    'contas.json': [] as Conta[],
+    'cartoes.json': [] as Cartao[],
+    'transacoes.json': [] as Transacao[],
+    'faturas.json': [] as Fatura[],
+    'config.json': { nomeUsuario: 'Usuário', moeda: 'BRL', limiteDiarioPadrao: 150, limiteDinamico: false, tema: 'escuro' as any, reservaInvestimento: 0, radarPeriodo: 6, taxaJurosCartoesGlobal: 15 } as Config,
+    'recorrencias.json': [] as RecorrenciaConfig[],
+  });
 
   const parseDate = (dateStr: string) => {
     if (!dateStr) return { m: 0, a: 0 };
@@ -47,7 +57,6 @@ router.get('/', async (req: Request, res: Response) => {
     .reduce((acc, t) => acc + t.valor, 0);
 
   // Add pending recurrences (those not yet materialized as transactions this month)
-  const recorrencias = await readFile<RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
   const pendingRecs = recorrencias.filter(r => {
     if (!r.ativa) return false;
     const exists = todasTransacoes.some(t => {
