@@ -14,6 +14,21 @@ interface RecorrenciasManagerProps {
   filterType?: 'conta' | 'cartao';
 }
 
+function dataCobrancaRecorrencia(rec: any, mes: number, ano: number) {
+  const dia = Math.min(rec.diaCobranca, new Date(ano, mes, 0).getDate());
+  return `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+function recorrenciaValeNoMes(rec: any, mes: number, ano: number) {
+  if (!rec.ativa) return false;
+  const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
+  if (rec.pulosManual?.includes(chaveMes)) return false;
+  const data = dataCobrancaRecorrencia(rec, mes, ano);
+  if (rec.inicioEm && data < rec.inicioEm.slice(0, 10)) return false;
+  if (rec.fimEm && data > rec.fimEm.slice(0, 10)) return false;
+  return true;
+}
+
 export default function RecorrenciasManager({ filterType }: RecorrenciasManagerProps) {
   const { recorrencias: allRecorrencias, loading, toggle, remove, create, update } = useRecorrencias();
   const { cartoes } = useCartoes();
@@ -31,8 +46,12 @@ export default function RecorrenciasManager({ filterType }: RecorrenciasManagerP
 
   if (loading) return <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>;
 
-  const entradasRecorrentes = recorrencias.filter(r => r.ativa && r.tipo === 'entrada').reduce((acc, r) => acc + r.valor, 0);
-  const totalMensal = recorrencias.filter(r => r.ativa && (r.tipo === 'debito' || r.tipo === 'credito_cartao')).reduce((acc, r) => acc + r.valor, 0);
+  const hoje = new Date();
+  const mesRef = hoje.getMonth() + 1;
+  const anoRef = hoje.getFullYear();
+  const recorrenciasDoMes = recorrencias.filter(r => recorrenciaValeNoMes(r, mesRef, anoRef));
+  const entradasRecorrentes = recorrenciasDoMes.filter(r => r.tipo === 'entrada').reduce((acc, r) => acc + r.valor, 0);
+  const totalMensal = recorrenciasDoMes.filter(r => r.tipo === 'debito' || r.tipo === 'credito_cartao').reduce((acc, r) => acc + r.valor, 0);
   const totalAnual = totalMensal * 12;
   const ativas = recorrencias.filter(r => r.ativa).length;
 
@@ -100,6 +119,7 @@ export default function RecorrenciasManager({ filterType }: RecorrenciasManagerP
                     </span>
                   )}
                   <span className="text-[10px] text-muted font-mono">Dia {rec.diaCobranca}</span>
+                  {rec.inicioEm && <span className="text-[10px] text-muted font-mono">Desde {rec.inicioEm.slice(0, 10)}</span>}
                 </div>
               </div>
               <span className={`font-mono text-sm font-semibold ${rec.tipo === 'entrada' ? 'text-fluxo-green' : 'text-fluxo-amber'}`}>

@@ -3,6 +3,57 @@ import type { Categoria, Transacao, Fatura, RecorrenciaConfig, Meta, Cartao } fr
 const NECESSIDADES: Categoria[] = ['moradia', 'alimentacao', 'transporte', 'saude'];
 const DESEJOS: Categoria[] = ['lazer', 'assinaturas', 'vestuario', 'viagem', 'educacao'];
 
+export function getHojeLocalISO(): string {
+  const hoje = new Date();
+  const local = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60_000);
+  return local.toISOString().split('T')[0];
+}
+
+function normalizarDataISO(data?: string): string | undefined {
+  if (!data) return undefined;
+  const match = data.match(/^\d{4}-\d{2}-\d{2}/);
+  return match?.[0];
+}
+
+export function getDataCobrancaRecorrencia(
+  rec: RecorrenciaConfig,
+  mes: number,
+  ano: number
+): string {
+  const dia = Math.min(rec.diaCobranca, new Date(ano, mes, 0).getDate());
+  return `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+export function recorrenciaAtivaNoMes(
+  rec: RecorrenciaConfig,
+  mes: number,
+  ano: number
+): boolean {
+  if (!rec.ativa) return false;
+
+  const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
+  if (rec.pulosManual?.includes(chaveMes)) return false;
+
+  const dataCobranca = getDataCobrancaRecorrencia(rec, mes, ano);
+  const inicio = normalizarDataISO(rec.inicioEm);
+  const fim = normalizarDataISO(rec.fimEm);
+
+  if (inicio && dataCobranca < inicio) return false;
+  if (fim && dataCobranca > fim) return false;
+
+  return true;
+}
+
+export function recorrenciaMaterializavelNoMes(
+  rec: RecorrenciaConfig,
+  mes: number,
+  ano: number,
+  ateData = getHojeLocalISO()
+): boolean {
+  if (!recorrenciaAtivaNoMes(rec, mes, ano)) return false;
+  return getDataCobrancaRecorrencia(rec, mes, ano) <= ateData;
+}
+
 export function calcularScore(
   totalEntradas: number,
   totalSaidas: number,
@@ -87,11 +138,14 @@ export function calcularSaldoAtualConta(
   saldoInicial: number,
   contaId: string,
   transacoes: Transacao[],
-  faturas: Fatura[]
+  faturas: Fatura[],
+  ateData?: string
 ): number {
   let saldo = saldoInicial;
 
   for (const t of transacoes) {
+    if (ateData && t.data > ateData) continue;
+
     if (t.tipo === 'entrada' && t.contaId === contaId) {
       saldo += t.valor;
     } else if (t.tipo === 'debito' && t.contaId === contaId) {
@@ -105,6 +159,8 @@ export function calcularSaldoAtualConta(
   // Subtract paid invoices — use valorPago if set (supports partial), else calculate total
   const faturasPagas = faturas.filter(f => (f.status === 'paga' || f.status === 'parcial') && f.contaPagamentoId === contaId);
   for (const f of faturasPagas) {
+    if (ateData && f.dataPagamento && f.dataPagamento > ateData) continue;
+
     if (f.valorPago !== undefined) {
       saldo -= f.valorPago;
     } else {
@@ -143,16 +199,14 @@ export function projetarFluxoFuturo(
     const d = new Date(anoBase, mesBase - 1 + i, 1);
     const m = d.getMonth() + 1;
     const a = d.getFullYear();
-    const chaveMes = `${a}-${String(m).padStart(2, '0')}`;
-
     // 1. Entradas recorrentes e fixas (alta confiança) — respeita pulosManual
     const entradasFixas = recorrencias
-      .filter(r => r.ativa && r.tipo === 'entrada' && !r.pulosManual?.includes(chaveMes))
+      .filter(r => r.tipo === 'entrada' && recorrenciaAtivaNoMes(r, m, a))
       .reduce((acc, r) => acc + r.valor, 0);
 
     // 2. Recorrências de saída (alta confiança) — respeita pulosManual
     const saidasRecorrentes = recorrencias
-      .filter(r => r.ativa && (r.tipo === 'debito' || r.tipo === 'credito_cartao') && !r.pulosManual?.includes(chaveMes))
+      .filter(r => (r.tipo === 'debito' || r.tipo === 'credito_cartao') && recorrenciaAtivaNoMes(r, m, a))
       .reduce((acc, r) => acc + r.valor, 0);
 
     // 3. Parcelamentos ativos neste mês (certeza absoluta)
@@ -220,11 +274,9 @@ export function projetarSaldoDiarioProximos30Dias(
     const dia = data.getDate();
     const mes = data.getMonth() + 1;
     const ano = data.getFullYear();
-    const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
-
     // 1. Recorrências que caem hoje — respeita pulosManual do mês
     const totalRecorrencias = recorrencias
-      .filter(r => r.ativa && r.diaCobranca === dia && !r.pulosManual?.includes(chaveMes))
+      .filter(r => recorrenciaAtivaNoMes(r, mes, ano) && getDataCobrancaRecorrencia(r, mes, ano) === dataStr)
       .reduce((acc, r) => {
         if (r.tipo === 'entrada') return acc + r.valor;
         return acc - r.valor;
@@ -399,15 +451,9 @@ export function projetarFatura(
   }
 
   // Add recurring charges — respeita pulosManual do mês
-  const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
   const recorrentesAtivas = recorrencias.filter(
-    r => r.cartaoId === cartaoId && r.ativa && r.tipo === 'credito_cartao' && !r.pulosManual?.includes(chaveMes)
-  ).filter(r => {
-    if (r.fimEm) {
-      return new Date(r.fimEm) >= new Date(ano, mes - 1, 1);
-    }
-    return true;
-  });
+    r => r.cartaoId === cartaoId && r.tipo === 'credito_cartao' && recorrenciaAtivaNoMes(r, mes, ano)
+  );
 
   total += recorrentesAtivas.reduce((acc, r) => acc + r.valor, 0);
 

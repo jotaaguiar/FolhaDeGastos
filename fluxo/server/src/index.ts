@@ -91,19 +91,20 @@ async function bootstrap() {
   // Cold-start: materializa recorrências antigas (idempotente, respeita pulosManual)
   try {
     const { readFile, writeFile } = await import('./services/storage.js');
-    const { materializarRecorrencia } = await import('./routes/recorrencias.js');
+    const { limparTransacoesRecorrentesFuturas, materializarRecorrencia } = await import('./routes/recorrencias.js');
     const userId = 'joao-aguiar';
     const recorrencias = await readFile<import('./types/index.js').RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
     const transacoes = await readFile<import('./types/index.js').Transacao[]>(userId, 'transacoes.json', []);
     const faturas = await readFile<import('./types/index.js').Fatura[]>(userId, 'faturas.json', []);
     const cartoes = await readFile<import('./types/index.js').Cartao[]>(userId, 'cartoes.json', []);
 
+    const removidas = limparTransacoesRecorrentesFuturas(transacoes, recorrencias);
     let criadas = 0;
     for (const rec of recorrencias) {
       criadas += materializarRecorrencia(rec, transacoes, faturas, cartoes);
     }
 
-    if (criadas > 0) {
+    if (criadas > 0 || removidas > 0) {
       await writeFile(userId, 'transacoes.json', transacoes);
       await writeFile(userId, 'faturas.json', faturas);
       console.log(`🔄 ${criadas} transações recorrentes materializadas`);

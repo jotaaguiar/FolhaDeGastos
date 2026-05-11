@@ -1,7 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import { readFile, writeFile } from '../services/storage.js';
-import { calcularJurosChequeEspecial } from '../services/calculators.js';
+import {
+  calcularJurosChequeEspecial,
+  getDataCobrancaRecorrencia,
+  getHojeLocalISO,
+  recorrenciaMaterializavelNoMes,
+} from '../services/calculators.js';
 import type { RecorrenciaConfig, Transacao, Fatura, Cartao, Conta } from '../types/index.js';
 
 const router = Router();
@@ -58,22 +63,28 @@ function materializarRecorrencia(
   cartoes: Cartao[],
 ): number {
   if (!rec.ativa) return 0;
-  const quantidade = rec.quantidadeMeses ?? DEFAULT_QUANTIDADE_MESES;
+  const quantidade = Math.max(1, Number(rec.quantidadeMeses) || DEFAULT_QUANTIDADE_MESES);
 
   const inicio = rec.inicioEm ? new Date(rec.inicioEm + 'T12:00:00') : new Date();
+  const inicioISO = rec.inicioEm?.slice(0, 10);
+  const ateData = getHojeLocalISO();
   let criadas = 0;
+  let mesesNoPeriodo = 0;
 
-  for (let i = 0; i < quantidade; i++) {
+  for (let i = 0; mesesNoPeriodo < quantidade && i < quantidade + 24; i++) {
     const d = new Date(inicio.getFullYear(), inicio.getMonth() + i, 1);
     const mes = d.getMonth() + 1;
     const ano = d.getFullYear();
-    const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
+    const dataStr = getDataCobrancaRecorrencia(rec, mes, ano);
 
     // Não passa do fimEm se setado
-    if (rec.fimEm && new Date(rec.fimEm) < new Date(ano, mes - 1, 1)) break;
+    if (rec.fimEm && dataStr > rec.fimEm.slice(0, 10)) break;
 
     // Pulo manual
-    if (rec.pulosManual?.includes(chaveMes)) continue;
+    if (inicioISO && dataStr < inicioISO) continue;
+
+    mesesNoPeriodo++;
+    if (!recorrenciaMaterializavelNoMes(rec, mes, ano, ateData)) continue;
 
     // Já existe?
     const jaExiste = transacoes.some(t => {
@@ -82,9 +93,6 @@ function materializarRecorrencia(
       return td.getMonth() + 1 === mes && td.getFullYear() === ano;
     });
     if (jaExiste) continue;
-
-    const dia = Math.min(rec.diaCobranca, new Date(ano, mes, 0).getDate());
-    const dataStr = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
     let faturaId: string | undefined;
     if (rec.tipo === 'credito_cartao' && rec.cartaoId) {
@@ -113,6 +121,33 @@ function materializarRecorrencia(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+function limparTransacoesRecorrentesFuturas(
+  transacoes: Transacao[],
+  recorrencias: RecorrenciaConfig[],
+  ateData = getHojeLocalISO(),
+): number {
+  const recPorId = new Map(recorrencias.map(r => [r.id, r]));
+  let removidas = 0;
+
+  for (let i = transacoes.length - 1; i >= 0; i--) {
+    const tx = transacoes[i];
+    if (!tx.recorrenciaId || !tx.data) continue;
+
+    const rec = recPorId.get(tx.recorrenciaId);
+    const inicio = rec?.inicioEm?.slice(0, 10);
+    const fim = rec?.fimEm?.slice(0, 10);
+    const foraDaJanela = (inicio && tx.data < inicio) || (fim && tx.data > fim);
+    const futura = tx.data > ateData;
+
+    if (futura || foraDaJanela) {
+      transacoes.splice(i, 1);
+      removidas++;
+    }
+  }
+
+  return removidas;
+}
 
 router.get('/', async (req: Request, res: Response) => {
   const userId = (req as any).userId;
@@ -145,25 +180,35 @@ router.post('/', async (req: Request, res: Response) => {
   recorrencias.push(nova);
 
   // Materialização eager: cria as N txs concretamente
+  const removidas = limparTransacoesRecorrentesFuturas(transacoes, recorrencias);
   const criadas = materializarRecorrencia(nova, transacoes, faturas, cartoes);
 
   await writeFile(userId, 'recorrencias.json', recorrencias);
-  if (criadas > 0) {
+  if (criadas > 0 || removidas > 0) {
     await writeFile(userId, 'transacoes.json', transacoes);
     await writeFile(userId, 'faturas.json', faturas);
   }
 
-  res.status(201).json({ ...nova, transacoesCriadas: criadas });
+  res.status(201).json({ ...nova, transacoesCriadas: criadas, transacoesRemovidas: removidas });
 });
 
 router.put('/:id', async (req: Request, res: Response) => {
   const userId = (req as any).userId;
   const recorrencias = await readFile<RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
+  const transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
+  const faturas = await readFile<Fatura[]>(userId, 'faturas.json', []);
+  const cartoes = await readFile<Cartao[]>(userId, 'cartoes.json', []);
   const idx = recorrencias.findIndex(r => r.id === req.params.id);
   if (idx === -1) { res.status(404).json({ error: 'Recorrência não encontrada' }); return; }
   recorrencias[idx] = { ...recorrencias[idx], ...req.body, id: req.params.id };
+  const removidas = limparTransacoesRecorrentesFuturas(transacoes, recorrencias);
+  const criadas = materializarRecorrencia(recorrencias[idx], transacoes, faturas, cartoes);
   await writeFile(userId, 'recorrencias.json', recorrencias);
-  res.json(recorrencias[idx]);
+  if (criadas > 0 || removidas > 0) {
+    await writeFile(userId, 'transacoes.json', transacoes);
+    await writeFile(userId, 'faturas.json', faturas);
+  }
+  res.json({ ...recorrencias[idx], transacoesCriadas: criadas, transacoesRemovidas: removidas });
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
@@ -212,6 +257,7 @@ router.post('/processar', async (req: Request, res: Response) => {
   const cartoes = await readFile<Cartao[]>(userId, 'cartoes.json', []);
   const contas = await readFile<Conta[]>(userId, 'contas.json', []);
 
+  const removidas = limparTransacoesRecorrentesFuturas(transacoes, recorrencias);
   let criadas = 0;
   for (const rec of recorrencias) {
     criadas += materializarRecorrencia(rec, transacoes, faturas, cartoes);
@@ -258,13 +304,13 @@ router.post('/processar', async (req: Request, res: Response) => {
     }
   }
 
-  if (criadas > 0) {
+  if (criadas > 0 || removidas > 0) {
     await writeFile(userId, 'transacoes.json', transacoes);
     await writeFile(userId, 'faturas.json', faturas);
   }
 
-  res.json({ ok: true, criadas });
+  res.json({ ok: true, criadas, removidas });
 });
 
-export { materializarRecorrencia };
+export { limparTransacoesRecorrentesFuturas, materializarRecorrencia };
 export default router;

@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
-import { readFile, writeFile } from '../services/storage.js';
-import type { Conta } from '../types/index.js';
+import { readFile, readFiles, writeFile } from '../services/storage.js';
+import { calcularSaldoAtualConta, getHojeLocalISO } from '../services/calculators.js';
+import type { Conta, Fatura, Transacao } from '../types/index.js';
 
 const router = Router();
 
@@ -55,13 +56,22 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // PATCH /:id/saldo — Directly set account balance by adjusting saldoInicial
 router.patch('/:id/saldo', async (req: Request, res: Response) => {
   const userId = (req as any).userId;
-  const contas = await readFile<Conta[]>(userId, 'contas.json', []);
+  const {
+    'contas.json': contas,
+    'transacoes.json': transacoes,
+    'faturas.json': faturas,
+  } = await readFiles(userId, {
+    'contas.json': [] as Conta[],
+    'transacoes.json': [] as Transacao[],
+    'faturas.json': [] as Fatura[],
+  });
   const idx = contas.findIndex(c => c.id === req.params.id);
   if (idx === -1) { res.status(404).json({ error: 'Conta não encontrada' }); return; }
   const novoSaldo = Number(req.body.saldo);
   if (isNaN(novoSaldo)) { res.status(400).json({ error: 'Saldo inválido' }); return; }
-  // Adjust saldoInicial to make the effective balance match the desired value
-  contas[idx].saldoInicial = novoSaldo;
+  // Adjust saldoInicial to make the effective balance match the desired value.
+  const impactoMovimentacoes = calcularSaldoAtualConta(0, contas[idx].id, transacoes, faturas, getHojeLocalISO());
+  contas[idx].saldoInicial = Math.round((novoSaldo - impactoMovimentacoes) * 100) / 100;
   await writeFile(userId, 'contas.json', contas);
   res.json(contas[idx]);
 });

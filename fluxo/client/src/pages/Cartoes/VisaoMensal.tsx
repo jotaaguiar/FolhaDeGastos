@@ -7,6 +7,21 @@ import { formatCurrency, getMesAbrev } from '@/lib/formatters';
 import SkeletonCard from '@/components/shared/SkeletonCard';
 import type { Transacao, RecorrenciaConfig } from '@/types';
 
+function dataCobrancaRecorrencia(rec: RecorrenciaConfig, mes: number, ano: number) {
+  const dia = Math.min(rec.diaCobranca, new Date(ano, mes, 0).getDate());
+  return `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+function recorrenciaValeNoMes(rec: RecorrenciaConfig, mes: number, ano: number) {
+  if (!rec.ativa) return false;
+  const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
+  if (rec.pulosManual?.includes(chaveMes)) return false;
+  const data = dataCobrancaRecorrencia(rec, mes, ano);
+  if (rec.inicioEm && data < rec.inicioEm.slice(0, 10)) return false;
+  if (rec.fimEm && data > rec.fimEm.slice(0, 10)) return false;
+  return true;
+}
+
 export default function VisaoMensal() {
   const { cartoes, loading } = useCartoes();
   const { recorrencias } = useRecorrencias();
@@ -53,7 +68,7 @@ export default function VisaoMensal() {
       if (parcela >= 1 && parcela <= t.parcelamento.total) total += t.valor;
     }
     // Recurrents
-    const recs = recorrencias.filter(r => r.cartaoId === cartaoId && r.ativa && r.tipo === 'credito_cartao');
+    const recs = recorrencias.filter(r => r.cartaoId === cartaoId && r.tipo === 'credito_cartao' && recorrenciaValeNoMes(r, mes, ano));
     total += recs.reduce((acc, r) => acc + r.valor, 0);
 
     // Manual Adjustments (Saldos)

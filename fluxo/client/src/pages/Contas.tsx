@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useContas } from '@/hooks/useContas';
 import { useTransacoes } from '@/hooks/useTransacoes';
 import { useCartoes } from '@/hooks/useCartoes';
@@ -25,7 +25,7 @@ export default function Contas() {
   const { transacoes, refetch: refetchTx, remove: removeTx, update: updateTx, create: createTx } = txHook;
   const { addToast } = useAlert();
   const { confirm } = useConfirm();
-  const { refresh } = useApp();
+  const { mesAtual, anoAtual, refresh, setMesAno } = useApp();
 
   const [modalConta, setModalConta] = useState(false);
   const [modalTransf, setModalTransf] = useState(false);
@@ -38,6 +38,13 @@ export default function Contas() {
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('todas');
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    const hoje = new Date();
+    const mes = hoje.getMonth() + 1;
+    const ano = hoje.getFullYear();
+    if (mesAtual !== mes || anoAtual !== ano) setMesAno(mes, ano);
+  }, [mesAtual, anoAtual, setMesAno]);
 
   if (loading) return <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[1, 2, 3].map(i => <SkeletonCard key={i} />)}</div>;
 

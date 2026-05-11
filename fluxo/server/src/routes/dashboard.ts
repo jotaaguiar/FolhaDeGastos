@@ -3,7 +3,8 @@ import { readFiles } from '../services/storage.js';
 import {
   calcularScore, calcularTaxaPoupanca, calcularSaldoDiario,
   calcularSaldoAtualConta, calcularTotalFatura, calcularRegra503020,
-  projetarFluxoFuturo, projetarSaldoDiarioProximos30Dias
+  projetarFluxoFuturo, projetarSaldoDiarioProximos30Dias,
+  getHojeLocalISO, recorrenciaAtivaNoMes
 } from '../services/calculators.js';
 import { computeLimiteCartao } from './cartoes.js';
 import type {
@@ -46,6 +47,7 @@ router.get('/', async (req: Request, res: Response) => {
     const { m, a } = parseDate(t.data);
     return m === mes && a === ano;
   });
+  const hojeISO = getHojeLocalISO();
 
   // Calculate real transactions
   const totalEntradasReal = transacoesMes
@@ -58,10 +60,9 @@ router.get('/', async (req: Request, res: Response) => {
 
   // Add pending recurrences (those not yet materialized as transactions this month)
   // Importante: respeita pulosManual — se o mês foi pulado, NÃO conta como pendente
-  const chaveMesAtual = `${ano}-${String(mes).padStart(2, '0')}`;
   const pendingRecs = recorrencias.filter(r => {
     if (!r.ativa) return false;
-    if (r.pulosManual?.includes(chaveMesAtual)) return false;
+    if (!recorrenciaAtivaNoMes(r, mes, ano)) return false;
     const exists = todasTransacoes.some(t => {
       const { m, a } = parseDate(t.data);
       return t.recorrenciaId === r.id && m === mes && a === ano;
@@ -83,7 +84,7 @@ router.get('/', async (req: Request, res: Response) => {
   // Account balances
   const contasSaldo = contas.filter(c => c.ativa).map(conta => ({
     conta,
-    saldoAtual: calcularSaldoAtualConta(conta.saldoInicial, conta.id, todasTransacoes, faturas),
+    saldoAtual: calcularSaldoAtualConta(conta.saldoInicial, conta.id, todasTransacoes, faturas, hojeISO),
   }));
 
   const saldoTotal = contasSaldo.reduce((acc, cs) => acc + cs.saldoAtual, 0);

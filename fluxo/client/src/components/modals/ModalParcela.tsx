@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import type { Cartao, Categoria } from '@/types';
 import { getMesNome } from '@/lib/formatters';
@@ -36,6 +36,16 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
     mesInicio: now.getMonth() + 1,
     anoInicio: now.getFullYear(),
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    setForm(current => ({
+      ...current,
+      cartaoId: cartoes.some(c => c.id === current.cartaoId) ? current.cartaoId : cartoes[0]?.id || '',
+      contaId: contas.some(c => c.id === current.contaId) ? current.contaId : contas[0]?.id || '',
+    }));
+  }, [open, cartoes, contas]);
 
   if (!open) return null;
 
@@ -76,6 +86,8 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
     while (m > 12) { m -= 12; a++; }
     previewMeses.push(`${getMesNome(m).slice(0, 3)}/${a}`);
   }
+  const semDestino = (modo === 'cartao' && !form.cartaoId) || (modo === 'conta' && !form.contaId);
+  const submitDisabled = !form.descricao.trim() || !form.valorTotal || !form.parcelas || semDestino;
 
   return (
     <div className="modal-backdrop animate-fade-in" onClick={onClose}>
@@ -113,11 +125,13 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
               {modo === 'cartao' ? (
                 <select className="input-dark w-full" value={form.cartaoId}
                   onChange={e => setForm(f => ({ ...f, cartaoId: e.target.value }))}>
+                  {cartoes.length === 0 && <option value="">Nenhum cartao cadastrado</option>}
                   {cartoes.map(c => <option key={c.id} value={c.id}>{c.nome} (•••• {c.ultimos4})</option>)}
                 </select>
               ) : (
                 <select className="input-dark w-full" value={form.contaId}
                   onChange={e => setForm(f => ({ ...f, contaId: e.target.value }))}>
+                  {contas.length === 0 && <option value="">Nenhuma conta cadastrada</option>}
                   {contas.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>
               )}
@@ -168,7 +182,7 @@ export default function ModalParcela({ open, onClose, onSubmit, cartoes, contas 
         </div>
         <div className="flex justify-end gap-2 mt-5">
           <button onClick={onClose} className="btn-ghost">Cancelar</button>
-          <button onClick={handleSubmit} className="btn-primary">Criar Parcelamento</button>
+          <button onClick={handleSubmit} disabled={submitDisabled} className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed">Criar Parcelamento</button>
         </div>
       </div>
     </div>

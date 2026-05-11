@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { readFile } from '../services/storage.js';
+import { recorrenciaAtivaNoMes } from '../services/calculators.js';
 import type { Transacao, RecorrenciaConfig } from '../types/index.js';
 
 const router = Router();
@@ -61,15 +62,8 @@ router.get('/', async (req: Request, res: Response) => {
     const label = d.toLocaleString('pt-BR', { month: 'short', year: '2-digit' });
 
     // Recorrências ativas neste mês futuro — respeita pulosManual
-    const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
     const recAtivas = recorrencias.filter(r => {
-      if (!r.ativa) return false;
-      if (r.pulosManual?.includes(chaveMes)) return false;
-      if (r.fimEm) {
-        const fim = new Date(r.fimEm);
-        if (new Date(ano, mes - 1, 1) > fim) return false;
-      }
-      return true;
+      return recorrenciaAtivaNoMes(r, mes, ano);
     });
 
     const entradasRec = recAtivas

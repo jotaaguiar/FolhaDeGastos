@@ -98,7 +98,7 @@ export const api = {
     request<import('@/types').Transacao>(`/transacoes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteTransacao: (id: string) =>
     request<{ ok: boolean }>(`/transacoes/${id}`, { method: 'DELETE' }),
-  criarParcelamento: (data: { descricao: string; valorTotal: number; parcelas: number; cartaoId: string; categoria: string; mesInicio: number; anoInicio: number }) =>
+  criarParcelamento: (data: { descricao: string; valorTotal: number; parcelas: number; cartaoId?: string; contaId?: string; categoria: string; mesInicio: number; anoInicio: number }) =>
     request<{ ok: boolean; criadas: number; grupoId: string }>('/transacoes/parcelamento', { method: 'POST', body: JSON.stringify(data) }),
 
   // Faturas

@@ -14,6 +14,12 @@ const categorias: { value: Categoria; label: string }[] = [
   { value: 'entrada_outros', label: 'Outras Entradas' },
 ];
 
+function hojeLocalISO() {
+  const hoje = new Date();
+  const local = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60_000);
+  return local.toISOString().split('T')[0];
+}
+
 interface ModalRecorrenciaProps {
   open: boolean;
   onClose: () => void;
@@ -37,6 +43,7 @@ export default function ModalRecorrencia({
     categoria: 'assinaturas' as Categoria,
     cartaoId: cartoes[0]?.id || '',
     contaId: contas[0]?.id || '',
+    inicioEm: hojeLocalISO(),
     quantidadeMeses: '12',
   });
 
@@ -50,6 +57,7 @@ export default function ModalRecorrencia({
         categoria: initialData.categoria || 'assinaturas',
         cartaoId: initialData.cartaoId || cartoes[0]?.id || '',
         contaId: initialData.contaId || contas[0]?.id || '',
+        inicioEm: initialData.inicioEm || hojeLocalISO(),
         quantidadeMeses: initialData.quantidadeMeses ? String(initialData.quantidadeMeses) : '12',
       });
     } else {
@@ -57,6 +65,7 @@ export default function ModalRecorrencia({
       setForm({
         descricao: '', valor: '', diaCobranca: '10', categoria: 'assinaturas',
         cartaoId: cartoes[0]?.id || '', contaId: contas[0]?.id || '',
+        inicioEm: hojeLocalISO(),
         quantidadeMeses: '12',
       });
     }
@@ -76,6 +85,7 @@ export default function ModalRecorrencia({
       cartaoId: (isCartaoOnly || modo === 'debito') && form.cartaoId ? form.cartaoId : undefined,
       contaId: isCartaoOnly ? undefined : form.contaId,
       ativa: initialData ? initialData.ativa : true,
+      inicioEm: form.inicioEm,
       quantidadeMeses: parseInt(form.quantidadeMeses) || 12,
     });
     onClose();
@@ -107,6 +117,16 @@ export default function ModalRecorrencia({
               <input className="input-dark w-full" type="number" min="1" max="31" placeholder="Dia"
                 value={form.diaCobranca} onChange={e => setForm(f => ({ ...f, diaCobranca: e.target.value }))} />
             </div>
+          </div>
+
+          <div>
+            <label className="text-xs text-muted font-mono block mb-1">Começa em</label>
+            <input
+              className="input-dark w-full"
+              type="date"
+              value={form.inicioEm}
+              onChange={e => setForm(f => ({ ...f, inicioEm: e.target.value }))}
+            />
           </div>
 
           <div>

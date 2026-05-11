@@ -25,6 +25,7 @@ const pageTitles: Record<string, string> = {
 export default function Topbar({ onMenuClick: _onMenuClick }: TopbarProps) {
   const location = useLocation();
   const title = pageTitles[location.pathname] || 'Fluxo';
+  const showMonthNav = location.pathname !== '/contas';
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function Topbar({ onMenuClick: _onMenuClick }: TopbarProps) {
       }}
     >
       <h2 className="text-base md:text-lg font-bold truncate tracking-tight">{title}</h2>
-      <MonthNav />
+      {showMonthNav && <MonthNav />}
     </header>
   );
 }

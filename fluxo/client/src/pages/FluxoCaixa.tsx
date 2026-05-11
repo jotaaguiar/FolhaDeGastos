@@ -19,6 +19,21 @@ import { formatCurrency, getDiaSemana, getMesNome } from '@/lib/formatters';
 import { useAlert } from '@/context/AlertContext';
 import RecorrenciasManager from '@/components/shared/RecorrenciasManager';
 
+function dataCobrancaRecorrencia(rec: any, mes: number, ano: number) {
+  const dia = Math.min(rec.diaCobranca, new Date(ano, mes, 0).getDate());
+  return `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+}
+
+function recorrenciaValeNoMes(rec: any, mes: number, ano: number) {
+  if (!rec.ativa) return false;
+  const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
+  if (rec.pulosManual?.includes(chaveMes)) return false;
+  const data = dataCobrancaRecorrencia(rec, mes, ano);
+  if (rec.inicioEm && data < rec.inicioEm.slice(0, 10)) return false;
+  if (rec.fimEm && data > rec.fimEm.slice(0, 10)) return false;
+  return true;
+}
+
 export default function FluxoCaixa() {
   const { mesAtual, anoAtual, config, refresh } = useApp();
   const { addToast } = useAlert();
@@ -58,7 +73,7 @@ export default function FluxoCaixa() {
     .reduce((a, t) => a + t.valor, 0);
 
   const pendingRecs = recorrencias.filter(r => {
-    if (!r.ativa) return false;
+    if (!recorrenciaValeNoMes(r, mesAtual, anoAtual)) return false;
     const exists = transacoes.some(t => {
       if (!t.data) return false;
       return t.recorrenciaId === r.id;
@@ -126,8 +141,9 @@ export default function FluxoCaixa() {
   });
 
   // — Recurring totals for projection tab —
-  const recEntradas = recorrencias.filter(r => r.ativa && r.tipo === 'entrada').reduce((a, r) => a + r.valor, 0);
-  const recSaidas = recorrencias.filter(r => r.ativa && (r.tipo === 'debito' || r.tipo === 'credito_cartao')).reduce((a, r) => a + r.valor, 0);
+  const recsDoMes = recorrencias.filter(r => recorrenciaValeNoMes(r, mesAtual, anoAtual));
+  const recEntradas = recsDoMes.filter(r => r.tipo === 'entrada').reduce((a, r) => a + r.valor, 0);
+  const recSaidas = recsDoMes.filter(r => r.tipo === 'debito' || r.tipo === 'credito_cartao').reduce((a, r) => a + r.valor, 0);
 
   // — Monthly projection (6 months ahead) —
   const projecaoMeses = dashboard?.projecaoRadar || [];
@@ -330,13 +346,13 @@ export default function FluxoCaixa() {
             <div className="card">
               <p className="label-mono mb-3">Receitas e Custos Fixos</p>
               <div className="space-y-2">
-                {recorrencias.filter(r => r.ativa && r.tipo === 'entrada').map(r => (
+                {recsDoMes.filter(r => r.tipo === 'entrada').map(r => (
                   <div key={r.id} className="flex items-center justify-between py-1.5 border-b border-white/[0.04] last:border-0">
                     <span className="text-sm">{r.descricao}</span>
                     <span className="font-mono text-xs text-fluxo-green">+{formatCurrency(r.valor)}</span>
                   </div>
                 ))}
-                {recorrencias.filter(r => r.ativa && r.tipo === 'debito').map(r => (
+                {recsDoMes.filter(r => r.tipo === 'debito').map(r => (
                   <div key={r.id} className="flex items-center justify-between py-1.5 border-b border-white/[0.04] last:border-0">
                     <span className="text-sm">{r.descricao}</span>
                     <span className="font-mono text-xs text-fluxo-red">-{formatCurrency(r.valor)}</span>
