@@ -224,6 +224,7 @@ export default function Configuracoes() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {([
                 { id: 'escuro', label: 'Midnight', icon: '🌙', color: '#a78bfa', desc: 'Clássico Escuro' },
+                { id: 'black', label: 'Black', icon: '🖤', color: '#00dcff', desc: 'Preto Neon' },
                 { id: 'emerald', label: 'Emerald', icon: '🌲', color: '#10b981', desc: 'Verde Floresta' },
                 { id: 'ocean', label: 'Oceanic', icon: '🌊', color: '#0ea5e9', desc: 'Azul Profundo' },
                 { id: 'sunset', label: 'Sunset', icon: '🌆', color: '#f43f5e', desc: 'Rosa Crepúsculo' },

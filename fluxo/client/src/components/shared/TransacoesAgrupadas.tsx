@@ -11,6 +11,8 @@ interface TransacoesAgrupadasProps {
   onEdit?: (t: Transacao) => void;
   /** Mostra resumo (entrada/saída/líquido) no header de cada grupo */
   showDailySummary?: boolean;
+  /** Offset do sticky header. Use 0 quando dentro de um scroll container interno, top-14/16 quando no scroll da página */
+  stickyTop?: string;
 }
 
 /** Label relativa pra data: "Hoje", "Ontem", "Anteontem", "Sex, 8 mai" */
@@ -41,12 +43,16 @@ export default function TransacoesAgrupadas({
   onDelete,
   onEdit,
   showDailySummary = true,
+  stickyTop = 'top-14 md:top-16',
 }: TransacoesAgrupadasProps) {
   const grupos = useMemo(() => {
     const byDate = new Map<string, Transacao[]>();
     for (const t of transacoes) {
-      if (!byDate.has(t.data)) byDate.set(t.data, []);
-      byDate.get(t.data)!.push(t);
+      // Normaliza para YYYY-MM-DD evitando datas sem zero (ex: "2026-5-11" vs "2026-05-11")
+      const parts = t.data.split('-').map(Number);
+      const key = `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}`;
+      if (!byDate.has(key)) byDate.set(key, []);
+      byDate.get(key)!.push(t);
     }
     return Array.from(byDate.entries())
       .sort((a, b) => b[0].localeCompare(a[0]))
@@ -67,7 +73,7 @@ export default function TransacoesAgrupadas({
         <section key={data}>
           {/* Header do dia — sticky no scroll */}
           <div
-            className="sticky top-14 md:top-16 z-10 flex items-center justify-between gap-3 py-2 px-1 -mx-1"
+            className={`sticky ${stickyTop} z-10 flex items-center justify-between gap-3 py-2 px-1 -mx-1`}
             style={{
               background: 'linear-gradient(to bottom, rgb(var(--surface-rgb)) 0%, rgb(var(--surface-rgb) / 0.95) 80%, rgb(var(--surface-rgb) / 0) 100%)',
               backdropFilter: 'blur(8px)',

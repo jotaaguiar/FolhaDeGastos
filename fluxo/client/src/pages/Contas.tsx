@@ -365,6 +365,7 @@ export default function Contas() {
                 contas={contas}
                 onDelete={handleDeleteTx}
                 onEdit={(tx) => { setEditingTx(tx); setModalTx(true); }}
+                stickyTop="top-0"
               />
               {!showAll && txFiltradas.length > 30 && (
                 <button

@@ -79,7 +79,15 @@ router.get('/', async (req: Request, res: Response) => {
     .reduce((acc, r) => acc + r.valor, 0);
 
   const totalEntradas = totalEntradasReal + totalEntradasPendentes;
-  const totalSaidas = totalSaidasReal; // Mantemos apenas saídas reais de conta para não duplicar com faturas futuras
+
+  // Faturas do mês
+  const faturasMes = faturas.filter(f => f.mes === mes && f.ano === ano);
+  const totalFaturasMes = faturasMes.reduce((acc, f) =>
+    acc + calcularTotalFatura(f.id, todasTransacoes, f), 0);
+
+  // Inclui ajustes manuais de faturas (ex: saldo inicial de cartão) no total de saídas
+  const ajustesFaturasMes = faturasMes.reduce((acc, f) => acc + (f.valorAjuste ?? 0), 0);
+  const totalSaidas = totalSaidasReal + ajustesFaturasMes;
 
   // Account balances
   const contasSaldo = contas.filter(c => c.ativa).map(conta => ({
@@ -88,11 +96,6 @@ router.get('/', async (req: Request, res: Response) => {
   }));
 
   const saldoTotal = contasSaldo.reduce((acc, cs) => acc + cs.saldoAtual, 0);
-
-  // Faturas do mês
-  const faturasMes = faturas.filter(f => f.mes === mes && f.ano === ano);
-  const totalFaturasMes = faturasMes.reduce((acc, f) =>
-    acc + calcularTotalFatura(f.id, todasTransacoes, f), 0);
 
   // Taxa de poupança
   const taxaPoupanca = calcularTaxaPoupanca(totalEntradas, totalSaidas);
