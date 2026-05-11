@@ -142,8 +142,14 @@ router.get('/', async (req: Request, res: Response) => {
     .sort((a, b) => a.data.localeCompare(b.data))
     .slice(0, 10);
 
-  // 50/30/20 Rule
-  const regra503020 = calcularRegra503020(transacoesMes, totalEntradas);
+  // 50/30/20 Rule — usa percentuais do config se definidos, senão padrão 50/30/20
+  const regra503020 = calcularRegra503020(
+    transacoesMes,
+    totalEntradas,
+    config.regra503020Necessidades ?? 50,
+    config.regra503020Desejos ?? 30,
+    config.regra503020Poupanca ?? 20,
+  );
 
   // Patrimônio Histórico (radarPeriodo meses)
   const patrimonioHistorico: Array<{ data: string; saldo: number }> = [];

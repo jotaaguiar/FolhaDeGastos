@@ -129,7 +129,11 @@ export interface Config {
   tema: string;
   reservaInvestimento: number;
   radarPeriodo: number;
-  taxaJurosCartoesGlobal: number; // % ao mês padrão para todos os cartões (ex: 15)
+  taxaJurosCartoesGlobal: number;
+  regra503020Ativa: boolean;
+  regra503020Necessidades: number;
+  regra503020Desejos: number;
+  regra503020Poupanca: number;
 }
 
 export interface CategoriaCustom {

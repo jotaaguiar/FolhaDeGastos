@@ -32,6 +32,10 @@ const DEFAULT_CONFIG: Config = {
   reservaInvestimento: 0,
   radarPeriodo: 6,
   taxaJurosCartoesGlobal: 15,
+  regra503020Ativa: true,
+  regra503020Necessidades: 50,
+  regra503020Desejos: 30,
+  regra503020Poupanca: 20,
 };
 
 export async function seedIfEmpty(userId: string): Promise<void> {

@@ -126,6 +126,10 @@ export interface Config {
   reservaInvestimento: number;
   radarPeriodo: number;
   taxaJurosCartoesGlobal: number;
+  regra503020Ativa: boolean;
+  regra503020Necessidades: number;
+  regra503020Desejos: number;
+  regra503020Poupanca: number;
 }
 
 export interface CategoriaCustom {

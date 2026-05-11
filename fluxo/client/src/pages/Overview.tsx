@@ -161,22 +161,26 @@ export default function Overview() {
             <p className="label-mono mb-4">Patrimônio — 6 meses</p>
             <PatrimonioChart data={data.patrimonioHistorico} />
           </div>
-          <div className="card lg:col-span-2">
-            <p className="label-mono mb-4">Distribuição 50/30/20</p>
-            <BudgetRings data={data.regra503020} />
-            <div className="mt-4 pt-3 border-t border-white/[0.05] flex justify-between">
-              {[
-                { label: 'Necessidades', color: 'bg-brand-primary' },
-                { label: 'Desejos', color: 'bg-amber-400' },
-                { label: 'Poupança', color: 'bg-emerald-400' },
-              ].map(({ label, color }) => (
-                <div key={label} className="flex items-center gap-1.5">
-                  <div className={`w-2 h-2 rounded-full ${color}`} />
-                  <span className="text-[10px] text-muted uppercase font-mono">{label}</span>
-                </div>
-              ))}
+          {(config?.regra503020Ativa ?? true) && (
+            <div className="card lg:col-span-2">
+              <p className="label-mono mb-4">
+                Distribuição {config?.regra503020Necessidades ?? 50}/{config?.regra503020Desejos ?? 30}/{config?.regra503020Poupanca ?? 20}
+              </p>
+              <BudgetRings data={data.regra503020} />
+              <div className="mt-4 pt-3 border-t border-white/[0.05] flex justify-between">
+                {[
+                  { label: 'Necessidades', color: 'bg-brand-primary' },
+                  { label: 'Desejos', color: 'bg-amber-400' },
+                  { label: 'Poupança', color: 'bg-emerald-400' },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${color}`} />
+                    <span className="text-[10px] text-muted uppercase font-mono">{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

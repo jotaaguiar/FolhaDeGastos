@@ -4,7 +4,7 @@ import { useAlert } from '@/context/AlertContext';
 import { useConfirm } from '@/context/ConfirmContext';
 import { useCartoes } from '@/hooks/useCartoes';
 import { api } from '@/lib/api';
-import { Settings, Download, Upload, Trash2, Info, FileSpreadsheet, CreditCard, Percent, Plus, X, Layers, Mail, LogOut, User } from 'lucide-react';
+import { Settings, Download, Upload, Trash2, Info, FileSpreadsheet, CreditCard, Percent, Plus, X, Layers, Mail, LogOut, User, PieChart } from 'lucide-react';
 import type { Cartao } from '@/types';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +28,10 @@ export default function Configuracoes() {
   const [tema, setTema] = useState<string>(config?.tema || 'escuro');
   const [taxaJurosGlobal, setTaxaJurosGlobal] = useState(config?.taxaJurosCartoesGlobal?.toString() || '15');
   const [taxasIndividuais, setTaxasIndividuais] = useState<Record<string, string>>({});
+  const [regraAtiva, setRegraAtiva] = useState(config?.regra503020Ativa ?? true);
+  const [pctNecessidades, setPctNecessidades] = useState(config?.regra503020Necessidades?.toString() || '50');
+  const [pctDesejos, setPctDesejos] = useState(config?.regra503020Desejos?.toString() || '30');
+  const [pctPoupanca, setPctPoupanca] = useState(config?.regra503020Poupanca?.toString() || '20');
 
   // Sync form state when config loads (useState initializer only runs once,
   // but config may be null on first render if the API hasn't responded yet)
@@ -40,6 +44,10 @@ export default function Configuracoes() {
     setRadarPeriodo(config.radarPeriodo?.toString() || '6');
     setTema(config.tema || 'escuro');
     setTaxaJurosGlobal(config.taxaJurosCartoesGlobal?.toString() || '15');
+    setRegraAtiva(config.regra503020Ativa ?? true);
+    setPctNecessidades(config.regra503020Necessidades?.toString() || '50');
+    setPctDesejos(config.regra503020Desejos?.toString() || '30');
+    setPctPoupanca(config.regra503020Poupanca?.toString() || '20');
   }, [config]);
 
   const salvar = async () => {
@@ -354,6 +362,99 @@ export default function Configuracoes() {
           )}
 
           <button onClick={salvar} className="btn-primary w-full">Salvar Configurações de Cartões</button>
+        </div>
+      </div>
+
+      {/* Regra de Orçamento */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-4">
+          <PieChart size={18} className="text-brand-primary" />
+          <h3 className="text-lg font-bold">Regra de Orçamento</h3>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-s2 border border-white/[0.05]">
+            <div>
+              <p className="text-sm font-medium">Distribuição por Categoria</p>
+              <p className="text-xs text-muted">Exibe os anéis de distribuição no painel principal</p>
+            </div>
+            <button
+              onClick={() => setRegraAtiva(!regraAtiva)}
+              className={`w-12 h-6 rounded-full transition-all relative ${regraAtiva ? 'bg-brand-primary' : 'bg-white/10'}`}
+            >
+              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${regraAtiva ? 'right-1' : 'left-1'}`} />
+            </button>
+          </div>
+
+          {regraAtiva && (
+            <div className="space-y-3">
+              <p className="text-xs text-muted">
+                Configure os percentuais ideais para cada grupo. A soma deve ser 100%.
+              </p>
+              {(() => {
+                const soma = (parseFloat(pctNecessidades) || 0) + (parseFloat(pctDesejos) || 0) + (parseFloat(pctPoupanca) || 0);
+                const ok = Math.round(soma) === 100;
+                return (
+                  <>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[10px] text-muted font-mono block mb-1">Necessidades %</label>
+                        <input
+                          className="input-dark w-full font-mono text-center"
+                          type="number" min="0" max="100" step="1"
+                          value={pctNecessidades}
+                          onChange={e => setPctNecessidades(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted font-mono block mb-1">Desejos %</label>
+                        <input
+                          className="input-dark w-full font-mono text-center"
+                          type="number" min="0" max="100" step="1"
+                          value={pctDesejos}
+                          onChange={e => setPctDesejos(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted font-mono block mb-1">Poupança %</label>
+                        <input
+                          className="input-dark w-full font-mono text-center"
+                          type="number" min="0" max="100" step="1"
+                          value={pctPoupanca}
+                          onChange={e => setPctPoupanca(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className={`flex items-center gap-2 text-xs font-mono px-3 py-2 rounded-lg ${ok ? 'bg-fluxo-green/10 text-fluxo-green' : 'bg-fluxo-red/10 text-fluxo-red'}`}>
+                      <span>{ok ? '✓' : '!'}</span>
+                      <span>Soma: {soma.toFixed(0)}% {ok ? '— OK' : '— ajuste para chegar em 100%'}</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
+          <button
+            onClick={async () => {
+              const soma = (parseFloat(pctNecessidades) || 0) + (parseFloat(pctDesejos) || 0) + (parseFloat(pctPoupanca) || 0);
+              if (regraAtiva && Math.round(soma) !== 100) {
+                addToast('error', 'Os percentuais devem somar 100%');
+                return;
+              }
+              try {
+                await atualizarConfig({
+                  regra503020Ativa: regraAtiva,
+                  regra503020Necessidades: parseFloat(pctNecessidades) || 50,
+                  regra503020Desejos: parseFloat(pctDesejos) || 30,
+                  regra503020Poupanca: parseFloat(pctPoupanca) || 20,
+                });
+                addToast('success', 'Regra de orçamento salva!');
+              } catch { addToast('error', 'Erro ao salvar'); }
+            }}
+            className="btn-primary w-full"
+          >
+            Salvar Regra de Orçamento
+          </button>
         </div>
       </div>
 
