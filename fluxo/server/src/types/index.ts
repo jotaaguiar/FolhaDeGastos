@@ -95,6 +95,8 @@ export interface RecorrenciaConfig {
   ativa: boolean;
   inicioEm: string;
   fimEm?: string;
+  // Meses ("YYYY-MM") que o usuário apagou manualmente — o processador NÃO deve recriar
+  pulosManual?: string[];
 }
 
 export interface OrcamentoCategoria {

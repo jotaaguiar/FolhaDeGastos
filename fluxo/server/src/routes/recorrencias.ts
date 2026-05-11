@@ -74,9 +74,14 @@ router.post('/processar', async (req: Request, res: Response) => {
 
   let criadas = 0;
 
+  const chaveMesAtual = `${anoAtual}-${String(mesAtual).padStart(2, '0')}`;
+
   for (const rec of recorrencias) {
     if (!rec.ativa) continue;
     if (rec.fimEm && new Date(rec.fimEm) < new Date(anoAtual, mesAtual - 1, 1)) continue;
+
+    // Usuário apagou manualmente este mês — respeita a decisão
+    if (rec.pulosManual?.includes(chaveMesAtual)) continue;
 
     // Deduplication check
     const jaExiste = transacoes.find(t =>

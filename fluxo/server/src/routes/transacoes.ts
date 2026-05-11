@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import { readFile, writeFile } from '../services/storage.js';
-import type { Transacao, Fatura, Cartao } from '../types/index.js';
+import type { Transacao, Fatura, Cartao, RecorrenciaConfig } from '../types/index.js';
 
 const router = Router();
 
@@ -136,6 +136,23 @@ router.delete('/:id', async (req: Request, res: Response) => {
   let transacoes = await readFile<Transacao[]>(userId, 'transacoes.json', []);
   const exists = transacoes.find(t => t.id === req.params.id);
   if (!exists) { res.status(404).json({ error: 'Transação não encontrada' }); return; }
+
+  // Se a transação veio de uma recorrência, registra o mês na lista de pulos
+  // para evitar que o processador de recorrências recrie a transação após o delete
+  if (exists.recorrenciaId && exists.data) {
+    const recorrencias = await readFile<RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
+    const idx = recorrencias.findIndex(r => r.id === exists.recorrenciaId);
+    if (idx !== -1) {
+      const [ano, mes] = exists.data.split('-');
+      const chaveMes = `${ano}-${mes}`;
+      const pulos = recorrencias[idx].pulosManual || [];
+      if (!pulos.includes(chaveMes)) {
+        recorrencias[idx].pulosManual = [...pulos, chaveMes];
+        await writeFile(userId, 'recorrencias.json', recorrencias);
+      }
+    }
+  }
+
   transacoes = transacoes.filter(t => t.id !== req.params.id);
   await writeFile(userId, 'transacoes.json', transacoes);
   res.json({ ok: true });

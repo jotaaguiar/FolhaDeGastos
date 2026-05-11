@@ -101,9 +101,12 @@ async function bootstrap() {
     const anoAtual = hoje.getFullYear();
     let criadas = 0;
 
+    const chaveMesAtual = `${anoAtual}-${String(mesAtual).padStart(2, '0')}`;
+
     for (const rec of recorrencias) {
       if (!rec.ativa) continue;
       if (rec.fimEm && new Date(rec.fimEm) < new Date(anoAtual, mesAtual - 1, 1)) continue;
+      if (rec.pulosManual?.includes(chaveMesAtual)) continue;
       const jaExiste = transacoes.find(t => {
         if (t.recorrenciaId !== rec.id) return false;
         const d = new Date(t.data);
