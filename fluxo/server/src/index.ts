@@ -34,6 +34,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get('/', (_req, res) => {
+  res.json({ name: 'Fluxo API', version: '1.0.0', status: 'online' });
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, version: '1.0.0' });
 });
