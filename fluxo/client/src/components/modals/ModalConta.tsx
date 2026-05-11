@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalContaProps {
@@ -38,12 +38,12 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
 
   const handleSubmit = () => {
     if (!form.nome) return;
-    onSubmit({ 
-      id: initial?.id, 
-      nome: form.nome, 
-      banco: form.banco, 
-      tipo: form.tipo, 
-      saldoInicial: parseFloat(form.saldoInicial) || 0, 
+    onSubmit({
+      id: initial?.id,
+      nome: form.nome,
+      banco: form.banco,
+      tipo: form.tipo,
+      saldoInicial: parseFloat(form.saldoInicial) || 0,
       cor: form.cor,
       limiteChequeEspecial: parseFloat(form.limiteChequeEspecial) || 0,
       taxaJurosChequeEspecial: parseFloat(form.taxaJurosChequeEspecial) || 0,
@@ -67,7 +67,7 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
           <select className="input-dark w-full" value={form.tipo}
             onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
             <option value="corrente">Corrente</option>
-            <option value="poupanca">PoupanÃ§a</option>
+            <option value="poupanca">Poupança</option>
             <option value="investimento">Investimento</option>
             <option value="dinheiro">Dinheiro</option>
           </select>
@@ -94,7 +94,7 @@ export default function ModalConta({ open, onClose, onSubmit, initial }: ModalCo
                   value={form.taxaJurosChequeEspecial} onChange={e => setForm(f => ({ ...f, taxaJurosChequeEspecial: e.target.value }))} />
               </div>
               <div className="flex-1">
-                <label className="text-xs text-muted block mb-1">Dia da CobranÃ§a</label>
+                <label className="text-xs text-muted block mb-1">Dia da Cobrança</label>
                 <input className="input-dark w-full" type="number" min="1" max="31"
                   value={form.diaCobrancaJuros} onChange={e => setForm(f => ({ ...f, diaCobrancaJuros: e.target.value }))} />
               </div>

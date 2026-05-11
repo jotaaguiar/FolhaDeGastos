@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalMetaProps {
@@ -8,12 +8,12 @@ interface ModalMetaProps {
   initialData?: any;
 }
 
-const emojis = ['ðŸŽ¯', 'ðŸ›¡ï¸', 'âœˆï¸', 'ðŸ’»', 'ðŸ ', 'ðŸš—', 'ðŸ“š', 'ðŸ’', 'ðŸŽ¸', 'ðŸ‹ï¸', 'ðŸ’°', 'ðŸŽ“', 'ðŸŒ´', 'ðŸŽ®', 'ðŸ“±', 'ðŸ‘¶', 'ðŸ¶', 'ðŸ¥', 'ðŸŽ¨', 'âš½'];
+const emojis = ['🎯', '🛡️', '✈️', '💻', '🏠', '🚗', '📚', '💍', '🎸', '🏋️', '💰', '🎓', '🌴', '🎮', '📱', '👶', '🐶', '🥊', '🎨', '⚽'];
 const cores = ['#34d399', '#60a5fa', '#a78bfa', '#fb7185', '#fbbf24', '#2dd4bf', '#f472b6', '#f97316'];
 
 export default function ModalMeta({ open, onClose, onSubmit, initialData }: ModalMetaProps) {
   const [form, setForm] = useState({
-    nome: '', valorAlvo: '', prazo: '', cor: '#34d399', icone: 'ðŸŽ¯', descricao: '',
+    nome: '', valorAlvo: '', prazo: '', cor: '#34d399', icone: '🎯', descricao: '',
   });
 
   useEffect(() => {
@@ -24,11 +24,11 @@ export default function ModalMeta({ open, onClose, onSubmit, initialData }: Moda
         valorAlvo: initialData.valorAlvo ? String(initialData.valorAlvo) : '',
         prazo: initialData.prazo || '',
         cor: initialData.cor || '#34d399',
-        icone: initialData.icone || 'ðŸŽ¯',
+        icone: initialData.icone || '🎯',
         descricao: initialData.descricao || '',
       });
     } else {
-      setForm({ nome: '', valorAlvo: '', prazo: '', cor: '#34d399', icone: 'ðŸŽ¯', descricao: '' });
+      setForm({ nome: '', valorAlvo: '', prazo: '', cor: '#34d399', icone: '🎯', descricao: '' });
     }
   }, [initialData, open]);
 
@@ -55,7 +55,7 @@ export default function ModalMeta({ open, onClose, onSubmit, initialData }: Moda
         <div className="space-y-3">
           <input className="input-dark w-full" placeholder="Nome da meta" value={form.nome}
             onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} autoFocus />
-          <textarea className="input-dark w-full" rows={2} placeholder="DescriÃ§Ã£o (opcional)"
+          <textarea className="input-dark w-full" rows={2} placeholder="Descrição (opcional)"
             value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
           <div className="flex gap-3">
             <input className="input-dark flex-1" type="number" step="0.01" placeholder="Valor alvo (R$)"
@@ -64,7 +64,7 @@ export default function ModalMeta({ open, onClose, onSubmit, initialData }: Moda
               value={form.prazo} onChange={e => setForm(f => ({ ...f, prazo: e.target.value }))} />
           </div>
           <div>
-            <p className="text-xs text-muted mb-2">Ãcone</p>
+            <p className="text-xs text-muted mb-2">Ícone</p>
             <div className="flex flex-wrap gap-1.5">
               {emojis.map(e => (
                 <button key={e} className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg transition-all ${form.icone === e ? 'bg-white/10 ring-1 ring-white/20 scale-110' : 'hover:bg-white/5'}`}

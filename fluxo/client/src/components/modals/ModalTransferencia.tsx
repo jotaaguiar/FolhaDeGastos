@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Conta } from '@/types';
 
@@ -31,7 +31,7 @@ export default function ModalTransferencia({ open, onClose, onSubmit, contas }: 
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-md animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
-          <h3 className="text-lg font-bold">TransferÃªncia</h3>
+          <h3 className="text-lg font-bold">Transferência</h3>
           <button onClick={onClose} className="text-muted hover:text-white"><X size={18} /></button>
         </div>
         <div className="space-y-3">
