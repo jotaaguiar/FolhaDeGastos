@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Conta, Cartao, Categoria } from '@/types';
 import TagInput from '@/components/shared/TagInput';
@@ -79,11 +79,11 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
       <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 w-full max-w-md animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-5">
-          <h3 className="text-lg font-bold">{initialData ? 'Editar TransaÃ§Ã£o' : 'Nova TransaÃ§Ã£o'}</h3>
+          <h3 className="text-lg font-bold">{initialData ? 'Editar Transação' : 'Nova Transação'}</h3>
           <button onClick={onClose} className="text-muted hover:text-white"><X size={18} /></button>
         </div>
         <div className="space-y-3">
-          <input className="input-dark w-full" placeholder="DescriÃ§Ã£o" value={form.descricao}
+          <input className="input-dark w-full" placeholder="Descrição" value={form.descricao}
             onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} autoFocus />
           <div className="flex gap-3">
             <input className="input-dark flex-1" type="number" step="0.01" placeholder="Valor"
@@ -94,8 +94,8 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
           <div className="flex gap-3">
             <select className="input-dark flex-1" value={form.tipo}
               onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
-              <option value="debito">DÃ©bito</option>
-              <option value="credito_cartao">CrÃ©dito</option>
+              <option value="debito">Débito</option>
+              <option value="credito_cartao">Crédito</option>
               <option value="entrada">Entrada</option>
             </select>
             <CategoriaSelect
@@ -121,7 +121,7 @@ export default function ModalTransacao({ open, onClose, onSubmit, contas, cartoe
             suggestions={tagSuggestions}
             placeholder="Tags (ex: viagem, agosto...)"
           />
-          <textarea className="input-dark w-full" rows={2} placeholder="ObservaÃ§Ã£o (opcional)"
+          <textarea className="input-dark w-full" rows={2} placeholder="Observação (opcional)"
             value={form.observacao} onChange={e => setForm(f => ({ ...f, observacao: e.target.value }))} />
         </div>
         <div className="flex justify-end gap-2 mt-5">

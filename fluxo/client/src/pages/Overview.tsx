@@ -61,7 +61,7 @@ export default function Overview() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="card p-6 col-span-1 card-glow-brand">
           <p className="label-mono mb-1">Saldo Total</p>
-          <p className={`text-3xl font-extrabold font-mono tracking-tight ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+          <p className={`text-xl sm:text-3xl font-extrabold font-mono tracking-tight ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
             {formatCurrency(data.saldoTotal)}
           </p>
           <p className="text-xs text-muted mt-1 font-mono">Consolidado</p>

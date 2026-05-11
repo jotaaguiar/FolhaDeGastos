@@ -182,7 +182,7 @@
   }
 
   .value-lg {
-    @apply font-sans text-2xl font-extrabold tracking-tight;
+    @apply font-sans text-lg sm:text-2xl font-extrabold tracking-tight;
   }
 
   .badge {
