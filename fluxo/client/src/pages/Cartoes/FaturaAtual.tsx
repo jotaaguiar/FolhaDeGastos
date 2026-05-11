@@ -132,9 +132,24 @@ function FaturaCard({
               <p className="text-[10px] font-mono text-muted">•••• {cartao?.ultimos4}</p>
               <StatusBadge status={fatura.status} />
             </div>
-            <div className="flex items-center gap-3 mt-0.5">
+            {/* Mobile: só info crítica */}
+            <div className="flex items-center gap-2 mt-0.5 sm:hidden">
+              {!isPaga && dias > 0 && (
+                <span className={`text-[10px] font-mono ${dias <= 3 ? 'text-fluxo-red' : dias <= 7 ? 'text-fluxo-amber' : 'text-muted'}`}>
+                  Vence em {dias}d
+                </span>
+              )}
+              {isPaga && (
+                <span className="text-[10px] text-fluxo-green font-mono">Paga ✓</span>
+              )}
+              {!isPaga && dias === 0 && (
+                <span className="text-[10px] text-fluxo-red font-mono">Vence hoje</span>
+              )}
+            </div>
+            {/* Desktop: linha completa com datas */}
+            <div className="hidden sm:flex items-center gap-3 mt-0.5">
               <p className="text-[10px] text-muted font-mono">
-                Fecha dia <span className={fatura.dataFechamento.split('-')[2] !== String(cartao?.diaFechamento).padStart(2, '0') ? 'text-brand-primary font-bold' : ''}>{fatura.dataFechamento.split('-')[2]}</span> • 
+                Fecha dia <span className={fatura.dataFechamento.split('-')[2] !== String(cartao?.diaFechamento).padStart(2, '0') ? 'text-brand-primary font-bold' : ''}>{fatura.dataFechamento.split('-')[2]}</span> •
                 Vence dia <span className={fatura.dataVencimento.split('-')[2] !== String(cartao?.diaVencimento).padStart(2, '0') ? 'text-brand-primary font-bold' : ''}>{fatura.dataVencimento.split('-')[2]}</span>
               </p>
               {!jaFechou && diasParaFechar > 0 && (
@@ -154,15 +169,15 @@ function FaturaCard({
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-[10px] text-muted font-mono">Total</p>
+            <p className="hidden sm:block text-[10px] text-muted font-mono">Total</p>
             <p className={`font-mono font-bold text-lg ${total > 0 ? 'text-white' : 'text-muted'}`}>
               {formatCurrency(total)}
             </p>
             {fatura.saldoAnteriorRollover && fatura.saldoAnteriorRollover > 0 && (
-              <p className="text-[9px] text-fluxo-amber font-mono">incl. rollover {formatCurrency(fatura.saldoAnteriorRollover)}</p>
+              <p className="hidden sm:block text-[9px] text-fluxo-amber font-mono">incl. rollover {formatCurrency(fatura.saldoAnteriorRollover)}</p>
             )}
             {fatura.valorAjuste && fatura.valorAjuste !== 0 && (
-              <p className="text-[9px] text-brand-primary font-mono">incl. ajuste {formatCurrency(fatura.valorAjuste)}</p>
+              <p className="hidden sm:block text-[9px] text-brand-primary font-mono">incl. ajuste {formatCurrency(fatura.valorAjuste)}</p>
             )}
           </div>
           {podesPagar && total > 0 && (
@@ -179,9 +194,9 @@ function FaturaCard({
         </div>
       </div>
 
-      {/* Card-wide limit bar */}
+      {/* Card-wide limit bar — hidden on mobile unless expanded */}
       {cartao && (
-        <div className="mt-3 space-y-1">
+        <div className={`mt-3 space-y-1 ${!isExpanded ? 'hidden sm:block' : ''}`}>
           <div className="flex justify-between text-[10px] font-mono text-muted">
             <span>
               Limite usado (cartão): <span className={pctUso > 80 ? 'text-fluxo-red font-bold' : pctUso > 50 ? 'text-fluxo-amber font-bold' : 'text-white'}>{formatCurrency(limiteUsadoTotal)}</span>

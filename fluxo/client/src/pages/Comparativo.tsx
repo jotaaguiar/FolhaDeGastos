@@ -294,71 +294,122 @@ export default function Comparativo() {
       )}
 
       {/* Table */}
-      <div className="card overflow-x-auto">
-        <h3 className="text-sm font-semibold mb-3">Tabela Resumo</h3>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/[0.07]">
-              <th className="text-left py-2 text-muted font-mono text-xs">Mês</th>
-              <th className="text-right py-2 text-muted font-mono text-xs">Entradas</th>
-              <th className="text-right py-2 text-muted font-mono text-xs">Saídas</th>
-              <th className="text-right py-2 text-muted font-mono text-xs">Saldo</th>
-              <th className="text-right py-2 text-muted font-mono text-xs">Tx. Poupança</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dados.map((d, i) => {
-              const prev = dados[i - 1];
-              const varSaldo = prev ? ((d.saldo - prev.saldo) / Math.abs(prev.saldo || 1)) * 100 : null;
-              const txPoup = d.entradas > 0 ? ((d.entradas - d.saidas) / d.entradas) * 100 : 0;
+      <div className="card">
+        <p className="label-mono mb-4">Resumo Mensal</p>
 
-              // Divider row between real and projected
-              const showDivider = d.projetado && (i === 0 || !dados[i - 1].projetado);
-
-              return (
-                <>
-                  {showDivider && (
-                    <tr key={`div-${i}`}>
-                      <td colSpan={5} className="py-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-px bg-brand-primary/20" />
-                          <span className="text-[10px] text-brand-primary font-mono flex items-center gap-1">
-                            <Sparkles size={9} /> projeção futura
-                          </span>
-                          <div className="flex-1 h-px bg-brand-primary/20" />
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                  <tr
-                    key={`${d.mes}-${d.ano}`}
-                    className={`border-b border-white/[0.03] transition-colors ${d.projetado ? 'opacity-60 hover:opacity-80' : 'hover:bg-white/[0.01]'}`}
-                  >
-                    <td className="py-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-sm">{d.label}</span>
-                        {d.projetado && <span className="text-[9px] bg-brand-primary/15 text-brand-primary px-1 py-0.5 rounded font-mono">proj</span>}
-                      </div>
-                    </td>
-                    <td className="py-2.5 text-right font-mono text-fluxo-green">{formatCurrency(d.entradas)}</td>
-                    <td className="py-2.5 text-right font-mono text-fluxo-red">{formatCurrency(d.saidas)}</td>
-                    <td className={`py-2.5 text-right font-mono font-bold ${d.saldo >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
-                      {formatCurrency(d.saldo)}
+        {/* ── Mobile: card list ───────────────────────────────── */}
+        <div className="sm:hidden divide-y divide-white/[0.04]">
+          {dados.map((d, i) => {
+            const prev = dados[i - 1];
+            const varSaldo = prev ? ((d.saldo - prev.saldo) / Math.abs(prev.saldo || 1)) * 100 : null;
+            const txPoup = d.entradas > 0 ? ((d.entradas - d.saidas) / d.entradas) * 100 : 0;
+            const showDivider = d.projetado && (i === 0 || !dados[i - 1].projetado);
+            return (
+              <div key={`${d.mes}-${d.ano}`}>
+                {showDivider && (
+                  <div className="flex items-center gap-2 py-2">
+                    <div className="flex-1 h-px bg-brand-primary/20" />
+                    <span className="text-[10px] text-brand-primary font-mono flex items-center gap-1">
+                      <Sparkles size={9} /> projeção futura
+                    </span>
+                    <div className="flex-1 h-px bg-brand-primary/20" />
+                  </div>
+                )}
+                <div className={`py-3 ${d.projetado ? 'opacity-60' : ''}`}>
+                  {/* Row 1: mês + saldo */}
+                  <div className="flex items-baseline justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-semibold">{d.label}</span>
+                      {d.projetado && <span className="text-[9px] bg-brand-primary/15 text-brand-primary px-1.5 py-0.5 rounded-full font-mono">proj</span>}
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className={`font-mono font-bold text-base ${d.saldo >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+                        {formatCurrency(d.saldo)}
+                      </span>
                       {varSaldo !== null && (
-                        <span className={`ml-1 text-[10px] font-normal ${varSaldo >= 0 ? 'text-fluxo-green/60' : 'text-fluxo-red/60'}`}>
+                        <span className={`text-[10px] font-mono ${varSaldo >= 0 ? 'text-fluxo-green/70' : 'text-fluxo-red/70'}`}>
                           {varSaldo > 0 ? '+' : ''}{varSaldo.toFixed(0)}%
                         </span>
                       )}
-                    </td>
-                    <td className={`py-2.5 text-right font-mono text-xs ${txPoup >= 20 ? 'text-fluxo-green' : txPoup >= 0 ? 'text-fluxo-amber' : 'text-fluxo-red'}`}>
-                      {txPoup.toFixed(1)}%
-                    </td>
-                  </tr>
-                </>
-              );
-            })}
-          </tbody>
-        </table>
+                    </div>
+                  </div>
+                  {/* Row 2: entradas / saídas / poupança */}
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[11px] font-mono text-fluxo-green">↑ {formatCurrency(d.entradas)}</span>
+                    <span className="text-[11px] font-mono text-fluxo-red">↓ {formatCurrency(d.saidas)}</span>
+                    <span className={`text-[11px] font-mono ml-auto ${txPoup >= 20 ? 'text-fluxo-green' : txPoup >= 0 ? 'text-fluxo-amber' : 'text-fluxo-red'}`}>
+                      {txPoup.toFixed(0)}% poupado
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Desktop: table ──────────────────────────────────── */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/[0.07]">
+                <th className="text-left py-2 text-muted font-mono text-xs">Mês</th>
+                <th className="text-right py-2 text-muted font-mono text-xs">Entradas</th>
+                <th className="text-right py-2 text-muted font-mono text-xs">Saídas</th>
+                <th className="text-right py-2 text-muted font-mono text-xs">Saldo</th>
+                <th className="text-right py-2 text-muted font-mono text-xs">Tx. Poupança</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dados.map((d, i) => {
+                const prev = dados[i - 1];
+                const varSaldo = prev ? ((d.saldo - prev.saldo) / Math.abs(prev.saldo || 1)) * 100 : null;
+                const txPoup = d.entradas > 0 ? ((d.entradas - d.saidas) / d.entradas) * 100 : 0;
+                const showDivider = d.projetado && (i === 0 || !dados[i - 1].projetado);
+                return (
+                  <>
+                    {showDivider && (
+                      <tr key={`div-${i}`}>
+                        <td colSpan={5} className="py-1.5">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-px bg-brand-primary/20" />
+                            <span className="text-[10px] text-brand-primary font-mono flex items-center gap-1">
+                              <Sparkles size={9} /> projeção futura
+                            </span>
+                            <div className="flex-1 h-px bg-brand-primary/20" />
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    <tr
+                      key={`${d.mes}-${d.ano}`}
+                      className={`border-b border-white/[0.03] transition-colors ${d.projetado ? 'opacity-60 hover:opacity-80' : 'hover:bg-white/[0.02]'}`}
+                    >
+                      <td className="py-2.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-sm">{d.label}</span>
+                          {d.projetado && <span className="text-[9px] bg-brand-primary/15 text-brand-primary px-1 py-0.5 rounded font-mono">proj</span>}
+                        </div>
+                      </td>
+                      <td className="py-2.5 text-right font-mono whitespace-nowrap text-fluxo-green">{formatCurrency(d.entradas)}</td>
+                      <td className="py-2.5 text-right font-mono whitespace-nowrap text-fluxo-red">{formatCurrency(d.saidas)}</td>
+                      <td className={`py-2.5 text-right font-mono font-bold whitespace-nowrap ${d.saldo >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
+                        {formatCurrency(d.saldo)}
+                        {varSaldo !== null && (
+                          <span className={`ml-1 text-[10px] font-normal ${varSaldo >= 0 ? 'text-fluxo-green/60' : 'text-fluxo-red/60'}`}>
+                            {varSaldo > 0 ? '+' : ''}{varSaldo.toFixed(0)}%
+                          </span>
+                        )}
+                      </td>
+                      <td className={`py-2.5 text-right font-mono text-xs whitespace-nowrap ${txPoup >= 20 ? 'text-fluxo-green' : txPoup >= 0 ? 'text-fluxo-amber' : 'text-fluxo-red'}`}>
+                        {txPoup.toFixed(1)}%
+                      </td>
+                    </tr>
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
