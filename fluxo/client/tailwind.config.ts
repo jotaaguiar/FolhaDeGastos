@@ -47,6 +47,7 @@ export default {
         'slide-up-sheet': 'slideUpSheet 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
         'scale-in': 'scaleIn 0.2s ease-out',
         'glow': 'glow 2s ease-in-out infinite alternate',
+        'shimmer': 'shimmer 1.6s ease-in-out infinite',
       },
       keyframes: {
         progress: {

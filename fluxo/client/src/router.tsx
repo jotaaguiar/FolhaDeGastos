@@ -1,23 +1,30 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import Layout from './components/layout/Layout';
-import Overview from './pages/Overview';
-import Contas from './pages/Contas';
-import Cartoes from './pages/Cartoes/index';
-import FaturaAtual from './pages/Cartoes/FaturaAtual';
-import VisaoMensal from './pages/Cartoes/VisaoMensal';
-import Recorrentes from './pages/Cartoes/Recorrentes';
-import FluxoCaixa from './pages/FluxoCaixa';
-import Orcamento from './pages/Orcamento';
-import Metas from './pages/Metas';
-import Radar from './pages/Radar';
-import Configuracoes from './pages/Configuracoes';
-import Importacao from './pages/Importacao';
-import Comparativo from './pages/Comparativo';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Login from './pages/Login';
 import { useAuth } from './context/AuthContext';
+import RouteSkeleton from './components/shared/RouteSkeleton';
+
+// Lazy-loaded pages — code split per route
+const Overview      = lazy(() => import('./pages/Overview'));
+const Contas        = lazy(() => import('./pages/Contas'));
+const Cartoes       = lazy(() => import('./pages/Cartoes/index'));
+const FaturaAtual   = lazy(() => import('./pages/Cartoes/FaturaAtual'));
+const VisaoMensal   = lazy(() => import('./pages/Cartoes/VisaoMensal'));
+const Recorrentes   = lazy(() => import('./pages/Cartoes/Recorrentes'));
+const FluxoCaixa    = lazy(() => import('./pages/FluxoCaixa'));
+const Orcamento     = lazy(() => import('./pages/Orcamento'));
+const Metas         = lazy(() => import('./pages/Metas'));
+const Radar         = lazy(() => import('./pages/Radar'));
+const Configuracoes = lazy(() => import('./pages/Configuracoes'));
+const Importacao    = lazy(() => import('./pages/Importacao'));
+const Comparativo   = lazy(() => import('./pages/Comparativo'));
+const Login         = lazy(() => import('./pages/Login'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword  = lazy(() => import('./pages/ResetPassword'));
+
+function Lazy({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<RouteSkeleton />}>{children}</Suspense>;
+}
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -52,7 +59,7 @@ function LoginRoute() {
     return <Navigate to="/" replace />;
   }
 
-  return <Login />;
+  return <Lazy><Login /></Lazy>;
 }
 
 export const router = createBrowserRouter([
@@ -62,34 +69,34 @@ export const router = createBrowserRouter([
   },
   {
     path: '/esqueci-senha',
-    element: <ForgotPassword />,
+    element: <Lazy><ForgotPassword /></Lazy>,
   },
   {
     path: '/reset-senha',
-    element: <ResetPassword />,
+    element: <Lazy><ResetPassword /></Lazy>,
   },
   {
     path: '/',
     element: <ProtectedRoute><Layout /></ProtectedRoute>,
     children: [
-      { index: true, element: <Overview /> },
-      { path: 'contas', element: <Contas /> },
-      { 
-        path: 'cartoes', 
-        element: <Cartoes />,
+      { index: true,          element: <Lazy><Overview /></Lazy> },
+      { path: 'contas',       element: <Lazy><Contas /></Lazy> },
+      {
+        path: 'cartoes',
+        element: <Lazy><Cartoes /></Lazy>,
         children: [
-          { path: 'fatura', element: <FaturaAtual /> },
-          { path: 'mensal', element: <VisaoMensal /> },
-          { path: 'recorrentes', element: <Recorrentes /> },
-        ]
+          { path: 'fatura',      element: <Lazy><FaturaAtual /></Lazy> },
+          { path: 'mensal',      element: <Lazy><VisaoMensal /></Lazy> },
+          { path: 'recorrentes', element: <Lazy><Recorrentes /></Lazy> },
+        ],
       },
-      { path: 'fluxo', element: <FluxoCaixa /> },
-      { path: 'orcamento', element: <Orcamento /> },
-      { path: 'metas', element: <Metas /> },
-      { path: 'radar', element: <Radar /> },
-      { path: 'configuracoes', element: <Configuracoes /> },
-      { path: 'importacao', element: <Importacao /> },
-      { path: 'comparativo', element: <Comparativo /> },
+      { path: 'fluxo',        element: <Lazy><FluxoCaixa /></Lazy> },
+      { path: 'orcamento',    element: <Lazy><Orcamento /></Lazy> },
+      { path: 'metas',        element: <Lazy><Metas /></Lazy> },
+      { path: 'radar',        element: <Lazy><Radar /></Lazy> },
+      { path: 'configuracoes',element: <Lazy><Configuracoes /></Lazy> },
+      { path: 'importacao',   element: <Lazy><Importacao /></Lazy> },
+      { path: 'comparativo',  element: <Lazy><Comparativo /></Lazy> },
     ],
   },
 ]);

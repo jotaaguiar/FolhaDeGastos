@@ -13,6 +13,7 @@ import DonutChart from '@/components/charts/DonutChart';
 import SkeletonCard from '@/components/shared/SkeletonCard';
 import PatrimonioChart from '@/components/charts/PatrimonioChart';
 import BudgetRings from '@/components/shared/BudgetRings';
+import AnimatedCurrency from '@/components/shared/AnimatedCurrency';
 import { formatCurrency, formatDateShort } from '@/lib/formatters';
 import { TrendingUp, TrendingDown, CreditCard, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
@@ -65,9 +66,11 @@ export default function Overview() {
         <div className="card card-glow-brand p-6 md:p-8">
           <p className="label-mono mb-2">Saldo Consolidado</p>
           <div className="flex items-end justify-between gap-4">
-            <p className={`text-4xl md:text-5xl font-extrabold font-mono tracking-tight leading-none ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
-              {formatCurrency(data.saldoTotal)}
-            </p>
+            <AnimatedCurrency
+              value={data.saldoTotal}
+              duration={600}
+              className={`text-4xl md:text-5xl font-extrabold font-mono tracking-tight leading-none ${data.saldoTotal >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}
+            />
             {deltaSaldo != null && (
               <div className={`flex items-center gap-1 text-sm font-mono mb-1 ${deltaSaldo >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
                 {deltaSaldo >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
@@ -87,7 +90,7 @@ export default function Overview() {
                 <ArrowUpRight size={16} className="text-fluxo-green" />
               </div>
             </div>
-            <p className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-green">{formatCurrency(data.totalEntradas)}</p>
+            <AnimatedCurrency value={data.totalEntradas} className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-green" />
             {deltaEntradas != null && (
               <p className={`text-[11px] font-mono mt-1 ${deltaEntradas >= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
                 {deltaEntradas >= 0 ? '↑' : '↓'} {Math.abs(deltaEntradas).toFixed(1)}%
@@ -103,7 +106,7 @@ export default function Overview() {
                 <ArrowDownRight size={16} className="text-fluxo-red" />
               </div>
             </div>
-            <p className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-red">{formatCurrency(data.totalSaidas)}</p>
+            <AnimatedCurrency value={data.totalSaidas} className="text-xl md:text-2xl font-extrabold font-mono text-fluxo-red" />
             {deltaSaidas != null && (
               <p className={`text-[11px] font-mono mt-1 ${deltaSaidas <= 0 ? 'text-fluxo-green' : 'text-fluxo-red'}`}>
                 {deltaSaidas <= 0 ? '↓' : '↑'} {Math.abs(deltaSaidas).toFixed(1)}%

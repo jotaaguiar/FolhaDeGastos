@@ -242,8 +242,15 @@
   }
 
   .skeleton {
-    background: rgb(var(--s3-rgb));
-    @apply animate-pulse rounded;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--s3-rgb)) 0%,
+      rgb(var(--s2-rgb)) 50%,
+      rgb(var(--s3-rgb)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+    @apply rounded;
   }
 
   /* Modal — desktop centered, mobile bottom sheet */
@@ -279,5 +286,55 @@
     content: '';
     @apply flex-1 h-px;
     background: var(--border);
+  }
+
+  /* Skip link — acessibilidade */
+  .skip-link {
+    @apply sr-only focus:not-sr-only;
+    @apply fixed top-3 left-3 z-[999] px-4 py-2 rounded-lg text-sm font-semibold;
+    background: rgb(var(--brand-primary-rgb));
+    color: white;
+  }
+
+  /* Focus ring global */
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand-primary-rgb));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Touch feedback — active states mínimos 44×44px */
+  .btn-primary, .btn-ghost {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  .btn-ghost:active {
+    @apply scale-[0.97];
+  }
+
+  /* Tap highlight em mobile */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ─── Shimmer keyframe ──────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── prefers-reduced-motion ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    opacity: 0.6;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

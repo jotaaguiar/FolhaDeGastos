@@ -30,6 +30,9 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg">
+      {/* Skip link — acessibilidade */}
+      <a href="#main-content" className="skip-link">Ir para o conteúdo</a>
+
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -42,7 +45,7 @@ export default function Layout() {
 
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
           <Outlet />
         </main>
       </div>
