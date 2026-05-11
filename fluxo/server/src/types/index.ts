@@ -95,6 +95,8 @@ export interface RecorrenciaConfig {
   ativa: boolean;
   inicioEm: string;
   fimEm?: string;
+  /** Quantos meses a recorrência deve gerar (padrão: 12). Limite explícito ao invés de aberto. */
+  quantidadeMeses?: number;
   // Meses ("YYYY-MM") que o usuário apagou manualmente — o processador NÃO deve recriar
   pulosManual?: string[];
 }

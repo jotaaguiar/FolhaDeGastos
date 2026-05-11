@@ -88,59 +88,25 @@ async function bootstrap() {
 
   await seedIfEmpty('joao-aguiar');
 
-  // Auto-process recurring for current month
+  // Cold-start: materializa recorrências antigas (idempotente, respeita pulosManual)
   try {
     const { readFile, writeFile } = await import('./services/storage.js');
-    const { v4: uuid } = await import('uuid');
+    const { materializarRecorrencia } = await import('./routes/recorrencias.js');
     const userId = 'joao-aguiar';
     const recorrencias = await readFile<import('./types/index.js').RecorrenciaConfig[]>(userId, 'recorrencias.json', []);
     const transacoes = await readFile<import('./types/index.js').Transacao[]>(userId, 'transacoes.json', []);
     const faturas = await readFile<import('./types/index.js').Fatura[]>(userId, 'faturas.json', []);
-    const hoje = new Date();
-    const mesAtual = hoje.getMonth() + 1;
-    const anoAtual = hoje.getFullYear();
+    const cartoes = await readFile<import('./types/index.js').Cartao[]>(userId, 'cartoes.json', []);
+
     let criadas = 0;
-
-    const chaveMesAtual = `${anoAtual}-${String(mesAtual).padStart(2, '0')}`;
-
     for (const rec of recorrencias) {
-      if (!rec.ativa) continue;
-      if (rec.fimEm && new Date(rec.fimEm) < new Date(anoAtual, mesAtual - 1, 1)) continue;
-      if (rec.pulosManual?.includes(chaveMesAtual)) continue;
-      const jaExiste = transacoes.find(t => {
-        if (t.recorrenciaId !== rec.id) return false;
-        const d = new Date(t.data);
-        return d.getMonth() + 1 === mesAtual && d.getFullYear() === anoAtual;
-      });
-      if (jaExiste) continue;
-
-      const dia = Math.min(rec.diaCobranca, new Date(anoAtual, mesAtual, 0).getDate());
-      const data = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-      let faturaId: string | undefined;
-      if (rec.tipo === 'credito_cartao' && rec.cartaoId) {
-        const fat = faturas.find(f => f.cartaoId === rec.cartaoId && f.mes === mesAtual && f.ano === anoAtual);
-        if (fat) faturaId = fat.id;
-      }
-      transacoes.push({
-        id: uuid(),
-        descricao: rec.descricao,
-        valor: rec.valor,
-        tipo: rec.tipo,
-        data,
-        categoria: rec.categoria,
-        contaId: rec.contaId,
-        cartaoId: rec.cartaoId,
-        faturaId,
-        recorrente: true,
-        recorrenciaId: rec.id,
-        criadoEm: new Date().toISOString(),
-      });
-      criadas++;
+      criadas += materializarRecorrencia(rec, transacoes, faturas, cartoes);
     }
 
     if (criadas > 0) {
       await writeFile(userId, 'transacoes.json', transacoes);
-      console.log(`🔄 ${criadas} transações recorrentes processadas`);
+      await writeFile(userId, 'faturas.json', faturas);
+      console.log(`🔄 ${criadas} transações recorrentes materializadas`);
     }
   } catch (e) {
     console.log('⚠ Erro ao processar recorrências:', e);

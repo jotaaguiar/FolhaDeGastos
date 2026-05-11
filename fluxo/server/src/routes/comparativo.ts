@@ -60,9 +60,11 @@ router.get('/', async (req: Request, res: Response) => {
     const ano = d.getFullYear();
     const label = d.toLocaleString('pt-BR', { month: 'short', year: '2-digit' });
 
-    // Recorrências ativas neste mês futuro
+    // Recorrências ativas neste mês futuro — respeita pulosManual
+    const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
     const recAtivas = recorrencias.filter(r => {
       if (!r.ativa) return false;
+      if (r.pulosManual?.includes(chaveMes)) return false;
       if (r.fimEm) {
         const fim = new Date(r.fimEm);
         if (new Date(ano, mes - 1, 1) > fim) return false;

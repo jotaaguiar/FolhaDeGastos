@@ -143,15 +143,16 @@ export function projetarFluxoFuturo(
     const d = new Date(anoBase, mesBase - 1 + i, 1);
     const m = d.getMonth() + 1;
     const a = d.getFullYear();
+    const chaveMes = `${a}-${String(m).padStart(2, '0')}`;
 
-    // 1. Entradas recorrentes e fixas (alta confiança)
+    // 1. Entradas recorrentes e fixas (alta confiança) — respeita pulosManual
     const entradasFixas = recorrencias
-      .filter(r => r.ativa && r.tipo === 'entrada')
+      .filter(r => r.ativa && r.tipo === 'entrada' && !r.pulosManual?.includes(chaveMes))
       .reduce((acc, r) => acc + r.valor, 0);
-    
-    // 2. Recorrências de saída (alta confiança)
+
+    // 2. Recorrências de saída (alta confiança) — respeita pulosManual
     const saidasRecorrentes = recorrencias
-      .filter(r => r.ativa && (r.tipo === 'debito' || r.tipo === 'credito_cartao'))
+      .filter(r => r.ativa && (r.tipo === 'debito' || r.tipo === 'credito_cartao') && !r.pulosManual?.includes(chaveMes))
       .reduce((acc, r) => acc + r.valor, 0);
 
     // 3. Parcelamentos ativos neste mês (certeza absoluta)
@@ -219,10 +220,11 @@ export function projetarSaldoDiarioProximos30Dias(
     const dia = data.getDate();
     const mes = data.getMonth() + 1;
     const ano = data.getFullYear();
+    const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
 
-    // 1. Recorrências que caem hoje
+    // 1. Recorrências que caem hoje — respeita pulosManual do mês
     const totalRecorrencias = recorrencias
-      .filter(r => r.ativa && r.diaCobranca === dia)
+      .filter(r => r.ativa && r.diaCobranca === dia && !r.pulosManual?.includes(chaveMes))
       .reduce((acc, r) => {
         if (r.tipo === 'entrada') return acc + r.valor;
         return acc - r.valor;
@@ -396,9 +398,10 @@ export function projetarFatura(
     }
   }
 
-  // Add recurring charges
+  // Add recurring charges — respeita pulosManual do mês
+  const chaveMes = `${ano}-${String(mes).padStart(2, '0')}`;
   const recorrentesAtivas = recorrencias.filter(
-    r => r.cartaoId === cartaoId && r.ativa && r.tipo === 'credito_cartao'
+    r => r.cartaoId === cartaoId && r.ativa && r.tipo === 'credito_cartao' && !r.pulosManual?.includes(chaveMes)
   ).filter(r => {
     if (r.fimEm) {
       return new Date(r.fimEm) >= new Date(ano, mes - 1, 1);

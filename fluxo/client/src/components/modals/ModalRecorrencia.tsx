@@ -37,6 +37,7 @@ export default function ModalRecorrencia({
     categoria: 'assinaturas' as Categoria,
     cartaoId: cartoes[0]?.id || '',
     contaId: contas[0]?.id || '',
+    quantidadeMeses: '12',
   });
 
   useEffect(() => {
@@ -49,12 +50,14 @@ export default function ModalRecorrencia({
         categoria: initialData.categoria || 'assinaturas',
         cartaoId: initialData.cartaoId || cartoes[0]?.id || '',
         contaId: initialData.contaId || contas[0]?.id || '',
+        quantidadeMeses: initialData.quantidadeMeses ? String(initialData.quantidadeMeses) : '12',
       });
     } else {
       setModo('debito');
       setForm({
         descricao: '', valor: '', diaCobranca: '10', categoria: 'assinaturas',
         cartaoId: cartoes[0]?.id || '', contaId: contas[0]?.id || '',
+        quantidadeMeses: '12',
       });
     }
   }, [initialData, open, cartoes, contas, isCartaoOnly]);
@@ -73,6 +76,7 @@ export default function ModalRecorrencia({
       cartaoId: (isCartaoOnly || modo === 'debito') && form.cartaoId ? form.cartaoId : undefined,
       contaId: isCartaoOnly ? undefined : form.contaId,
       ativa: initialData ? initialData.ativa : true,
+      quantidadeMeses: parseInt(form.quantidadeMeses) || 12,
     });
     onClose();
   };
@@ -99,10 +103,42 @@ export default function ModalRecorrencia({
           <div className="flex gap-3">
             <input className="input-dark flex-1" type="number" step="0.01" placeholder="Valor mensal"
               value={form.valor} onChange={e => setForm(f => ({ ...f, valor: e.target.value }))} />
-            <div className="w-24">
-              <input className="input-dark w-full" type="number" min="1" max="31" placeholder="Dia (1-31)"
+            <div className="w-20">
+              <input className="input-dark w-full" type="number" min="1" max="31" placeholder="Dia"
                 value={form.diaCobranca} onChange={e => setForm(f => ({ ...f, diaCobranca: e.target.value }))} />
             </div>
+          </div>
+
+          <div>
+            <label className="text-xs text-muted font-mono block mb-1">
+              Duração (meses) — vai gerar <span className="text-text-base font-bold">{parseInt(form.quantidadeMeses) || 12}</span> transações concretas
+            </label>
+            <div className="flex gap-2">
+              {[3, 6, 12, 24].map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, quantidadeMeses: String(n) }))}
+                  className={`flex-1 py-2 rounded-lg text-xs font-mono font-semibold active:scale-[0.97] ${parseInt(form.quantidadeMeses) === n ? 'bg-brand-primary/15 text-brand-primary border border-brand-primary/30' : 'text-muted border border-white/[0.07] hover:bg-white/[0.03]'}`}
+                  style={{ transition: 'background 0.2s var(--ease-ios), color 0.2s var(--ease-ios), border-color 0.2s var(--ease-ios), transform 0.15s var(--ease-ios)' }}
+                >
+                  {n}m
+                </button>
+              ))}
+              <input
+                className="input-dark w-20 text-center font-mono"
+                type="number"
+                min="1"
+                max="60"
+                value={form.quantidadeMeses}
+                onChange={e => setForm(f => ({ ...f, quantidadeMeses: e.target.value }))}
+              />
+            </div>
+            {initialData && (
+              <p className="text-[10px] text-muted mt-1.5">
+                ⚠ Alterar a duração não recria as transações já existentes. Para regerar, apague a recorrência e crie de novo.
+              </p>
+            )}
           </div>
 
           <div className="flex gap-3">

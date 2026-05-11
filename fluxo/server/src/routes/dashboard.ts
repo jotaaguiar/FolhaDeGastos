@@ -57,8 +57,11 @@ router.get('/', async (req: Request, res: Response) => {
     .reduce((acc, t) => acc + t.valor, 0);
 
   // Add pending recurrences (those not yet materialized as transactions this month)
+  // Importante: respeita pulosManual — se o mês foi pulado, NÃO conta como pendente
+  const chaveMesAtual = `${ano}-${String(mes).padStart(2, '0')}`;
   const pendingRecs = recorrencias.filter(r => {
     if (!r.ativa) return false;
+    if (r.pulosManual?.includes(chaveMesAtual)) return false;
     const exists = todasTransacoes.some(t => {
       const { m, a } = parseDate(t.data);
       return t.recorrenciaId === r.id && m === mes && a === ano;

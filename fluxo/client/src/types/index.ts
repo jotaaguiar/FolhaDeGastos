@@ -91,6 +91,7 @@ export interface RecorrenciaConfig {
   ativa: boolean;
   inicioEm: string;
   fimEm?: string;
+  quantidadeMeses?: number;
   pulosManual?: string[];
 }
 
