@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import BottomNav from './BottomNav';
@@ -17,6 +17,7 @@ export default function Layout() {
   const { cartoes } = useCartoes();
   const { refresh } = useApp();
   const { addToast } = useAlert();
+  const location = useLocation();
 
   const handleFabSave = async (data: any) => {
     try {
@@ -46,7 +47,9 @@ export default function Layout() {
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
         <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
-          <Outlet />
+          <div key={location.pathname} className="page-enter">
+            <Outlet />
+          </div>
         </main>
       </div>
 

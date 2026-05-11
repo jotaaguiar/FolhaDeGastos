@@ -133,6 +133,23 @@
     color: var(--text);
     font-family: 'Syne', sans-serif;
     transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Tabular numbers — colunas de valores ficam alinhadas perfeitamente */
+  .font-mono,
+  [class*="font-mono"],
+  input[type="number"] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* iOS-style easing — usado por toda interação */
+  :root {
+    --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -173,10 +190,28 @@
   .card {
     background: rgb(var(--surface-rgb));
     border: 1px solid var(--border);
-    @apply rounded-xl p-5 transition-all duration-200;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 0 rgba(0, 0, 0, 0);
+    @apply rounded-xl p-5;
+    transition: border-color 0.25s var(--ease-ios),
+                box-shadow 0.25s var(--ease-ios),
+                transform 0.25s var(--ease-ios),
+                background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .card:hover {
-    border-color: var(--border2);
+  @media (hover: hover) {
+    .card:hover {
+      border-color: var(--border2);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+  }
+  /* Cards clicáveis ganham press feedback iOS-style */
+  .card-interactive {
+    cursor: pointer;
+    transition: border-color 0.25s var(--ease-ios),
+                box-shadow 0.25s var(--ease-ios),
+                transform 0.18s var(--ease-ios);
+  }
+  .card-interactive:active {
+    transform: scale(0.985);
   }
 
   .card-glow-green  { box-shadow: 0 0 40px rgba(52, 211, 153, 0.08); }
@@ -203,15 +238,23 @@
   .btn-primary {
     background: rgb(var(--brand-primary-rgb));
     color: white;
-    @apply font-semibold px-4 py-2 rounded-lg transition-all duration-200 active:scale-[0.97];
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 0 var(--brand-glow);
+    @apply font-semibold px-4 py-2 rounded-lg active:scale-[0.97];
+    transition: filter 0.2s var(--ease-ios),
+                box-shadow 0.25s var(--ease-ios),
+                transform 0.15s var(--ease-ios);
   }
   .btn-primary:hover {
     filter: brightness(1.1);
+    box-shadow: 0 4px 14px var(--brand-glow);
   }
 
   .btn-ghost {
     color: rgb(var(--muted-rgb));
-    @apply px-3 py-2 rounded-lg transition-all duration-200;
+    @apply px-3 py-2 rounded-lg active:scale-[0.97];
+    transition: color 0.2s var(--ease-ios),
+                background-color 0.2s var(--ease-ios),
+                transform 0.15s var(--ease-ios);
   }
   .btn-ghost:hover {
     color: var(--text);
@@ -263,7 +306,29 @@
     @apply w-full md:max-w-md md:mx-4 md:rounded-2xl;
     background: rgb(var(--surface-rgb));
     border: 1px solid var(--border);
-    @apply rounded-t-2xl max-h-[92vh] overflow-y-auto;
+    @apply rounded-t-2xl max-h-[92vh] overflow-y-auto relative;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Drag handle iOS no topo do bottom-sheet (mobile only) */
+  @media (max-width: 767px) {
+    .modal-sheet::before {
+      content: '';
+      position: sticky;
+      top: 0;
+      display: block;
+      width: 38px;
+      height: 4px;
+      margin: 8px auto 0;
+      border-radius: 999px;
+      background: rgb(var(--muted-rgb) / 0.35);
+      z-index: 10;
+    }
+  }
+  @media (min-width: 768px) {
+    .modal-sheet {
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
   }
 
   @media (min-width: 768px) {
@@ -321,6 +386,16 @@
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ─── Page transition (entre rotas) ─────────────────────── */
+@keyframes pageEnter {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 0.32s var(--ease-out-soft);
+  will-change: opacity, transform;
 }
 
 /* ─── prefers-reduced-motion ────────────────────────────── */

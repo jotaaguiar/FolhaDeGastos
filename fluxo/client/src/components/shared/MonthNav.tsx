@@ -28,17 +28,31 @@ export default function MonthNav() {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <button onClick={prev} className="btn-ghost p-1.5 rounded-lg">
+    <div
+      className="flex items-center gap-1 rounded-full px-1 py-1"
+      style={{ background: 'var(--overlay-subtle)' }}
+    >
+      <button
+        onClick={prev}
+        aria-label="Mês anterior"
+        className="w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-text-base hover:bg-white/[0.06] active:scale-[0.92]"
+        style={{ transition: 'color 0.2s var(--ease-ios), background 0.2s var(--ease-ios), transform 0.15s var(--ease-ios)' }}
+      >
         <ChevronLeft size={16} />
       </button>
-      <span className="font-mono text-sm min-w-[140px] text-center">
+      <span className="font-mono text-xs sm:text-sm min-w-[120px] sm:min-w-[140px] text-center tracking-tight">
         {getMesNome(mesAtual)} {anoAtual}
       </span>
-      <button 
-        onClick={next} 
+      <button
+        onClick={next}
         disabled={isOverview && isFuture}
-        className={`p-1.5 rounded-lg transition-all ${isOverview && isFuture ? 'opacity-20 cursor-not-allowed' : 'btn-ghost hover:bg-white/10'}`}
+        aria-label="Próximo mês"
+        className={`w-8 h-8 flex items-center justify-center rounded-full active:scale-[0.92] ${
+          isOverview && isFuture
+            ? 'opacity-20 cursor-not-allowed text-muted'
+            : 'text-muted hover:text-text-base hover:bg-white/[0.06]'
+        }`}
+        style={{ transition: 'color 0.2s var(--ease-ios), background 0.2s var(--ease-ios), transform 0.15s var(--ease-ios)' }}
       >
         <ChevronRight size={16} />
       </button>

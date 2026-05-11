@@ -28,10 +28,14 @@ export default function TransacaoRow({ transacao, cartoes, contas, onDelete, onE
   }[t.tipo];
 
   return (
-    <div className={`rounded-lg transition-all duration-200 ${expanded ? 'bg-s2 border border-white/[0.07]' : 'hover:bg-white/[0.02]'}`}>
+    <div
+      className={`rounded-lg ${expanded ? 'bg-s2 border border-white/[0.07]' : 'hover:bg-white/[0.02]'}`}
+      style={{ transition: 'background 0.2s var(--ease-ios), border-color 0.2s var(--ease-ios)' }}
+    >
       {/* Main row */}
       <div
-        className="flex items-center gap-3 py-3 px-3 cursor-pointer group"
+        className="flex items-center gap-3 py-3 px-3 cursor-pointer group select-none active:scale-[0.995]"
+        style={{ transition: 'transform 0.15s var(--ease-ios)' }}
         onClick={() => setExpanded(!expanded)}
       >
         {/* Category icon */}
