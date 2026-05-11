@@ -5,6 +5,13 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'theme-escuro',
+    'theme-emerald',
+    'theme-ocean',
+    'theme-sunset',
+    'theme-claro',
+  ],
   theme: {
     extend: {
       colors: {

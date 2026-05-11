@@ -4,7 +4,7 @@ import { useAlert } from '@/context/AlertContext';
 import { useConfirm } from '@/context/ConfirmContext';
 import { useCartoes } from '@/hooks/useCartoes';
 import { api } from '@/lib/api';
-import { Settings, Download, Upload, Trash2, Info, FileSpreadsheet, CreditCard, Percent, Plus, X, Layers, Mail } from 'lucide-react';
+import { Settings, Download, Upload, Trash2, Info, FileSpreadsheet, CreditCard, Percent, Plus, X, Layers, Mail, LogOut, User } from 'lucide-react';
 import type { Cartao } from '@/types';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useAuth } from '@/context/AuthContext';
@@ -14,7 +14,7 @@ export default function Configuracoes() {
   const { addToast } = useAlert();
   const { confirm } = useConfirm();
   const { cartoes, update: updateCartao } = useCartoes();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { custom: customCats, create: createCat, remove: removeCat } = useCategorias();
   const [novaCatLabel, setNovaCatLabel] = useState('');
   const [novaCatCor, setNovaCatCor] = useState('#6366f1');
@@ -143,6 +143,26 @@ export default function Configuracoes() {
 
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
+      {/* User — visible on mobile since sidebar is hidden */}
+      <div className="card md:hidden">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary text-base font-bold shrink-0">
+            {(user?.username || config?.nomeUsuario || 'U')[0].toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate">{user?.username || config?.nomeUsuario || 'Usuário'}</p>
+            <p className="text-xs text-muted font-mono truncate">{user?.email || 'sem e-mail cadastrado'}</p>
+          </div>
+          <button
+            onClick={logout}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-fluxo-red hover:bg-fluxo-red/10 transition-all shrink-0"
+          >
+            <LogOut size={15} />
+            Sair
+          </button>
+        </div>
+      </div>
+
       {/* General */}
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
@@ -204,13 +224,9 @@ export default function Configuracoes() {
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     setTema(t.id);
-                    const root = document.documentElement;
-                    [...root.classList].filter(cls => cls.startsWith('theme-')).forEach(cls => root.classList.remove(cls));
-                    root.classList.add(`theme-${t.id}`);
-                    if (t.id === 'claro') root.classList.remove('dark');
-                    else root.classList.add('dark');
+                    await atualizarConfig({ tema: t.id });
                   }}
                   className={`relative p-3 rounded-xl border-2 transition-all text-left overflow-hidden group ${
                     tema === t.id
